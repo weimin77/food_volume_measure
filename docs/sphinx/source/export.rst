@@ -2,7 +2,7 @@ _`food_volume_measure usage demonstration`
 ==========================================
 
 Brief overview: the library :code:`food_volume_measure` measures food volume on
-oven trays from a fixed depth camera, using the PCD-IM (baseline-plane
+oven trays from a fixed depth camera, using the IM (baseline-plane
 height-difference integral) method.
 
 _`Theory`
@@ -32,7 +32,7 @@ footprint area and coverage, mean/max height, and reference volumes (AABB, OBB,
 convex hull).
 
 .. code-block:: cpp
-   :caption: PCD-IM measurement demo
+   :caption: IM measurement demo
    :name: pcd im measurement
 
    #include "volume_pipeline.hpp"

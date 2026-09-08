@@ -516,7 +516,7 @@ void bind_functions(py::module& m) {
 
 
 PYBIND11_MODULE(food_volume_measure_python, m) {
-    m.doc() = "Python bindings for the vm PCD-IM food volume measurement library";
+    m.doc() = "Python bindings for the vm IM food volume measurement library";
     m.attr("__version__") = "0.1.0";
 
     bind_enums(m);

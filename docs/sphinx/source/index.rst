@@ -5,7 +5,7 @@ _`Introduction`
 ---------------
 
 food_volume_measure is a C++17 library for point-cloud food volume measurement on
-oven trays. It implements the PCD-IM (baseline-plane height-difference integral)
+oven trays. It implements the IM (baseline-plane height-difference integral)
 method with PCL: an empty-oven baseline is discretized into a local-plane height
 map, the food cloud is voxel-downsampled and clustered in the baseline plane, and
 per-cell height differences are integrated into a volume in cubic centimeters.

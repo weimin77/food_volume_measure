@@ -14,8 +14,8 @@ namespace vm {
 
 
 /**
- * @brief [en] A reusable empty-oven baseline for the PCD-IM pipeline.
- * @brief [zh] PCD-IM 流水线可复用的空炉基线。
+ * @brief [en] A reusable empty-oven baseline for the IM pipeline.
+ * @brief [zh] IM 流水线可复用的空炉基线。
  * @exporter
  */
 struct BaselineModel {

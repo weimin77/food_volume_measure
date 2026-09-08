@@ -5,9 +5,9 @@
  *
  * @section intro_sec [en] Overview
  *     Measures food volume in cubic centimeters from an empty-oven baseline and a food point
- *     cloud, using a baseline-plane height-difference integral (PCD-IM).
+ *     cloud, using a baseline-plane height-difference integral (IM).
  * @section intro_sec [zh] 概述
- *     基于空炉基线与食物点云，用基准面高度差积分（PCD-IM）测量食材体积（立方厘米）。
+ *     基于空炉基线与食物点云，用基准面高度差积分（IM）测量食材体积（立方厘米）。
  *
  * @section features_sec [en] Features
  *     - Empty-oven baseline model with RANSAC plane fitting

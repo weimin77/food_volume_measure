@@ -4,7 +4,7 @@
  * A complete example of measuring food volume with food_volume_measure.
  *
  * This example loads an empty-oven baseline and a food point cloud from PCD
- * files, then runs the PCD-IM pipeline and prints the measured volume.
+ * files, then runs the IM pipeline and prints the measured volume.
  *
  * @include demo.cxx
  *

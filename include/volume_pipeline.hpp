@@ -11,8 +11,8 @@ namespace vm {
 
 
 /**
- * @brief [en] End-to-end PCD-IM food volume measurement pipeline.
- * @brief [zh] 端到端的 PCD-IM 食材体积测量流水线。
+ * @brief [en] End-to-end IM food volume measurement pipeline.
+ * @brief [zh] 端到端的 IM 食材体积测量流水线。
  * @exporter
  */
 class VolumePipeline {

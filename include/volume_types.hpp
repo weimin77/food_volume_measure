@@ -13,8 +13,8 @@ namespace vm {
 
 
 /**
- * @brief [en] Default parameter values shared by the PCD-IM volume pipeline.
- * @brief [zh] PCD-IM 体积流水线共享的默认参数值。
+ * @brief [en] Default parameter values shared by the IM volume pipeline.
+ * @brief [zh] IM 体积流水线共享的默认参数值。
  */
 namespace volume_defaults {
 
@@ -147,8 +147,8 @@ enum class ComponentSelectionMode {
 
 
 /**
- * @brief [en] Configuration for the PCD-IM volume pipeline.
- * @brief [zh] PCD-IM 体积流水线的配置。
+ * @brief [en] Configuration for the IM volume pipeline.
+ * @brief [zh] IM 体积流水线的配置。
  * @exporter
  */
 struct MeasurementConfig {
@@ -205,8 +205,8 @@ struct MeasurementConfig {
 
 
 /**
- * @brief [en] Per-component PCD-IM integration result.
- * @brief [zh] 单组件 PCD-IM 积分结果。
+ * @brief [en] Per-component IM integration result.
+ * @brief [zh] 单组件 IM 积分结果。
  * @exporter
  */
 struct ComponentVolumeEstimate {
@@ -231,8 +231,8 @@ struct ComponentVolumeEstimate {
 
 
 /**
- * @brief [en] Result of a PCD-IM volume measurement. Numeric fields are NaN unless status is kSuccess.
- * @brief [zh] PCD-IM 体积测量结果。除非状态为 kSuccess，否则数值字段为 NaN。
+ * @brief [en] Result of a IM volume measurement. Numeric fields are NaN unless status is kSuccess.
+ * @brief [zh] IM 体积测量结果。除非状态为 kSuccess，否则数值字段为 NaN。
  * @exporter
  */
 struct VolumeEstimate {

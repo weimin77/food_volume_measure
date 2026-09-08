@@ -43,7 +43,7 @@ int main() {
     vm::VolumePipeline pipeline;
     const vm::VolumeEstimate est = pipeline.measure(std::vector<vm::PointCloud>{baseline}, food, cfg);
 
-    std::cout << "\n=== PCD-IM 复现完成 ===" << std::endl;
+    std::cout << "\n=== IM 复现完成 ===" << std::endl;
     std::cout << "输入点数: " << est.input_points << std::endl;
     std::cout << "下采样点数: " << est.downsampled_points << std::endl;
     std::cout << "聚类数: " << est.cluster_count << std::endl;

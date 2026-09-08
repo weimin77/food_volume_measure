@@ -44,8 +44,8 @@ double signed_height(const Plane& plane, const Point3f& p) {
 
 
 /**
- * @brief [en] Loads a PCD point-cloud file into the library's PCL-free point model.
- * @brief [zh] 将 PCD 点云文件载入到库的与 PCL 无关的点模型。
+ * @brief [en] Loads a PCD point-cloud file into the library's point model.
+ * @brief [zh] 将 PCD 点云文件载入到库的点模型。
  * @attacher
  */
 PointCloud load_pcd(const std::string& path) {
@@ -371,8 +371,8 @@ std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, i
 
 
 /**
- * @brief [en] Fits a dominant plane from a point cloud with PCL RANSAC (SACMODEL_PLANE).
- * @brief [zh] 用 PCL RANSAC（SACMODEL_PLANE）从点云拟合主平面。
+ * @brief [en] Fits a dominant plane from a point cloud with RANSAC.
+ * @brief [zh] 用 RANSAC 从点云拟合主平面。
  * @attacher
  */
 MeasurementStatus fit_plane_ransac(const PointCloud& cloud_m, double distance_threshold_m, int iterations,

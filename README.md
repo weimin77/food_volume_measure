@@ -29,10 +29,10 @@ capabilities.
     - suffix distinguishment, (.h, .c) for C part, and (.hpp, .cpp) for C++ part
     - documenting system uses .dox for pure docstring, .cxx for examples codes
 
-## Library: PCD-IM Food Volume Measurement
+## Library: IM Food Volume Measurement
 
 `food_volume_measure` measures food volume in cubic centimetres from a fixed oven-tray depth camera.
-It implements the PCD-IM (baseline-plane height-difference integral) algorithm:
+It implements the IM (baseline-plane height-difference integral) algorithm:
 
 1. Build an empty-oven **baseline height map**: fit the tray plane from the first empty frame,
    project every empty frame into the same local `(u, v)` frame, and take the per-cell median height.
@@ -46,7 +46,7 @@ It implements the PCD-IM (baseline-plane height-difference integral) algorithm:
    Measured and interpolated cells are reported separately.
 
 ```cpp
-fcpp::MeasurementConfig cfg;               // defaults match the PCD-IM reference
+fcpp::MeasurementConfig cfg;               // defaults match the IM reference
 fcpp::VolumePipeline pipeline;
 std::vector<fcpp::PointCloud> baseline{ /* one or more empty-oven frames */ };
 fcpp::PointCloud food{ /* one food frame */ };
