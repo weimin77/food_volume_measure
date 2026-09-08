@@ -14,8 +14,8 @@ namespace vm {
 
 
 /**
- * @brief [en] A reusable empty-oven baseline for the IM pipeline.
- * @brief [zh] IM 流水线可复用的空炉基线。
+ * @brief [en] An empty-oven baseline for the IM pipeline.
+ * @brief [zh] IM 流水线的空炉基线。
  * @exporter
  */
 struct BaselineModel {
@@ -35,8 +35,8 @@ struct BaselineModel {
  * @param orientation_points [zh] 用于确定平面法向的食材侧点；可为空。
  * @param cfg [en] Measurement configuration.
  * @param cfg [zh] 测量配置。
- * @param out [en] Receives the built baseline model.
- * @param out [zh] 接收构建好的基线模型。
+ * @param out [en] Built baseline model.
+ * @param out [zh] 构建好的基线模型。
  * @return [en] kSuccess, kEmptyBaseline, kNonFiniteBaseline, kInvalidConfig, kPlaneNotFound, or kBaselineNoCells.
  * @return [zh] kSuccess、kEmptyBaseline、kNonFiniteBaseline、kInvalidConfig、kPlaneNotFound 或 kBaselineNoCells。
  * @exporter
@@ -73,8 +73,8 @@ PlaneFrame build_plane_frame(const Plane& plane, const Point3f& origin);
  * @param cell_size_m [zh] 栅格边长（米）。
  * @param max_surface_height_m [en] Maximum accepted height above the plane.
  * @param max_surface_height_m [zh] 平面以上可接受的最大高度。
- * @param out [en] Receives the per-cell median heightmap and its bounding box.
- * @param out [zh] 接收逐格高度中位数图及其外接框。
+ * @param out [en] Per-cell median heightmap and its bounding box.
+ * @param out [zh] 逐格高度中位数图及其外接框。
  * @return [en] kSuccess or kBaselineNoCells.
  * @return [zh] kSuccess 或 kBaselineNoCells。
  * @exporter

@@ -724,8 +724,8 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
 
 
 /**
- * @brief [en] Builds the per-cell top surface of the selected components with their winning labels.
- * @brief [zh] 构建选中组件的逐格顶表面及其胜出标签。
+ * @brief [en] Builds the per-cell top surface of the selected components.
+ * @brief [zh] 构建选中连通块的逐格顶表面。
  * @attacher
  */
 SurfaceMap build_top_surface(const FoodComponents& components, const BaselineModel& baseline) {
@@ -786,7 +786,7 @@ MeasurementStatus build_height_grid(const SurfaceMap& surface, const BaselineMod
 
 /**
  * @brief [en] Completes enclosed holes conservatively inside single food components, in place.
- * @brief [zh] 在单一食材组件内部保守地补全封闭孔（原地修改）。
+ * @brief [zh] 在单一食材块内部保守地补全封闭孔（原地修改）。
  * @attacher
  */
 MeasurementStatus complete_holes(HeightGrid& grid, const BaselineModel& baseline, const MeasurementConfig& cfg,
@@ -809,7 +809,7 @@ MeasurementStatus complete_holes(HeightGrid& grid, const BaselineModel& baseline
 
 /**
  * @brief [en] Derives a component volume estimate from a height grid.
- * @brief [zh] 从高度栅格派生组件体积估计。
+ * @brief [zh] 从高度栅格派生连通块体积估计。
  * @attacher
  */
 ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid) {
@@ -838,7 +838,7 @@ ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid) {
 
 /**
  * @brief [en] Measures component volume by integrating baseline-relative heights with conservative hole completion.
- * @brief [zh] 通过积分相对基线高度并保守补洞来测量组件体积。
+ * @brief [zh] 通过积分相对基线高度并保守补洞来测量连通块体积。
  * @attacher
  */
 MeasurementStatus measure_component_volume(const FoodComponents& components, const BaselineModel& baseline,

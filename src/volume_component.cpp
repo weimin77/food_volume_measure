@@ -73,7 +73,7 @@ MeasurementStatus build_valid_difference_points(const PointCloud& food_m, const 
 
 /**
  * @brief [en] Filters food points by baseline-relative height, clusters them in the baseline plane, and selects components.
- * @brief [zh] 按相对基线高度过滤食材点，在基准面内聚类并选择组件。
+ * @brief [zh] 按相对基线高度过滤食材点，在基准面内聚类并选择连通块。
  * @attacher
  */
 MeasurementStatus extract_food_components(const PointCloud& food_m, const BaselineModel& baseline,

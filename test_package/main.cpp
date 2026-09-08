@@ -55,7 +55,7 @@ int main() {
         std::cout << est.selected_cluster_labels[i];
     }
     std::cout << "]" << std::endl;
-    std::cout << "目标组件数: " << est.component_count << std::endl;
+    std::cout << "目标连通块数: " << est.component_count << std::endl;
     std::cout << "目标簇点数: " << est.selected_cluster_points << std::endl;
     std::cout << "顶部 surface cell 数: " << est.top_surface_points << std::endl;
     std::cout << "baseline 帧数: " << est.baseline_frames << std::endl;

@@ -136,7 +136,7 @@ enum class MeasurementStatus {
 
 /**
  * @brief [en] How foreground food components are selected.
- * @brief [zh] 前景食材组件的选择方式。
+ * @brief [zh] 前景食材块的选择方式。
  * @exporter
  */
 enum class ComponentSelectionMode {
@@ -206,7 +206,7 @@ struct MeasurementConfig {
 
 /**
  * @brief [en] Per-component IM integration result.
- * @brief [zh] 单组件 IM 积分结果。
+ * @brief [zh] 单个连通块 IM 积分结果。
  * @exporter
  */
 struct ComponentVolumeEstimate {
@@ -249,7 +249,7 @@ struct VolumeEstimate {
     std::size_t selected_cluster_points = 0;
 
     /// [en] Per-component integration results, aligned with `selected_cluster_labels`.
-    /// [zh] 逐组件积分结果，与 `selected_cluster_labels` 一一对应。
+    /// [zh] 逐连通块积分结果，与 `selected_cluster_labels` 一一对应。
     std::vector<ComponentVolumeEstimate> component_estimates;
 
     std::size_t baseline_frames = 0;

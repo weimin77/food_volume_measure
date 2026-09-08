@@ -61,8 +61,8 @@ struct PlaneRoi {
 
 
 /**
- * @brief [en] Storage of the reusable empty-oven baseline: frame, ROI and per-cell median heights.
- * @brief [zh] 可复用空炉基线的存储：坐标系、ROI 与逐格高度中位数。
+ * @brief [en] Storage of the empty-oven baseline: frame, ROI and per-cell median heights.
+ * @brief [zh] 空炉基线的存储：坐标系、ROI 与逐格高度中位数。
  * @exporter
  */
 struct BaselineData {
@@ -112,8 +112,8 @@ struct HeightGrid {
 
 
 /**
- * @brief [en] Audit statistics for the component-aware hole completion stage.
- * @brief [zh] 组件感知补洞阶段的审计统计。
+ * @brief [en] Statistics of the component-aware hole-filling stage.
+ * @brief [zh] 按连通块补洞的统计信息。
  * @exporter
  */
 struct HoleFillStats {
@@ -129,8 +129,8 @@ struct HoleFillStats {
 
 
 /**
- * @brief [en] Per-cell top surface of the selected food components plus the winning component label.
- * @brief [zh] 选中食材组件的逐格顶表面，以及胜出组件标签。
+ * @brief [en] Per-cell top surface of the selected components, with each cell's component label.
+ * @brief [zh] 选中食材块的逐格顶表面，以及每个格子的连通块标签。
  * @exporter
  */
 struct SurfaceMap {

@@ -32,8 +32,8 @@ struct PreprocessResult {
  * @param input [zh] 以 `cfg.input_unit` 为单位的原始输入点云。
  * @param cfg [en] Measurement configuration.
  * @param cfg [zh] 测量配置。
- * @param out [en] Receives the processed cloud in meters plus point counters.
- * @param out [zh] 接收以米为单位的处理后点云以及点数统计。
+ * @param out [en] Processed cloud in meters plus point counters.
+ * @param out [zh] 以米为单位的处理后点云以及点数统计。
  * @return [en] kSuccess, or an input/config error status.
  * @return [zh] kSuccess，或输入/配置错误状态。
  * @exporter
@@ -81,10 +81,10 @@ PointCloud crop_axis_aligned(const PointCloud& cloud, const AxisAlignedRoi& roi)
  * @param plane [zh] 归一化的 Hessian 平面。
  * @param distance_threshold_m [en] Inlier distance threshold.
  * @param distance_threshold_m [zh] 内点距离阈值。
- * @param remaining [en] Receives the points whose distance is at or beyond the threshold.
- * @param remaining [zh] 接收距离不低于阈值的点。
- * @param inlier_indices [en] Receives indices of points whose distance is below the threshold.
- * @param inlier_indices [zh] 接收距离低于阈值的点的索引。
+ * @param remaining [en] Points whose distance is at or beyond the threshold.
+ * @param remaining [zh] 距离不低于阈值的点。
+ * @param inlier_indices [en] Indices of points whose distance is below the threshold.
+ * @param inlier_indices [zh] 距离低于阈值的点的索引。
  * @exporter
  */
 void split_plane_inliers(const PointCloud& cloud, const Plane& plane, double distance_threshold_m,
@@ -148,10 +148,10 @@ std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, i
  * @param distance_threshold_m [zh] RANSAC 内点距离阈值。
  * @param iterations [en] RANSAC iteration count.
  * @param iterations [zh] RANSAC 迭代次数。
- * @param out_plane [en] Receives the normalized Hessian plane.
- * @param out_plane [zh] 接收归一化的 Hessian 平面。
- * @param inlier_indices [en] Receives the inlier point indices into `cloud_m`.
- * @param inlier_indices [zh] 接收指向 `cloud_m` 的内点索引。
+ * @param out_plane [en] Normalized Hessian plane.
+ * @param out_plane [zh] 归一化的 Hessian 平面。
+ * @param inlier_indices [en] Inlier point indices into `cloud_m`.
+ * @param inlier_indices [zh] 指向 `cloud_m` 的内点索引。
  * @return [en] kSuccess or kPlaneNotFound.
  * @return [zh] kSuccess 或 kPlaneNotFound。
  * @exporter
@@ -168,8 +168,8 @@ MeasurementStatus fit_plane_ransac(const PointCloud& cloud_m, double distance_th
  * @param cloud_m [zh] 以米为单位的预处理点。
  * @param cfg [en] Measurement configuration.
  * @param cfg [zh] 测量配置。
- * @param remaining [en] Receives the points that are not background-plane inliers.
- * @param remaining [zh] 接收不属于背景平面内点的剩余点。
+ * @param remaining [en] Points that are not background-plane inliers.
+ * @param remaining [zh] 不属于背景平面内点的剩余点。
  * @return [en] kSuccess or kInvalidConfig.
  * @return [zh] kSuccess 或 kInvalidConfig。
  * @exporter
