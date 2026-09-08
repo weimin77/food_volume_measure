@@ -1,23 +1,28 @@
 // Conan::ImportStart
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstddef>
-#include <map>
+#include <cstdint>
 #include <memory>
-#include <random>
 #include <string>
-#include <tuple>
 #include <utility>
 #include <vector>
 #include "volume_pointcloudprocess.hpp"
 #include "volume_log.hpp"
 #ifndef __ARM_EABI__
 #include <Eigen/Dense>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/PointIndices.h>
+#include <pcl/filters/crop_box.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/voxel_grid.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
 #include <pcl/search/kdtree.h>
+#include <pcl/segmentation/sac_segmentation.h>
 #endif
 // Conan::ImportEnd
 
@@ -35,34 +40,6 @@ double signed_height(const Plane& plane, const Point3f& p) {
 }
 
 } // namespace
-
-
-
-#ifndef __ARM_EABI__
-
-namespace {
-
-// Open3D's RANSAC bookkeeping: a larger inlier ratio wins, ties are broken by the smaller RMSE.
-struct RansacResult {
-    double fitness = 0.0;
-    double inlier_rmse = 0.0;
-};
-
-bool is_better_ransac(const RansacResult& candidate, const RansacResult& best) {
-    return candidate.fitness > best.fitness ||
-           (candidate.fitness == best.fitness && candidate.inlier_rmse < best.inlier_rmse);
-}
-
-// Open3D's default `probability` for PointCloud::SegmentPlane, and the fixed 3-point sample size.
-constexpr double kRansacProbability = 0.99999999;
-constexpr int kRansacSampleSize = 3;
-constexpr double kDegenerateNormalNorm = 1.0e-12;
-// Matches `o3d.utility.random.seed(43)` in the PCD-IM reference script.
-constexpr unsigned int kRansacSeed = 43U;
-
-} // namespace
-
-#endif // __ARM_EABI__
 
 
 
@@ -95,51 +72,39 @@ PointCloud load_pcd(const std::string& path) {
 
 
 PointCloud voxel_downsample(const PointCloud& cloud, double voxel_size) {
+#ifdef __ARM_EABI__
+    (void)cloud;
+    (void)voxel_size;
+    return PointCloud{};
+#else
     PointCloud out;
     if (cloud.points.empty() || !(voxel_size > 0.0)) {
         return out;
     }
 
-    double min_x = static_cast<double>(cloud.points[0].x);
-    double min_y = static_cast<double>(cloud.points[0].y);
-    double min_z = static_cast<double>(cloud.points[0].z);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr input(new pcl::PointCloud<pcl::PointXYZ>);
+    input->points.reserve(cloud.points.size());
     for (const auto& p : cloud.points) {
-        min_x = std::min(min_x, static_cast<double>(p.x));
-        min_y = std::min(min_y, static_cast<double>(p.y));
-        min_z = std::min(min_z, static_cast<double>(p.z));
+        input->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
     }
-    const double ref_x = min_x - 0.5 * voxel_size;
-    const double ref_y = min_y - 0.5 * voxel_size;
-    const double ref_z = min_z - 0.5 * voxel_size;
+    input->width = static_cast<std::uint32_t>(input->points.size());
+    input->height = 1;
 
-    struct Accumulator {
-        double sum_x = 0.0;
-        double sum_y = 0.0;
-        double sum_z = 0.0;
-        std::size_t count = 0;
-    };
+    pcl::VoxelGrid<pcl::PointXYZ> voxel_grid;
+    voxel_grid.setInputCloud(input);
+    voxel_grid.setLeafSize(static_cast<float>(voxel_size), static_cast<float>(voxel_size),
+                           static_cast<float>(voxel_size));
 
-    std::map<std::tuple<int, int, int>, Accumulator> voxels;
-    for (const auto& p : cloud.points) {
-        const int ix = static_cast<int>(std::floor((static_cast<double>(p.x) - ref_x) / voxel_size));
-        const int iy = static_cast<int>(std::floor((static_cast<double>(p.y) - ref_y) / voxel_size));
-        const int iz = static_cast<int>(std::floor((static_cast<double>(p.z) - ref_z) / voxel_size));
-        Accumulator& acc = voxels[{ix, iy, iz}];
-        acc.sum_x += static_cast<double>(p.x);
-        acc.sum_y += static_cast<double>(p.y);
-        acc.sum_z += static_cast<double>(p.z);
-        acc.count += 1;
-    }
+    pcl::PointCloud<pcl::PointXYZ> filtered;
+    voxel_grid.filter(filtered);
 
-    out.points.reserve(voxels.size());
-    for (const auto& entry : voxels) {
-        const Accumulator& acc = entry.second;
-        const double inv = 1.0 / static_cast<double>(acc.count);
-        out.points.push_back(Point3f{static_cast<float>(acc.sum_x * inv), static_cast<float>(acc.sum_y * inv),
-                                     static_cast<float>(acc.sum_z * inv)});
+    out.points.reserve(filtered.points.size());
+    for (const auto& p : filtered.points) {
+        out.points.push_back(Point3f{p.x, p.y, p.z});
     }
     log_debug("voxel_downsample: " + std::to_string(cloud.points.size()) + " -> " + std::to_string(out.points.size()));
     return out;
+#endif // __ARM_EABI__
 }
 
 
@@ -162,32 +127,87 @@ PointCloud scale_to_meters(const PointCloud& cloud, LengthUnit unit) {
 
 
 PointCloud crop_axis_aligned(const PointCloud& cloud, const AxisAlignedRoi& roi) {
+#ifdef __ARM_EABI__
+    (void)cloud;
+    (void)roi;
+    return PointCloud{};
+#else
     PointCloud out;
-    out.points.reserve(cloud.points.size());
+    if (cloud.points.empty()) {
+        return out;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr input(new pcl::PointCloud<pcl::PointXYZ>);
+    input->points.reserve(cloud.points.size());
     for (const auto& p : cloud.points) {
-        if (p.x >= roi.min_x && p.x <= roi.max_x && p.y >= roi.min_y && p.y <= roi.max_y && p.z >= roi.min_z &&
-            p.z <= roi.max_z) {
-            out.points.push_back(p);
-        }
+        input->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
+    }
+    input->width = static_cast<std::uint32_t>(input->points.size());
+    input->height = 1;
+
+    pcl::CropBox<pcl::PointXYZ> crop_box;
+    crop_box.setInputCloud(input);
+    crop_box.setMin(Eigen::Vector4f(roi.min_x, roi.min_y, roi.min_z, 1.0f));
+    crop_box.setMax(Eigen::Vector4f(roi.max_x, roi.max_y, roi.max_z, 1.0f));
+
+    pcl::PointCloud<pcl::PointXYZ> filtered;
+    crop_box.filter(filtered);
+
+    out.points.reserve(filtered.points.size());
+    for (const auto& p : filtered.points) {
+        out.points.push_back(Point3f{p.x, p.y, p.z});
     }
     return out;
+#endif // __ARM_EABI__
 }
 
 
 
 void split_plane_inliers(const PointCloud& cloud, const Plane& plane, double distance_threshold_m,
                          PointCloud& remaining, std::vector<std::size_t>& inlier_indices) {
+#ifdef __ARM_EABI__
+    (void)cloud;
+    (void)plane;
+    (void)distance_threshold_m;
+    (void)remaining;
+    (void)inlier_indices;
+#else
     remaining = PointCloud{};
     inlier_indices.clear();
-    remaining.points.reserve(cloud.points.size());
-    inlier_indices.reserve(cloud.points.size());
+    if (cloud.points.empty()) {
+        return;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr input(new pcl::PointCloud<pcl::PointXYZ>);
+    input->points.reserve(cloud.points.size());
+    for (const auto& p : cloud.points) {
+        input->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
+    }
+    input->width = static_cast<std::uint32_t>(input->points.size());
+    input->height = 1;
+
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
+    inliers->indices.reserve(cloud.points.size());
     for (std::size_t i = 0; i < cloud.points.size(); ++i) {
         if (std::fabs(signed_height(plane, cloud.points[i])) < distance_threshold_m) {
-            inlier_indices.push_back(i);
-        } else {
-            remaining.points.push_back(cloud.points[i]);
+            inliers->indices.push_back(static_cast<int>(i));
         }
     }
+
+    pcl::ExtractIndices<pcl::PointXYZ> extract;
+    extract.setInputCloud(input);
+    extract.setIndices(inliers);
+    extract.setNegative(true); // keep the outliers as `remaining`
+
+    pcl::PointCloud<pcl::PointXYZ> filtered;
+    extract.filter(filtered);
+
+    remaining.points.reserve(filtered.points.size());
+    for (const auto& p : filtered.points) {
+        remaining.points.push_back(Point3f{p.x, p.y, p.z});
+    }
+    inlier_indices.assign(inliers->indices.begin(), inliers->indices.end());
+#endif // __ARM_EABI__
 }
 
 
@@ -254,7 +274,7 @@ MeasurementStatus preprocess_cloud(const PointCloud& input, const MeasurementCon
     // Optional axis-aligned ROI crop.
     const PointCloud cropped = cfg.use_roi ? crop_axis_aligned(scaled, cfg.roi) : scaled;
 
-    // Voxel downsample (Open3D-equivalent centroid rule).
+    // Voxel downsample (PCL VoxelGrid centroid rule).
     const PointCloud voxeled = voxel_downsample(cropped, cfg.voxel_size_m);
 
     out.cloud = voxeled;
@@ -351,8 +371,8 @@ std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, i
 
 
 /**
- * @brief [en] Fits a dominant plane from a point cloud with Open3D-equivalent RANSAC.
- * @brief [zh] 用与 Open3D 等价的 RANSAC 从点云拟合主平面。
+ * @brief [en] Fits a dominant plane from a point cloud with PCL RANSAC (SACMODEL_PLANE).
+ * @brief [zh] 用 PCL RANSAC（SACMODEL_PLANE）从点云拟合主平面。
  * @attacher
  */
 MeasurementStatus fit_plane_ransac(const PointCloud& cloud_m, double distance_threshold_m, int iterations,
@@ -368,150 +388,42 @@ MeasurementStatus fit_plane_ransac(const PointCloud& cloud_m, double distance_th
     out_plane = Plane{};
     inlier_indices.clear();
 
-    if (cloud_m.points.empty() || !(distance_threshold_m > 0.0) || iterations <= 0) {
+    if (cloud_m.points.empty() || !(distance_threshold_m > 0.0) || iterations <= 0 || cloud_m.points.size() < 3) {
         return MeasurementStatus::kPlaneNotFound;
     }
 
-    const std::size_t n_points = cloud_m.points.size();
-
-    // A 3-point plane model needs at least 3 distinct points; Open3D rejects smaller inputs as well.
-    if (n_points < static_cast<std::size_t>(kRansacSampleSize)) {
-        return MeasurementStatus::kPlaneNotFound;
-    }
-
-    // Open3D computes in double precision; the input is float32 but promoted losslessly.
-    std::vector<Eigen::Vector3d> points;
-    points.reserve(n_points);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    cloud->points.reserve(cloud_m.points.size());
     for (const auto& p : cloud_m.points) {
-        points.emplace_back(static_cast<double>(p.x), static_cast<double>(p.y), static_cast<double>(p.z));
+        cloud->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
     }
+    cloud->width = static_cast<std::uint32_t>(cloud->points.size());
+    cloud->height = 1;
 
-    // The engine is local to this call, so the result depends only on the inputs. A process-wide static
-    // engine would leak state and make two identical calls disagree. Note that Open3D shares one engine
-    // across calls in a script, so its raw sample stream cannot be replayed bit-for-bit here.
-    std::mt19937 engine(kRansacSeed);
-    std::uniform_int_distribution<int> point_distribution(0, static_cast<int>(n_points - 1));
+    pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
 
-    // Samples are drawn up front, like Open3D, so the stream does not depend on the early exit below.
-    // Each sample holds `kRansacSampleSize` distinct indices; duplicates are redrawn.
-    std::vector<std::array<std::size_t, static_cast<std::size_t>(kRansacSampleSize)>> samples;
-    samples.reserve(static_cast<std::size_t>(iterations));
-    for (int itr = 0; itr < iterations; ++itr) {
-        std::array<std::size_t, static_cast<std::size_t>(kRansacSampleSize)> sample{};
-        std::size_t drawn = 0;
-        while (drawn < sample.size()) {
-            const std::size_t candidate = static_cast<std::size_t>(point_distribution(engine));
-            bool duplicate = false;
-            for (std::size_t k = 0; k < drawn; ++k) {
-                if (sample[k] == candidate) {
-                    duplicate = true;
-                    break;
-                }
-            }
-            if (!duplicate) {
-                sample[drawn] = candidate;
-                ++drawn;
-            }
-        }
-        samples.push_back(sample);
-    }
+    pcl::SACSegmentation<pcl::PointXYZ> segmentation;
+    segmentation.setOptimizeCoefficients(true);
+    segmentation.setModelType(pcl::SACMODEL_PLANE);
+    segmentation.setMethodType(pcl::SAC_RANSAC);
+    segmentation.setDistanceThreshold(distance_threshold_m);
+    segmentation.setMaxIterations(iterations);
+    segmentation.setInputCloud(cloud);
+    segmentation.segment(*inliers, *coefficients);
 
-    RansacResult best{};
-    Eigen::Vector3d best_normal = Eigen::Vector3d::Zero();
-    double best_offset = 0.0;
-    bool have_best = false;
-    int break_iteration = iterations;
-
-    for (int itr = 0; itr < iterations; ++itr) {
-        // Iterations past the early-exit bound are skipped, mirroring Open3D's break_iteration.
-        if (itr > break_iteration) {
-            break;
-        }
-
-        const std::array<std::size_t, static_cast<std::size_t>(kRansacSampleSize)>& sample =
-            samples[static_cast<std::size_t>(itr)];
-        const Eigen::Vector3d& p0 = points[sample[0]];
-        const Eigen::Vector3d& p1 = points[sample[1]];
-        const Eigen::Vector3d& p2 = points[sample[2]];
-
-        Eigen::Vector3d normal = (p1 - p0).cross(p2 - p0);
-        if (normal.norm() < kDegenerateNormalNorm) {
-            continue;
-        }
-        normal.normalize();
-        const double offset = -normal.dot(p0);
-
-        // Inliers use a strict inequality, exactly like Open3D's EvaluateRANSACBasedOnDistance.
-        std::size_t inlier_count = 0;
-        double error = 0.0;
-        for (std::size_t idx = 0; idx < n_points; ++idx) {
-            const double distance = std::fabs(points[idx].dot(normal) + offset);
-            if (distance < distance_threshold_m) {
-                error += distance * distance;
-                ++inlier_count;
-            }
-        }
-
-        RansacResult current{};
-        if (inlier_count > 0) {
-            current.fitness = static_cast<double>(inlier_count) / static_cast<double>(n_points);
-            current.inlier_rmse = std::sqrt(error / static_cast<double>(inlier_count));
-        }
-        if (!have_best || is_better_ransac(current, best)) {
-            best = current;
-            best_normal = normal;
-            best_offset = offset;
-            have_best = true;
-            // Recompute the early-exit bound from the newly accepted model.
-            if (best.fitness >= 1.0) {
-                break_iteration = 0;
-            } else if (best.fitness > 0.0) {
-                const double estimate =
-                    std::log(1.0 - kRansacProbability) / std::log(1.0 - std::pow(best.fitness, kRansacSampleSize));
-                break_iteration = static_cast<int>(std::min(estimate, static_cast<double>(iterations)));
-            }
-        }
-    }
-
-    if (!have_best || best.fitness <= 0.0) {
+    if (inliers->indices.empty() || coefficients->values.size() < 4) {
         return MeasurementStatus::kPlaneNotFound;
     }
 
-    // Open3D recomputes the inlier set from the winning model before refining, so the reported
-    // inliers (and the plane origin derived from them) belong to the final model.
-    std::vector<std::size_t> final_inliers;
-    for (std::size_t idx = 0; idx < n_points; ++idx) {
-        if (std::fabs(points[idx].dot(best_normal) + best_offset) < distance_threshold_m) {
-            final_inliers.push_back(idx);
-        }
-    }
-    if (final_inliers.empty()) {
-        return MeasurementStatus::kPlaneNotFound;
-    }
+    // PCL plane model: a*x + b*y + c*z + d = 0 with unit normal (a,b,c).
+    // Our Hessian plane uses n·x = d (i.e. n·x - d = 0), so d = -pcl_d.
+    out_plane.nx = static_cast<float>(coefficients->values[0]);
+    out_plane.ny = static_cast<float>(coefficients->values[1]);
+    out_plane.nz = static_cast<float>(coefficients->values[2]);
+    out_plane.d = static_cast<float>(-coefficients->values[3]);
 
-    // Refine the model on all inliers: the plane normal is the smallest eigenvector of the inlier covariance.
-    Eigen::Vector3d mean = Eigen::Vector3d::Zero();
-    for (const std::size_t idx : final_inliers) {
-        mean += points[idx];
-    }
-    mean /= static_cast<double>(final_inliers.size());
-
-    Eigen::Matrix3d cov = Eigen::Matrix3d::Zero();
-    for (const std::size_t idx : final_inliers) {
-        const Eigen::Vector3d diff = points[idx] - mean;
-        cov += diff * diff.transpose();
-    }
-
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> solver(cov);
-    Eigen::Vector3d normal = solver.eigenvectors().col(0);
-    normal.normalize();
-
-    out_plane.nx = static_cast<float>(normal.x());
-    out_plane.ny = static_cast<float>(normal.y());
-    out_plane.nz = static_cast<float>(normal.z());
-    out_plane.d = static_cast<float>(normal.dot(mean));
-
-    inlier_indices = std::move(final_inliers);
+    inlier_indices.assign(inliers->indices.begin(), inliers->indices.end());
     log_info("fit_plane_ransac: inliers=" + std::to_string(inlier_indices.size()));
     return MeasurementStatus::kSuccess;
 #endif // __ARM_EABI__

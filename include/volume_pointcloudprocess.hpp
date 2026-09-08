@@ -108,8 +108,8 @@ Plane orient_plane(const Plane& plane, const PointCloud& points);
 
 
 /**
- * @brief [en] Voxel downsampling matching Open3D `voxel_down_sample`: each occupied voxel keeps the centroid of its points.
- * @brief [zh] 与 Open3D `voxel_down_sample` 一致的体素降采样：每个被占用的体素保留其点的质心。
+ * @brief [en] Voxel downsampling via PCL VoxelGrid: each occupied voxel keeps the centroid of its points.
+ * @brief [zh] 用 PCL VoxelGrid 体素降采样：每个被占用的体素保留其点的质心。
  * @param cloud [en] Input point cloud.
  * @param cloud [zh] 输入点云。
  * @param voxel_size [en] Voxel edge length in the cloud's units.
@@ -140,8 +140,8 @@ std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, i
 
 
 /**
- * @brief [en] Fits a dominant plane from a point cloud with Open3D-equivalent RANSAC.
- * @brief [zh] 用与 Open3D 等价的 RANSAC 从点云拟合主平面。
+ * @brief [en] Fits a dominant plane from a point cloud with PCL RANSAC (SACMODEL_PLANE).
+ * @brief [zh] 用 PCL RANSAC（SACMODEL_PLANE）从点云拟合主平面。
  * @param cloud_m [en] Points in metres.
  * @param cloud_m [zh] 以米为单位的点。
  * @param distance_threshold_m [en] RANSAC inlier distance threshold.

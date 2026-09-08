@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <Eigen/Dense>
 #include <pcl/PolygonMesh.h>
+#include <pcl/common/common.h>
 #include <pcl/conversions.h>
 #include <pcl/features/moment_of_inertia_estimation.h>
 #include <pcl/point_cloud.h>
@@ -132,21 +133,19 @@ double compute_aabb_volume(const PointCloud& cloud) {
     if (cloud.points.empty()) {
         return std::numeric_limits<double>::quiet_NaN();
     }
-    double min_x = std::numeric_limits<double>::infinity();
-    double max_x = -std::numeric_limits<double>::infinity();
-    double min_y = std::numeric_limits<double>::infinity();
-    double max_y = -std::numeric_limits<double>::infinity();
-    double min_z = std::numeric_limits<double>::infinity();
-    double max_z = -std::numeric_limits<double>::infinity();
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
+    pc->points.reserve(cloud.points.size());
     for (const auto& p : cloud.points) {
-        min_x = std::min(min_x, static_cast<double>(p.x));
-        max_x = std::max(max_x, static_cast<double>(p.x));
-        min_y = std::min(min_y, static_cast<double>(p.y));
-        max_y = std::max(max_y, static_cast<double>(p.y));
-        min_z = std::min(min_z, static_cast<double>(p.z));
-        max_z = std::max(max_z, static_cast<double>(p.z));
+        pc->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
     }
-    return (max_x - min_x) * (max_y - min_y) * (max_z - min_z);
+    pc->width = static_cast<std::uint32_t>(pc->points.size());
+    pc->height = 1;
+
+    pcl::PointXYZ min_pt;
+    pcl::PointXYZ max_pt;
+    pcl::getMinMax3D(*pc, min_pt, max_pt);
+    return static_cast<double>(max_pt.x - min_pt.x) * static_cast<double>(max_pt.y - min_pt.y) *
+           static_cast<double>(max_pt.z - min_pt.z);
 #endif // __ARM_EABI__
 }
 
