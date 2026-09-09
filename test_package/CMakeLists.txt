@@ -104,7 +104,7 @@ add_executable(main main.cpp)
 link_to_resources(main)
 
 
-if(TRIGGER_TESTS AND ENABLE_COVERAGE)
+if(TRIGGER_TESTS AND ENABLE_COVERAGE AND NOT CMAKE_CROSSCOMPILING)
     enable_main_coverage()
 endif()
 
@@ -119,7 +119,7 @@ endif()
 
 target_include_directories(main PRIVATE ${${LIB_NAME}_INCLUDE_DIRS})
 
-if(TRIGGER_TESTS)
+if(TRIGGER_TESTS AND NOT CMAKE_CROSSCOMPILING)
     find_package(${LIB_NAME} REQUIRED)
     find_package(GTest REQUIRED)
     include(GoogleTest)

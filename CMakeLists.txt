@@ -197,8 +197,8 @@ else()  # general package
   )
 
 
-  # code coverage options
-  if(ENABLE_COVERAGE)
+  # code coverage options (host builds only; cross-compiled board binaries don't use coverage)
+  if(ENABLE_COVERAGE AND NOT CMAKE_CROSSCOMPILING)
       if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
           set(COVERAGE_FLAGS "--coverage" "-O0" "-g")
           set(LINK_FLAGS "--coverage")
