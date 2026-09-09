@@ -22,15 +22,23 @@ const char* const kFoodPcd = RESOURCES_PATH "/d405_260322274982_20260819_180010.
 
 
 
-int main() {
+int main(int argc, char* argv[]) {
 #ifndef __ARM_EABI__
+    // 命令行参数：baseline PCD 与 food PCD 路径；未提供时退回内置默认值。
+    const std::string baseline_path = (argc > 1) ? argv[1] : kBaselinePcd;
+    const std::string food_path = (argc > 2) ? argv[2] : kFoodPcd;
+    if (argc < 3) {
+        std::cout << "用法: " << argv[0] << " <baseline.pcd> <food.pcd>" << std::endl;
+        std::cout << "未提供参数，使用默认: " << baseline_path << " " << food_path << std::endl;
+    }
+
     // 开启日志：五级日志 + 控制台 + 文件（覆盖写），记录算法中间结果与状态。
     vm::log_set_level(vm::LogLevel::kInfo);
     vm::log_set_console(true);
     vm::log_set_file("pcd_im_trace.txt", vm::LogFileMode::kTruncate);
 
-    const vm::PointCloud baseline = vm::load_pcd(kBaselinePcd);
-    const vm::PointCloud food = vm::load_pcd(kFoodPcd);
+    const vm::PointCloud baseline = vm::load_pcd(baseline_path);
+    const vm::PointCloud food = vm::load_pcd(food_path);
     if (baseline.points.empty() || food.points.empty()) {
         std::cerr << "failed to load test point clouds" << std::endl;
         return 1;
@@ -76,6 +84,8 @@ int main() {
 
     return est.status == vm::MeasurementStatus::kSuccess ? 0 : 1;
 #else
+    (void)argc;
+    (void)argv;
     std::cout << "volume measurement unavailable on bare-metal" << std::endl;
     return 0;
 #endif
