@@ -36,11 +36,10 @@ convex hull).
    :name: pcd im measurement
 
    #include "volume_pipeline.hpp"
-   #include "volume_pointcloudprocess.hpp"
 
    int main() {
-       vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
-       vm::PointCloud food = vm::load_pcd("food.pcd");
+       vm::PointCloud baseline = /* 从深度相机读入的空炉点云 */;
+       vm::PointCloud food = /* 从深度相机读入的食材点云 */;
        vm::VolumePipeline pipeline;
        vm::VolumeEstimate est =
            pipeline.measure({baseline}, food, vm::MeasurementConfig{});
@@ -56,9 +55,8 @@ _`Atomic pipeline stages`
 
 The pipeline can also be driven stage by stage:
 
-- :code:`vm::load_pcd` — load a PCD file into the PCL-free :code:`vm::PointCloud` model
 - :code:`vm::preprocess_cloud` / :code:`vm::voxel_downsample` — unit normalization and voxel downsampling
 - :code:`vm::remove_dominant_plane` — remove the dominant background plane(s)
 - :code:`vm::build_baseline_model` — empty-oven baseline height map
-- :code:`vm::extract_food_components` — foreground clustering and component selection
+- :code:`vm::extract_food_components` — foreground clustering and food-item selection
 - :code:`vm::measure_component_volume` — height-difference integration with hole completion

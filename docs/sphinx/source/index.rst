@@ -6,7 +6,7 @@ _`Introduction`
 
 food_volume_measure is a C++17 library for point-cloud food volume measurement on
 oven trays. It implements the IM (baseline-plane height-difference integral)
-method with PCL: an empty-oven baseline is discretized into a local-plane height
+method: an empty-oven baseline is discretized into a local-plane height
 map, the food cloud is voxel-downsampled and clustered in the baseline plane, and
 per-cell height differences are integrated into a volume in cubic centimeters.
 
@@ -14,11 +14,11 @@ _`Main Features`
 ----------------
 
 - Empty-oven baseline model with RANSAC plane fitting
-- Open3D-equivalent voxel downsampling and DBSCAN clustering
-- Component-aware conservative hole completion
+- Voxel downsampling and density-based (DBSCAN) clustering
+- Conservative hole completion within each food item
 - Reference volumes (AABB / OBB / convex hull)
-- PCD loading via ``vm::load_pcd``
-- Host-only point-cloud processing (PCL); bare-metal stubs report an unsupported status
+- Point-cloud input from a fixed depth camera
+- Host-only point-cloud processing; bare-metal stubs report an unsupported status
 
 _`Quick Start`
 --------------
@@ -26,11 +26,10 @@ _`Quick Start`
 .. code-block:: cpp
 
    #include "volume_pipeline.hpp"
-   #include "volume_pointcloudprocess.hpp"
 
    int main() {
-       vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
-       vm::PointCloud food = vm::load_pcd("food.pcd");
+       vm::PointCloud baseline = /* 从深度相机读入的空炉点云 */;
+       vm::PointCloud food = /* 从深度相机读入的食材点云 */;
        vm::VolumePipeline pipeline;
        vm::VolumeEstimate est =
            pipeline.measure({baseline}, food, vm::MeasurementConfig{});

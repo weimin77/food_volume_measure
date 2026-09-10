@@ -1,7 +1,7 @@
 /*!
  * @mainpage food_volume_measure
  *
- * Point-cloud food volume measurement for oven trays (PCL-based).
+ * Point-cloud food volume measurement for oven trays.
  *
  * @section intro_sec [en] Overview
  *     Measures food volume in cubic centimeters from an empty-oven baseline and a food point
@@ -11,27 +11,27 @@
  *
  * @section features_sec [en] Features
  *     - Empty-oven baseline model with RANSAC plane fitting
- *     - Open3D-equivalent voxel downsampling and DBSCAN clustering
- *     - Component-aware conservative hole completion
+ *     - Voxel downsampling and density-based (DBSCAN) clustering
+ *     - Conservative hole completion within each food item
  *     - Reference volumes (AABB / OBB / convex hull)
- *     - PCD loading via vm::load_pcd
+ *     - Point-cloud input from a fixed depth camera
  * @section features_sec [zh] 特性
  *     - 基于 RANSAC 平面拟合的空炉基线模型
- *     - 与 Open3D 等价的体素降采样与 DBSCAN 聚类
- *     - 组件感知的保守补洞
+ *     - 体素降采样与密度聚类（DBSCAN）
+ *     - 在食材块内部保守补洞
  *     - 参考体积（AABB / OBB / 凸包）
- *     - 通过 vm::load_pcd 载入 PCD
+ *     - 从固定深度相机读取点云输入
  *
  * @section pipeline_sec [en] Pipeline
- *     - vm::load_pcd / vm::preprocess_cloud: load and voxel-downsample the point cloud
+ *     - vm::preprocess_cloud: voxel-downsample the point cloud
  *     - vm::build_baseline_model: empty-oven baseline height map
- *     - vm::extract_food_components: foreground clustering and component selection
+ *     - vm::extract_food_components: foreground clustering and food-item selection
  *     - vm::measure_component_volume: height-difference integration with hole completion
  *     - vm::VolumePipeline::measure: end-to-end composition
  * @section pipeline_sec [zh] 流水线
- *     - vm::load_pcd / vm::preprocess_cloud：载入并体素降采样点云
+ *     - vm::preprocess_cloud：体素降采样点云
  *     - vm::build_baseline_model：空炉基线高度图
- *     - vm::extract_food_components：前景聚类与组件选择
+ *     - vm::extract_food_components：前景聚类与食材块选择
  *     - vm::measure_component_volume：高度差积分与补洞
  *     - vm::VolumePipeline::measure：端到端组合
  *
@@ -39,10 +39,9 @@
  *     include headers in code:
  *     @code{.cpp}
  *     #include "volume_pipeline.hpp"
- *     #include "volume_pointcloudprocess.hpp"
  *
- *     vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
- *     vm::PointCloud food = vm::load_pcd("food.pcd");
+ *     vm::PointCloud baseline = /* 从深度相机读入的空炉点云 */;
+ *     vm::PointCloud food = /* 从深度相机读入的食材点云 */;
  *     vm::VolumePipeline pipeline;
  *     vm::VolumeEstimate est = pipeline.measure({baseline}, food, vm::MeasurementConfig{});
  *     @endcode

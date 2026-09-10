@@ -1,20 +1,19 @@
-// demo.cxx — PCD-IM food volume measurement example.
+// demo.cxx — food volume measurement example.
 #include "volume_pipeline.hpp"
-#include "volume_pointcloudprocess.hpp"
 
 #include <iostream>
 #include <vector>
 
 int main() {
-    // Load the empty-oven baseline and the food point cloud from PCD files.
-    const vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
-    const vm::PointCloud food = vm::load_pcd("food.pcd");
+    // Obtain the empty-oven baseline and the food point cloud from a depth camera.
+    const vm::PointCloud baseline = /* ... 空炉点云 ... */;
+    const vm::PointCloud food = /* ... 食材点云 ... */;
     if (baseline.points.empty() || food.points.empty()) {
-        std::cerr << "failed to load PCD inputs" << std::endl;
+        std::cerr << "failed to obtain point-cloud inputs" << std::endl;
         return 1;
     }
 
-    // Run the end-to-end PCD-IM measurement.
+    // Run the end-to-end IM measurement.
     vm::VolumePipeline pipeline;
     const vm::VolumeEstimate est =
         pipeline.measure(std::vector<vm::PointCloud>{baseline}, food, vm::MeasurementConfig{});

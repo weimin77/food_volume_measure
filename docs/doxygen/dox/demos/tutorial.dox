@@ -3,13 +3,13 @@
  *
  * A complete example of measuring food volume with food_volume_measure.
  *
- * This example loads an empty-oven baseline and a food point cloud from PCD
- * files, then runs the IM pipeline and prints the measured volume.
+ * This example takes an empty-oven baseline and a food point cloud from a fixed
+ * depth camera, then runs the IM pipeline and prints the measured volume.
  *
  * @include demo.cxx
  *
  * @par Description:
- * - First, call vm::load_pcd() to load the baseline and food point clouds.
+ * - First, obtain the baseline and food point clouds from the depth camera.
  * - Then, call VolumePipeline::measure() to run the end-to-end pipeline.
  * - Finally, read the volume from the returned VolumeEstimate.
  *

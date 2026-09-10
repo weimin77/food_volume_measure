@@ -104,7 +104,7 @@ MeasurementStatus extract_food_components(const PointCloud& food_m, const Baseli
         return st;
     }
 
-    // Project valid points onto the baseline plane and cluster with Open3D-equivalent DBSCAN.
+    // Project valid points onto the baseline plane and cluster with DBSCAN.
     const PointCloud projected = project_to_plane(dense, baseline);
     const std::vector<int> labels =
         dbscan_labels(projected.points, cfg.foreground_cluster_eps_m, cfg.cluster_min_points);

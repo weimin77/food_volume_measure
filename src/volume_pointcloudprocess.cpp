@@ -293,8 +293,8 @@ MeasurementStatus preprocess_cloud(const PointCloud& input, const MeasurementCon
 
 
 /**
- * @brief [en] Density-based spatial clustering (DBSCAN) matching Open3D `cluster_dbscan`.
- * @brief [zh] 与 Open3D `cluster_dbscan` 语义一致的密度聚类（DBSCAN）。
+ * @brief [en] Density-based spatial clustering (DBSCAN).
+ * @brief [zh] 密度聚类（DBSCAN）。
  * @attacher
  */
 std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, int min_points) {

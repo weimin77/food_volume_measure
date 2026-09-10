@@ -118,13 +118,13 @@ Plane orient_plane(const Plane& plane, const PointCloud& points);
  * @return [zh] 降采样后的点云（每个被占用体素一个质心）。
  * @exporter
  */
-PointCloud voxel_downsample(const PointCloud& cloud, double voxel_size);
+PointCloud voxel_down_sample(const PointCloud& cloud, double voxel_size);
 
 
 
 /**
- * @brief [en] Density-based spatial clustering (DBSCAN) matching Open3D `cluster_dbscan`.
- * @brief [zh] 与 Open3D `cluster_dbscan` 语义一致的密度聚类（DBSCAN）。
+ * @brief [en] Density-based spatial clustering (DBSCAN).
+ * @brief [zh] 密度聚类（DBSCAN）。
  * @param points [en] Input points.
  * @param points [zh] 输入点。
  * @param eps [en] Neighborhood radius in the point-cloud coordinate units.

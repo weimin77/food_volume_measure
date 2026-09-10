@@ -67,7 +67,7 @@ the units used for focused testing and advanced composition:
 
 | Header | Public API |
 |--------|-----------|
-| `volume_pointcloudprocess.hpp` | `preprocess_cloud` — validate/unit-normalize/ROI-crop/voxel-downsample; `voxel_downsample` — Open3D-equivalent voxel centroid downsample; `dbscan_labels` — Open3D-equivalent density clustering; `fit_plane_ransac` — plane estimation; `remove_dominant_plane` — background removal. |
+| `volume_pointcloudprocess.hpp` | `preprocess_cloud` — validate/unit-normalize/ROI-crop/voxel-downsample; `voxel_downsample` — voxel centroid downsample; `dbscan_labels` — density clustering; `fit_plane_ransac` — plane estimation; `remove_dominant_plane` — background removal. |
 | `volume_baseline.hpp` | `build_baseline_model` — build a reusable, opaque `BaselineModel`. |
 | `volume_component.hpp` | `extract_food_components` — filter, cluster, and select foreground food components. |
 | `volume_integrator.hpp` | `measure_component_volume` — integrate baseline-relative heights with hole completion. |
