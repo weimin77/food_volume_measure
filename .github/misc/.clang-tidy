@@ -4,15 +4,9 @@ Checks: >
   # Generic
   bugprone-*,
   performance-*,
-  # Numeric-algorithm noise: domain constants (0.5 cell-centre offset, 6
-  # quadratic coefficients, 8 direction bins), size_t -> double casts, and
-  # internal helpers with adjacent same-type parameters would all be flagged
-  # without improving correctness. Keep bugprone-*/performance-* for the real
-  # static analysis; drop the three below.
-  -bugprone-easily-swappable-parameters,
-  -bugprone-narrowing-conversions,
-  -cppcoreguidelines-avoid-magic-numbers,
+
   # CPP specific
+  cppcoreguidelines-avoid-magic-numbers,
   cppcoreguidelines-macro-usage
 
 CheckOptions:
