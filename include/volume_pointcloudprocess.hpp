@@ -118,7 +118,7 @@ Plane orient_plane(const Plane& plane, const PointCloud& points);
  * @return [zh] 降采样后的点云（每个被占用体素一个质心）。
  * @exporter
  */
-PointCloud voxel_down_sample(const PointCloud& cloud, double voxel_size);
+PointCloud voxel_downsample(const PointCloud& cloud, double voxel_size);
 
 
 

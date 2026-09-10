@@ -146,6 +146,157 @@ TEST(Logging, LevelFiltersMessages) {
 
 
 
+TEST(Logging, GetLevelReflectsSetting) {
+    vm::log_set_level(vm::LogLevel::kError);
+    EXPECT_EQ(vm::log_get_level(), vm::LogLevel::kError);
+    vm::log_set_level(vm::LogLevel::kTrace);
+    EXPECT_EQ(vm::log_get_level(), vm::LogLevel::kTrace);
+    vm::log_set_level(vm::LogLevel::kOff);
+    EXPECT_EQ(vm::log_get_level(), vm::LogLevel::kOff);
+}
+
+
+
+TEST(Logging, GetConsoleReflectsSetting) {
+    vm::log_set_console(true);
+    EXPECT_TRUE(vm::log_get_console());
+    vm::log_set_console(false);
+    EXPECT_FALSE(vm::log_get_console());
+}
+
+
+
+TEST(Logging, TraceAndDebugLevels) {
+    const std::string path = "unit_log_trace_debug.txt";
+    vm::log_set_level(vm::LogLevel::kTrace);
+    vm::log_set_console(false);
+    vm::log_set_file(path, vm::LogFileMode::kTruncate);
+    vm::log_trace("trace message");
+    vm::log_debug("debug message");
+    vm::log_close_file();
+
+    std::ifstream file(path);
+    ASSERT_TRUE(file.is_open());
+    const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    EXPECT_NE(content.find("TRACE"), std::string::npos);
+    EXPECT_NE(content.find("trace message"), std::string::npos);
+    EXPECT_NE(content.find("DEBUG"), std::string::npos);
+    EXPECT_NE(content.find("debug message"), std::string::npos);
+    vm::log_set_level(vm::LogLevel::kOff);
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Logging, AppendModeKeepsExistingContent) {
+    const std::string path = "unit_log_append.txt";
+    vm::log_set_level(vm::LogLevel::kInfo);
+    vm::log_set_console(false);
+    vm::log_set_file(path, vm::LogFileMode::kTruncate);
+    vm::log_info("first line");
+    vm::log_close_file();
+    vm::log_set_file(path, vm::LogFileMode::kAppend);
+    vm::log_info("second line");
+    vm::log_close_file();
+
+    std::ifstream file(path);
+    ASSERT_TRUE(file.is_open());
+    const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    EXPECT_NE(content.find("first line"), std::string::npos);
+    EXPECT_NE(content.find("second line"), std::string::npos);
+    vm::log_set_level(vm::LogLevel::kOff);
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Logging, EmptyPathClosesFile) {
+    const std::string path = "unit_log_empty_path.txt";
+    vm::log_set_level(vm::LogLevel::kInfo);
+    vm::log_set_console(false);
+    vm::log_set_file(path, vm::LogFileMode::kTruncate);
+    vm::log_info("before close");
+    vm::log_set_file("", vm::LogFileMode::kTruncate);
+    vm::log_info("after close");
+    vm::log_close_file();
+
+    std::ifstream file(path);
+    ASSERT_TRUE(file.is_open());
+    const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    EXPECT_NE(content.find("before close"), std::string::npos);
+    EXPECT_EQ(content.find("after close"), std::string::npos);
+    vm::log_set_level(vm::LogLevel::kOff);
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Logging, ReopenSwitchesFile) {
+    const std::string path1 = "unit_log_reopen_a.txt";
+    const std::string path2 = "unit_log_reopen_b.txt";
+    vm::log_set_level(vm::LogLevel::kInfo);
+    vm::log_set_console(false);
+    vm::log_set_file(path1, vm::LogFileMode::kTruncate);
+    vm::log_info("goes to file a");
+    vm::log_set_file(path2, vm::LogFileMode::kTruncate);
+    vm::log_info("goes to file b");
+    vm::log_close_file();
+
+    std::ifstream fa(path1);
+    ASSERT_TRUE(fa.is_open());
+    const std::string ca((std::istreambuf_iterator<char>(fa)), std::istreambuf_iterator<char>());
+    fa.close();
+    EXPECT_NE(ca.find("goes to file a"), std::string::npos);
+    EXPECT_EQ(ca.find("goes to file b"), std::string::npos);
+
+    std::ifstream fb(path2);
+    ASSERT_TRUE(fb.is_open());
+    const std::string cb((std::istreambuf_iterator<char>(fb)), std::istreambuf_iterator<char>());
+    fb.close();
+    EXPECT_EQ(cb.find("goes to file a"), std::string::npos);
+    EXPECT_NE(cb.find("goes to file b"), std::string::npos);
+
+    vm::log_set_level(vm::LogLevel::kOff);
+    std::remove(path1.c_str());
+    std::remove(path2.c_str());
+}
+
+
+
+TEST(Logging, ErrorAndWarningToConsole) {
+    vm::log_set_level(vm::LogLevel::kInfo);
+    vm::log_set_console(true);
+    vm::log_warning("console warning");
+    vm::log_error("console error");
+    vm::log_set_console(false);
+    vm::log_set_level(vm::LogLevel::kOff);
+}
+
+
+
+TEST(Logging, OffLevelWritesOffTag) {
+    const std::string path = "unit_log_off_tag.txt";
+    vm::log_set_level(vm::LogLevel::kTrace);
+    vm::log_set_console(false);
+    vm::log_set_file(path, vm::LogFileMode::kTruncate);
+    vm::log_write(vm::LogLevel::kOff, "off level message");
+    vm::log_close_file();
+
+    std::ifstream file(path);
+    ASSERT_TRUE(file.is_open());
+    const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    EXPECT_NE(content.find("OFF"), std::string::npos);
+    EXPECT_NE(content.find("off level message"), std::string::npos);
+    vm::log_set_level(vm::LogLevel::kOff);
+    std::remove(path.c_str());
+}
+
+
+
 TEST(VolumePipeline, EmptyBaseline) {
     vm::VolumePipeline pipeline;
     const auto est = pipeline.measure({}, make_food(), make_config());
