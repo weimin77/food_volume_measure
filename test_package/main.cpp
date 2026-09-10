@@ -24,6 +24,16 @@ const char* const kFoodPcd = RESOURCES_PATH "/d405_260322274982_20260819_180010.
 
 int main(int argc, char* argv[]) {
 #ifndef __ARM_EABI__
+    // `main` 是独立 CLI 演示程序，不是 GTest 二进制；覆盖率构建路径会通过
+    // gtest_discover_tests 以 `--gtest_list_tests` 探测它。识别到任意 gtest
+    // 探测参数时直接干净退出（返回 0、不输出测试名），避免把 gtest 参数误当
+    // 成 PCD 路径去加载。
+    for (int i = 1; i < argc; ++i) {
+        if (std::string(argv[i]).rfind("--gtest", 0) == 0) {
+            return 0;
+        }
+    }
+
     // 命令行参数：baseline PCD 与 food PCD 路径；未提供时退回内置默认值。
     const std::string baseline_path = (argc > 1) ? argv[1] : kBaselinePcd;
     const std::string food_path = (argc > 2) ? argv[2] : kFoodPcd;
