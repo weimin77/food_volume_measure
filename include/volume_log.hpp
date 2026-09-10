@@ -1,5 +1,6 @@
 // Conan::ImportStart
 #pragma once
+#include <cstdint>
 #include <string>
 // Conan::ImportEnd
 
@@ -14,7 +15,7 @@ namespace vm {
  * @brief [zh] 日志严重级别。
  * @exporter
  */
-enum class LogLevel {
+enum class LogLevel : std::uint8_t {
     kTrace = 0,
     kDebug = 1,
     kInfo = 2,
@@ -30,7 +31,7 @@ enum class LogLevel {
  * @brief [zh] 日志文件 sink 的写入模式。
  * @exporter
  */
-enum class LogFileMode {
+enum class LogFileMode : std::uint8_t {
     kAppend = 0,
     kTruncate = 1,
 };

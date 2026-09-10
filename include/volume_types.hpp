@@ -1,6 +1,7 @@
 // Conan::ImportStart
 #pragma once
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <string>
 #include <vector>
@@ -50,7 +51,7 @@ constexpr double kCurveFillMaxPredictionRiseM = 0.015;
  * @brief [zh] 输入点云的线性单位。
  * @exporter
  */
-enum class LengthUnit {
+enum class LengthUnit : std::uint8_t {
     kMeter = 0,
     kMillimeter = 1,
 };
@@ -117,7 +118,7 @@ struct AxisAlignedRoi {
  * @brief [zh] 体积测量的结果状态。
  * @exporter
  */
-enum class MeasurementStatus {
+enum class MeasurementStatus : std::uint8_t {
     kSuccess = 0,
     kEmptyInput = 1,
     kNonFiniteInput = 2,
@@ -139,7 +140,7 @@ enum class MeasurementStatus {
  * @brief [zh] 前景食材块的选择方式。
  * @exporter
  */
-enum class ComponentSelectionMode {
+enum class ComponentSelectionMode : std::uint8_t {
     kAllEligible = 0,
     kManual = 1,
 };
