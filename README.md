@@ -46,11 +46,11 @@ It implements the IM (baseline-plane height-difference integral) algorithm:
    Measured and interpolated cells are reported separately.
 
 ```cpp
-fcpp::MeasurementConfig cfg;               // defaults match the IM reference
-fcpp::VolumePipeline pipeline;
-std::vector<fcpp::PointCloud> baseline{ /* one or more empty-oven frames */ };
-fcpp::PointCloud food{ /* one food frame */ };
-fcpp::VolumeEstimate est = pipeline.measure(baseline, food, cfg);
+vm::MeasurementConfig cfg;               // defaults match the IM reference
+vm::VolumePipeline pipeline;
+std::vector<vm::PointCloud> baseline{ /* one or more empty-oven frames */ };
+vm::PointCloud food{ /* one food frame */ };
+vm::VolumeEstimate est = pipeline.measure(baseline, food, cfg);
 // est.volume_cm3, est.raw_volume_cm3, est.interpolated_volume_cm3, est.component_count, ...
 ```
 
@@ -74,14 +74,14 @@ the units used for focused testing and advanced composition:
 
 ```cpp
 // Build a reusable baseline once, then measure one or more food frames against it.
-fcpp::BaselineModel baseline;
-fcpp::build_baseline_model(baseline_frames, orientation, cfg, baseline);
+vm::BaselineModel baseline;
+vm::build_baseline_model(baseline_frames, orientation, cfg, baseline);
 
-fcpp::FoodComponents components;
-fcpp::extract_food_components(food_after_plane_removal, baseline, cfg, components);
+vm::FoodComponents components;
+vm::extract_food_components(food_after_plane_removal, baseline, cfg, components);
 
-fcpp::ComponentVolumeEstimate volume;
-fcpp::measure_component_volume(components, baseline, cfg, volume);
+vm::ComponentVolumeEstimate volume;
+vm::measure_component_volume(components, baseline, cfg, volume);
 // volume.volume_cm3, volume.raw_volume_cm3, volume.interpolated_volume_cm3, ...
 ```
 
