@@ -16,6 +16,8 @@
 #endif
 // Conan::ImportEnd
 
+#include "volume_profiler.hpp"
+
 
 
 namespace vm {
@@ -791,6 +793,7 @@ MeasurementStatus build_height_grid(const SurfaceMap& surface, const BaselineMod
  */
 MeasurementStatus complete_holes(HeightGrid& grid, const BaselineModel& baseline, const MeasurementConfig& cfg,
                                  HoleFillStats& stats) {
+    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)grid;
     (void)baseline;
@@ -813,6 +816,7 @@ MeasurementStatus complete_holes(HeightGrid& grid, const BaselineModel& baseline
  * @attacher
  */
 ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid) {
+    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)grid;
     return ComponentVolumeEstimate{};
@@ -843,6 +847,7 @@ ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid) {
  */
 MeasurementStatus measure_component_volume(const FoodComponents& components, const BaselineModel& baseline,
                                            const MeasurementConfig& cfg, ComponentVolumeEstimate& out) {
+    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)components;
     (void)baseline;

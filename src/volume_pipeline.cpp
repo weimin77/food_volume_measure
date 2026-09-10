@@ -13,6 +13,8 @@
 #include "volume_pointcloudprocess.hpp"
 // Conan::ImportEnd
 
+#include "volume_profiler.hpp"
+
 #ifndef __ARM_EABI__
 #include <algorithm>
 #include <cstdint>
@@ -44,6 +46,7 @@ VolumeEstimate failure(MeasurementStatus status, std::string message) {
 
 // Chooses orientation points from the largest 3D DBSCAN component, or empty when none qualifies.
 PointCloud select_largest_cluster(const PointCloud& cloud_m, const MeasurementConfig& cfg) {
+    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud_m;
     (void)cfg;
@@ -97,6 +100,7 @@ struct ReferenceVolumes {
 // comparison block. The OBB here is PCL's moment-based OBB rather than the Python minimum-volume OBB, so
 // its value is indicative rather than identical.
 ReferenceVolumes compute_reference_volumes(const std::vector<PointCloud>& component_clouds) {
+    VM_PROFILE_FUNC();
     ReferenceVolumes out{};
 
     std::size_t total = 0;
@@ -126,6 +130,7 @@ ReferenceVolumes compute_reference_volumes(const std::vector<PointCloud>& compon
 
 
 double compute_aabb_volume(const PointCloud& cloud) {
+    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud;
     return std::numeric_limits<double>::quiet_NaN();
@@ -152,6 +157,7 @@ double compute_aabb_volume(const PointCloud& cloud) {
 
 
 double compute_obb_volume(const PointCloud& cloud) {
+    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud;
     return std::numeric_limits<double>::quiet_NaN();
@@ -183,6 +189,7 @@ double compute_obb_volume(const PointCloud& cloud) {
 
 
 double compute_convex_hull_volume(const PointCloud& cloud) {
+    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud;
     return std::numeric_limits<double>::quiet_NaN();
@@ -245,6 +252,7 @@ double compute_convex_hull_volume(const PointCloud& cloud) {
  */
 VolumeEstimate VolumePipeline::measure(const std::vector<PointCloud>& baseline_frames, const PointCloud& food_frame,
                                        const MeasurementConfig& cfg) const {
+    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)baseline_frames;
     (void)food_frame;
