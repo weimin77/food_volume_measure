@@ -4,7 +4,7 @@
 // Conan::ImportEnd
 
 #ifndef __ARM_EABI__
-#include <ctime>
+#include <time.h>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -75,13 +75,13 @@ const char* level_name(LogLevel level) {
 }
 
 std::string timestamp() {
-    const std::time_t now = std::time(nullptr);
-    std::tm* t = std::localtime(&now);
-    if (t == nullptr) {
+    const time_t now = time(nullptr);
+    tm t{};
+    if (localtime_r(&now, &t) == nullptr) {
         return "0000-00-00 00:00:00";
     }
     std::ostringstream stream;
-    stream << std::put_time(t, "%Y-%m-%d %H:%M:%S");
+    stream << std::put_time(&t, "%Y-%m-%d %H:%M:%S");
     return stream.str();
 }
 
