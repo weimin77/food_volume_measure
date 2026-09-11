@@ -8,6 +8,7 @@
 #include <vector>
 #include "volume_baseline.hpp"
 #include "volume_component.hpp"
+#include "volume_config.hpp"
 #include "volume_grid.hpp"
 #include "volume_integrator.hpp"
 #include "volume_log.hpp"
@@ -698,4 +699,62 @@ TEST(Operators, ReferenceVolumes) {
     EXPECT_NEAR(vm::compute_obb_volume(cloud), expected, 1.0e-5);
     EXPECT_NEAR(vm::compute_convex_hull_volume(cloud), expected, 1.0e-6);
     EXPECT_TRUE(std::isnan(vm::compute_aabb_volume(vm::PointCloud{})));
+}
+
+
+
+TEST(Config, LoadFromJsonFile) {
+    const std::string path = "unit_config_test.json";
+    {
+        std::ofstream file(path);
+        file << "{\"voxel_size_m\":0.005,\"cluster_min_points\":12,"
+                "\"input_unit\":\"millimeter\",\"selected_labels\":[1,2,3]}";
+    }
+    vm::MeasurementConfig cfg;
+    ASSERT_TRUE(vm::load_config_from_json(path, cfg));
+    EXPECT_DOUBLE_EQ(cfg.voxel_size_m, 0.005);
+    EXPECT_EQ(cfg.cluster_min_points, 12);
+    EXPECT_EQ(cfg.input_unit, vm::LengthUnit::kMillimeter);
+    ASSERT_EQ(cfg.selected_labels.size(), 3u);
+    EXPECT_EQ(cfg.selected_labels[0], 1);
+    EXPECT_EQ(cfg.selected_labels[2], 3);
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Config, MissingFieldsKeepDefaults) {
+    const std::string path = "unit_config_partial.json";
+    {
+        std::ofstream file(path);
+        file << "{\"voxel_size_m\":0.007}";
+    }
+    vm::MeasurementConfig cfg;
+    const int default_iterations = cfg.plane_ransac_iterations;
+    const double default_eps = cfg.cluster_eps_m;
+    ASSERT_TRUE(vm::load_config_from_json(path, cfg));
+    EXPECT_DOUBLE_EQ(cfg.voxel_size_m, 0.007);
+    EXPECT_EQ(cfg.plane_ransac_iterations, default_iterations);
+    EXPECT_DOUBLE_EQ(cfg.cluster_eps_m, default_eps);
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Config, InvalidEnumFails) {
+    const std::string path = "unit_config_bad.json";
+    {
+        std::ofstream file(path);
+        file << "{\"input_unit\":\"parsec\"}";
+    }
+    vm::MeasurementConfig cfg;
+    EXPECT_FALSE(vm::load_config_from_json(path, cfg));
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Config, MissingFileFails) {
+    vm::MeasurementConfig cfg;
+    EXPECT_FALSE(vm::load_config_from_json("does_not_exist_config.json", cfg));
 }

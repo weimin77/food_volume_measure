@@ -9,4 +9,5 @@ requirements:
   - "pcre2/10.44"
   - "eigen/3.4.1#596b5f9599915bc0de4e7dd7fca20380"
   - "etl/20.47.1"
+  - "nlohmann_json/3.11.3"
   - "pcl/1.14.1"

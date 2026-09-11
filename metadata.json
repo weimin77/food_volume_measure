@@ -26,7 +26,8 @@
     "cpp": {
       "Eigen3": ["Eigen3::Eigen"],
       "etl": ["etl::etl"],
-      "PCL": ["PCL::PCL"]
+      "PCL": ["PCL::PCL"],
+      "nlohmann_json": ["nlohmann_json::nlohmann_json"]
     },
     "infra": {"GTest": ["gtest::gtest"], "pybind11": ["pybind11::module"]}
   },

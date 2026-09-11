@@ -46,7 +46,7 @@ jobs:
           DEPS=$(python3 - <<'PY'
           import yaml
           reqs = yaml.safe_load(open('conandata.yml'))['requirements']
-          mapping = {'zlib': 'zlib1g-dev', 'pcre2': 'libpcre2-dev', 'eigen': 'libeigen3-dev', 'pcl': 'libpcl-dev'}
+          mapping = {'zlib': 'zlib1g-dev', 'pcre2': 'libpcre2-dev', 'eigen': 'libeigen3-dev', 'pcl': 'libpcl-dev', 'nlohmann_json': 'nlohmann-json3-dev'}
           pkgs = {mapping[r.split('/')[0]] for r in reqs if r.split('/')[0] in mapping}
           print(' '.join(sorted(pkgs)))
           PY
