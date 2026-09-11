@@ -5,9 +5,10 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "volume_pipeline.hpp"
+#include "volume_measurement.hpp"
 #include "volume_baseline.hpp"
 #include "volume_component.hpp"
+#include "volume_config.hpp"
 #include "volume_integrator.hpp"
 #include "volume_log.hpp"
 #include "volume_pointcloudprocess.hpp"
@@ -250,9 +251,10 @@ double compute_convex_hull_volume(const PointCloud& cloud) {
  * @brief [zh] 从空炉基线帧与食材帧测量食材体积（立方厘米）。
  * @attacher
  */
-VolumeEstimate VolumePipeline::measure(const std::vector<PointCloud>& baseline_frames, const PointCloud& food_frame,
-                                       const MeasurementConfig& cfg) const {
+VolumeEstimate VolumeMeasurement::measure(const std::vector<PointCloud>& baseline_frames,
+                                          const PointCloud& food_frame) const {
     VM_PROFILE_FUNC();
+    const MeasurementConfig& cfg = cfg_;
 #ifdef __ARM_EABI__
     (void)baseline_frames;
     (void)food_frame;
@@ -345,6 +347,30 @@ VolumeEstimate VolumePipeline::measure(const std::vector<PointCloud>& baseline_f
              " volume_cm3=" + std::to_string(est.volume_cm3));
     return est;
 #endif // __ARM_EABI__
+}
+
+
+
+void VolumeMeasurement::set_config(const MeasurementConfig& cfg) {
+    cfg_ = cfg;
+}
+
+
+
+const MeasurementConfig& VolumeMeasurement::config() const {
+    return cfg_;
+}
+
+
+
+bool VolumeMeasurement::save_config_to_json(const std::string& path) const {
+    return vm::save_config_to_json(cfg_, path);
+}
+
+
+
+bool VolumeMeasurement::load_config_from_json(const std::string& path) {
+    return vm::load_config_from_json(path, cfg_);
 }
 
 

@@ -47,10 +47,11 @@ It implements the IM (baseline-plane height-difference integral) algorithm:
 
 ```cpp
 fcpp::MeasurementConfig cfg;               // defaults match the IM reference
-fcpp::VolumePipeline pipeline;
+fcpp::VolumeMeasurement measurement;
 std::vector<fcpp::PointCloud> baseline{ /* one or more empty-oven frames */ };
 fcpp::PointCloud food{ /* one food frame */ };
-fcpp::VolumeEstimate est = pipeline.measure(baseline, food, cfg);
+measurement.set_config(cfg);
+fcpp::VolumeEstimate est = measurement.measure(baseline, food);
 // est.volume_cm3, est.raw_volume_cm3, est.interpolated_volume_cm3, est.component_count, ...
 ```
 
@@ -62,7 +63,7 @@ fcpp::VolumeEstimate est = pipeline.measure(baseline, food, cfg);
 
 ### Atomic algorithm API
 
-Beyond `VolumePipeline`, the library exposes each stage as an independently reusable algorithm. These are
+Beyond `VolumeMeasurement`, the library exposes each stage as an independently reusable algorithm. These are
 the units used for focused testing and advanced composition:
 
 | Header | Public API |

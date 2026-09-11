@@ -2,8 +2,9 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
-#include "volume_pipeline.hpp"
+#include "volume_measurement.hpp"
 #include "volume_pointcloudprocess.hpp"
+#include "volume_measurement.hpp"
 
 
 
@@ -70,8 +71,9 @@ TEST(Stress, DbscanLargeCloud) {
 TEST(Stress, PipelineLargeScene) {
     const double half = 0.3;
     const std::vector<vm::PointCloud> baselines{make_tray(half)};
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure(baselines, make_food(half), vm::MeasurementConfig{});
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(vm::MeasurementConfig{});
+    const auto est = measurement.measure(baselines, make_food(half));
     EXPECT_EQ(est.status, vm::MeasurementStatus::kSuccess);
     EXPECT_GT(est.component_count, 0u);
     EXPECT_GT(est.volume_cm3, 0.0);

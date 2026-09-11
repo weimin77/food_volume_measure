@@ -40,6 +40,26 @@ bool parse_selection_mode(const std::string& text, ComponentSelectionMode& out) 
     return false;
 }
 
+const char* length_unit_to_string(LengthUnit unit) {
+    switch (unit) {
+    case LengthUnit::kMeter:
+        return "meter";
+    case LengthUnit::kMillimeter:
+        return "millimeter";
+    }
+    return "meter";
+}
+
+const char* selection_mode_to_string(ComponentSelectionMode mode) {
+    switch (mode) {
+    case ComponentSelectionMode::kAllEligible:
+        return "all_eligible";
+    case ComponentSelectionMode::kManual:
+        return "manual";
+    }
+    return "all_eligible";
+}
+
 // Reads a scalar member only when the key is present; leaves the target untouched otherwise.
 // A type-mismatched field is ignored (the target keeps its previous value).
 template <typename T>
@@ -156,6 +176,56 @@ bool load_config_from_json(const std::string& path, MeasurementConfig& out) {
         root.at("selected_labels").get_to(out.selected_labels);
     }
 
+    return true;
+}
+
+
+
+bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path) {
+    Json root = Json::object();
+
+    root["input_unit"] = length_unit_to_string(cfg.input_unit);
+    root["use_roi"] = cfg.use_roi;
+    root["roi"] = Json{{"min_x", cfg.roi.min_x},
+                       {"max_x", cfg.roi.max_x},
+                       {"min_y", cfg.roi.min_y},
+                       {"max_y", cfg.roi.max_y},
+                       {"min_z", cfg.roi.min_z},
+                       {"max_z", cfg.roi.max_z}};
+    root["voxel_size_m"] = cfg.voxel_size_m;
+    root["plane_distance_threshold_m"] = cfg.plane_distance_threshold_m;
+    root["plane_ransac_iterations"] = cfg.plane_ransac_iterations;
+    root["baseline_max_surface_height_m"] = cfg.baseline_max_surface_height_m;
+    root["remove_secondary_plane"] = cfg.remove_secondary_plane;
+    root["secondary_plane_distance_threshold_m"] = cfg.secondary_plane_distance_threshold_m;
+    root["cluster_eps_m"] = cfg.cluster_eps_m;
+    root["foreground_cluster_eps_m"] = cfg.foreground_cluster_eps_m;
+    root["cluster_min_points"] = cfg.cluster_min_points;
+    root["selection_mode"] = selection_mode_to_string(cfg.selection_mode);
+    root["selected_labels"] = cfg.selected_labels;
+    root["integration_resolution_m"] = cfg.integration_resolution_m;
+    root["roi_border_margin_m"] = cfg.roi_border_margin_m;
+    root["min_height_m"] = cfg.min_height_m;
+    root["max_height_m"] = cfg.max_height_m;
+    root["baseline_fill_radius_cells"] = cfg.baseline_fill_radius_cells;
+    root["hole_fill_max_cells"] = cfg.hole_fill_max_cells;
+    root["hole_fill_neighbor_radius_cells"] = cfg.hole_fill_neighbor_radius_cells;
+    root["hole_fill_max_neighbor_height_delta_m"] = cfg.hole_fill_max_neighbor_height_delta_m;
+    root["curve_fill_max_hole_area_cm2"] = cfg.curve_fill_max_hole_area_cm2;
+    root["curve_fill_max_component_area_ratio"] = cfg.curve_fill_max_component_area_ratio;
+    root["curve_fill_max_imputed_ratio"] = cfg.curve_fill_max_imputed_ratio;
+    root["curve_fill_rim_radius_cells"] = cfg.curve_fill_rim_radius_cells;
+    root["curve_fill_min_rim_samples"] = cfg.curve_fill_min_rim_samples;
+    root["curve_fill_min_rim_coverage"] = cfg.curve_fill_min_rim_coverage;
+    root["curve_fill_max_fit_rmse_m"] = cfg.curve_fill_max_fit_rmse_m;
+    root["curve_fill_max_prediction_rise_m"] = cfg.curve_fill_max_prediction_rise_m;
+
+    std::ofstream file(path);
+    if (!file.is_open()) {
+        log_error("save_config_to_json: cannot open file " + path);
+        return false;
+    }
+    file << root.dump(2);
     return true;
 }
 

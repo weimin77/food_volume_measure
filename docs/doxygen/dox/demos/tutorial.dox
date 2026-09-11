@@ -10,7 +10,7 @@
  *
  * @par Description:
  * - First, call vm::load_pcd() to load the baseline and food point clouds.
- * - Then, call VolumePipeline::measure() to run the end-to-end pipeline.
+ * - Then, call VolumeMeasurement::measure() to run the end-to-end pipeline.
  * - Finally, read the volume from the returned VolumeEstimate.
  *
  * @note Link against the food_volume_measure library when compiling.

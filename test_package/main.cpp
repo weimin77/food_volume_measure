@@ -4,7 +4,7 @@
 #include <vector>
 #include "volume_pointcloudprocess.hpp"
 #include "volume_log.hpp"
-#include "volume_pipeline.hpp"
+#include "volume_measurement.hpp"
 
 
 
@@ -56,9 +56,8 @@ int main(int argc, char* argv[]) {
     std::cout << "baseline points: " << baseline.points.size() << std::endl;
     std::cout << "初始点云数量: " << food.points.size() << std::endl;
 
-    const vm::MeasurementConfig cfg;
-    vm::VolumePipeline pipeline;
-    const vm::VolumeEstimate est = pipeline.measure(std::vector<vm::PointCloud>{baseline}, food, cfg);
+    vm::VolumeMeasurement measurement;
+    const vm::VolumeEstimate est = measurement.measure(std::vector<vm::PointCloud>{baseline}, food);
 
     std::cout << "\n=== IM 复现完成 ===" << std::endl;
     std::cout << "输入点数: " << est.input_points << std::endl;

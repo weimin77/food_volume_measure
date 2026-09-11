@@ -26,7 +26,7 @@ completed cells are counted separately from measured cells.
 _`Usage demonstration`
 ----------------------
 
-The end-to-end :code:`VolumePipeline::measure` composes the atomic stages. It
+The end-to-end :code:`VolumeMeasurement::measure` composes the atomic stages. It
 returns a :code:`VolumeEstimate` with the integrated volume (cm³), point counts,
 footprint area and coverage, mean/max height, and reference volumes (AABB, OBB,
 convex hull).
@@ -35,15 +35,15 @@ convex hull).
    :caption: IM measurement demo
    :name: pcd im measurement
 
-   #include "volume_pipeline.hpp"
+   #include "volume_measurement.hpp"
    #include "volume_pointcloudprocess.hpp"
 
    int main() {
        vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
        vm::PointCloud food = vm::load_pcd("food.pcd");
-       vm::VolumePipeline pipeline;
+       vm::VolumeMeasurement measurement;
        vm::VolumeEstimate est =
-           pipeline.measure({baseline}, food, vm::MeasurementConfig{});
+           measurement.measure({baseline}, food);
        if (est.status != vm::MeasurementStatus::kSuccess) {
            return 1;
        }

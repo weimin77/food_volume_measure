@@ -42,4 +42,26 @@ bool load_config_from_json(const std::string& path, MeasurementConfig& out);
 
 
 
+/**
+ * @brief [en] Saves a `MeasurementConfig` to a JSON file.
+ * @brief [zh] 将 `MeasurementConfig` 保存到 JSON 文件。
+ *
+ * @param cfg [en] Config to serialize.
+ * @param cfg [zh] 要序列化的配置。
+ * @param path [en] Output JSON file path.
+ * @param path [zh] 输出的 JSON 文件路径。
+ * @return [en] True when the file was written successfully.
+ * @return [zh] 文件成功写入时为真。
+ *
+ * @details [en] The emitted JSON mirrors the same schema `load_config_from_json`
+ *     reads (field names match `MeasurementConfig` members; enums are written
+ *     as their string forms).
+ * @details [zh] 输出的 JSON 与 `load_config_from_json` 读取的 schema 一致
+ *     （字段名与 `MeasurementConfig` 成员同名；枚举以字符串形式写出）。
+ * @exporter
+ */
+bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path);
+
+
+
 } // namespace vm

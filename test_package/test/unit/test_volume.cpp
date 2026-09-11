@@ -12,7 +12,7 @@
 #include "volume_grid.hpp"
 #include "volume_integrator.hpp"
 #include "volume_log.hpp"
-#include "volume_pipeline.hpp"
+#include "volume_measurement.hpp"
 #include "volume_pointcloudprocess.hpp"
 
 
@@ -147,40 +147,44 @@ TEST(Logging, LevelFiltersMessages) {
 
 
 
-TEST(VolumePipeline, EmptyBaseline) {
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure({}, make_food(), make_config());
+TEST(VolumeMeasurement, EmptyBaseline) {
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure({}, make_food());
     EXPECT_EQ(est.status, vm::MeasurementStatus::kEmptyBaseline);
 }
 
 
 
-TEST(VolumePipeline, NonFiniteFoodPointsSkipped) {
+TEST(VolumeMeasurement, NonFiniteFoodPointsSkipped) {
     // A non-finite depth return must be dropped, not fatal, as long as valid food remains.
     vm::PointCloud cloud = make_food();
     cloud.points.push_back({0.0F, std::numeric_limits<float>::infinity(), 0.0F});
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure({make_baseline()}, cloud, make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure({make_baseline()}, cloud);
     EXPECT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
 }
 
 
 
-TEST(VolumePipeline, AllNonFiniteFoodInput) {
+TEST(VolumeMeasurement, AllNonFiniteFoodInput) {
     vm::PointCloud cloud;
     cloud.points.push_back({0.0F, std::numeric_limits<float>::infinity(), 0.0F});
     cloud.points.push_back({std::numeric_limits<float>::quiet_NaN(), 0.0F, 0.0F});
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure({make_baseline()}, cloud, make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure({make_baseline()}, cloud);
     EXPECT_EQ(est.status, vm::MeasurementStatus::kNonFiniteInput);
 }
 
 
 
-TEST(VolumePipeline, CuboidEndToEnd) {
+TEST(VolumeMeasurement, CuboidEndToEnd) {
     const std::vector<vm::PointCloud> baselines{make_baseline()};
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure(baselines, make_food(), make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure(baselines, make_food());
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
     EXPECT_GT(est.coverage_ratio, 0.8);
@@ -190,16 +194,17 @@ TEST(VolumePipeline, CuboidEndToEnd) {
 
 
 
-TEST(VolumePipeline, EmptyTrayNoFood) {
+TEST(VolumeMeasurement, EmptyTrayNoFood) {
     const std::vector<vm::PointCloud> baselines{make_baseline()};
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure(baselines, make_baseline(), make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure(baselines, make_baseline());
     EXPECT_EQ(est.status, vm::MeasurementStatus::kInsufficientCoverage);
 }
 
 
 
-TEST(VolumePipeline, MillimeterInput) {
+TEST(VolumeMeasurement, MillimeterInput) {
     auto baseline = make_baseline();
     auto food = make_food();
     for (auto& cloud : std::vector<vm::PointCloud*>{&baseline, &food}) {
@@ -211,15 +216,16 @@ TEST(VolumePipeline, MillimeterInput) {
     }
     auto cfg = make_config();
     cfg.input_unit = vm::LengthUnit::kMillimeter;
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure({baseline}, food, cfg);
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(cfg);
+    const auto est = measurement.measure({baseline}, food);
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
 }
 
 
 
-TEST(VolumePipeline, TiltedTrayDetected) {
+TEST(VolumeMeasurement, TiltedTrayDetected) {
     const double theta = 0.5;
     const double s = std::sin(theta);
     const double c = std::cos(theta);
@@ -241,15 +247,16 @@ TEST(VolumePipeline, TiltedTrayDetected) {
         }
     }
 
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure({baseline}, food, make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure({baseline}, food);
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 25.0);
 }
 
 
 
-TEST(VolumePipeline, MultiComponentVolume) {
+TEST(VolumeMeasurement, MultiComponentVolume) {
     const std::vector<vm::PointCloud> baselines{make_baseline(0.25)};
     vm::PointCloud food = make_baseline(0.25);
     // Two separated cuboids; the second starts far enough to form its own footprint cluster.
@@ -264,8 +271,9 @@ TEST(VolumePipeline, MultiComponentVolume) {
         }
     }
 
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure(baselines, food, make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure(baselines, food);
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.component_count, 2u);
     EXPECT_NEAR(est.volume_cm3, 2.0 * kExpectedVolumeCm3, 20.0);
@@ -325,12 +333,12 @@ TEST(Integrator, PerComponentVolumes) {
 
 
 
-TEST(VolumePipeline, SmallHoleInterpolated) {
+TEST(VolumeMeasurement, SmallHoleInterpolated) {
     const std::vector<vm::PointCloud> baselines{make_baseline()};
     // One missing interior cell (0.0525, 0.0525) surrounded by measured cells.
-    vm::VolumePipeline pipeline;
-    const auto est =
-        pipeline.measure(baselines, make_food(0.0025, 0.0975, 0.0025, 0.0975, 0.0525, 0.0525), make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure(baselines, make_food(0.0025, 0.0975, 0.0025, 0.0975, 0.0525, 0.0525));
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
     EXPECT_EQ(est.interpolated_cells, 1u);
@@ -339,12 +347,13 @@ TEST(VolumePipeline, SmallHoleInterpolated) {
 
 
 
-TEST(VolumePipeline, QuadraticHoleCompletion) {
+TEST(VolumeMeasurement, QuadraticHoleCompletion) {
     const std::vector<vm::PointCloud> baselines{make_baseline()};
     // A 4x4-cell interior gap exceeds the small-hole cap (9 cells) and forces the
     // quadratic-surface (curve fill) path: collect_rim_cells + fit_quadratic_hole.
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure(baselines, make_food_with_rect_hole(0.04, 0.06, 0.04, 0.06), make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure(baselines, make_food_with_rect_hole(0.04, 0.06, 0.04, 0.06));
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.interpolated_cells, 16u);
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
@@ -352,11 +361,12 @@ TEST(VolumePipeline, QuadraticHoleCompletion) {
 
 
 
-TEST(VolumePipeline, OversizedHoleLeftUnfilled) {
+TEST(VolumeMeasurement, OversizedHoleLeftUnfilled) {
     const std::vector<vm::PointCloud> baselines{make_baseline()};
     // A 10x10-cell gap (25 cm^2) exceeds the 8 cm^2 curve-fill cap, so it must stay unfilled.
-    vm::VolumePipeline pipeline;
-    const auto est = pipeline.measure(baselines, make_food_with_rect_hole(0.025, 0.075, 0.025, 0.075), make_config());
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(make_config());
+    const auto est = measurement.measure(baselines, make_food_with_rect_hole(0.025, 0.075, 0.025, 0.075));
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.interpolated_cells, 0u);
     EXPECT_EQ(est.unfilled_hole_cells, 100u);

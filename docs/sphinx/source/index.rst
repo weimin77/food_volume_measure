@@ -25,15 +25,15 @@ _`Quick Start`
 
 .. code-block:: cpp
 
-   #include "volume_pipeline.hpp"
+   #include "volume_measurement.hpp"
    #include "volume_pointcloudprocess.hpp"
 
    int main() {
        vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
        vm::PointCloud food = vm::load_pcd("food.pcd");
-       vm::VolumePipeline pipeline;
+       vm::VolumeMeasurement measurement;
        vm::VolumeEstimate est =
-           pipeline.measure({baseline}, food, vm::MeasurementConfig{});
+           measurement.measure({baseline}, food);
        return est.status == vm::MeasurementStatus::kSuccess ? 0 : 1;
    }
 

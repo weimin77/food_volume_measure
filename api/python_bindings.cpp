@@ -7,7 +7,7 @@
 #include "volume_grid.hpp"
 #include "volume_integrator.hpp"
 #include "volume_log.hpp"
-#include "volume_pipeline.hpp"
+#include "volume_measurement.hpp"
 #include "volume_pointcloudprocess.hpp"
 #include "volume_types.hpp"
 // Conan::ImportEnd
@@ -51,8 +51,9 @@ vm::VolumeEstimate measure_from_pcd(const std::vector<std::string>& baseline_pat
         baseline_frames.push_back(vm::load_pcd(path));
     }
     const vm::PointCloud food = vm::load_pcd(food_path);
-    vm::VolumePipeline pipeline;
-    return pipeline.measure(baseline_frames, food, cfg);
+    vm::VolumeMeasurement measurement;
+    measurement.set_config(cfg);
+    return measurement.measure(baseline_frames, food);
 }
 
 
@@ -489,10 +490,13 @@ void bind_functions(py::module& m) {
     m.def("compute_obb_volume", &vm::compute_obb_volume, py::arg("cloud"));
     m.def("compute_convex_hull_volume", &vm::compute_convex_hull_volume, py::arg("cloud"));
 
-    py::class_<vm::VolumePipeline>(m, "VolumePipeline")
+    py::class_<vm::VolumeMeasurement>(m, "VolumeMeasurement")
         .def(py::init<>())
-        .def("measure", &vm::VolumePipeline::measure, py::arg("baseline_frames"), py::arg("food_frame"),
-             py::arg("cfg"));
+        .def("set_config", &vm::VolumeMeasurement::set_config, py::arg("cfg"))
+        .def("config", &vm::VolumeMeasurement::config, py::return_value_policy::reference_internal)
+        .def("save_config_to_json", &vm::VolumeMeasurement::save_config_to_json, py::arg("path"))
+        .def("load_config_from_json", &vm::VolumeMeasurement::load_config_from_json, py::arg("path"))
+        .def("measure", &vm::VolumeMeasurement::measure, py::arg("baseline_frames"), py::arg("food_frame"));
 
     // Logging.
     m.def("log_set_level", &vm::log_set_level, py::arg("level"));

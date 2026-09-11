@@ -27,24 +27,24 @@
  *     - vm::build_baseline_model: empty-oven baseline height map
  *     - vm::extract_food_components: foreground clustering and component selection
  *     - vm::measure_component_volume: height-difference integration with hole completion
- *     - vm::VolumePipeline::measure: end-to-end composition
+ *     - vm::VolumeMeasurement::measure: end-to-end composition
  * @section pipeline_sec [zh] 流水线
  *     - vm::load_pcd / vm::preprocess_cloud：载入并体素降采样点云
  *     - vm::build_baseline_model：空炉基线高度图
  *     - vm::extract_food_components：前景聚类与组件选择
  *     - vm::measure_component_volume：高度差积分与补洞
- *     - vm::VolumePipeline::measure：端到端组合
+ *     - vm::VolumeMeasurement::measure：端到端组合
  *
  * @section usage_sec usage
  *     include headers in code:
  *     @code{.cpp}
- *     #include "volume_pipeline.hpp"
+ *     #include "volume_measurement.hpp"
  *     #include "volume_pointcloudprocess.hpp"
  *
  *     vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
  *     vm::PointCloud food = vm::load_pcd("food.pcd");
- *     vm::VolumePipeline pipeline;
- *     vm::VolumeEstimate est = pipeline.measure({baseline}, food, vm::MeasurementConfig{});
+ *     vm::VolumeMeasurement measurement;
+ *     vm::VolumeEstimate est = measurement.measure({baseline}, food);
  *     @endcode
  *
  * @author Chen Zhang <chen2.zhang@szhittech.com>
