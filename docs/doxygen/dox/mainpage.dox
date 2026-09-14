@@ -23,28 +23,22 @@
  *     - 通过 vm::load_pcd 载入 PCD
  *
  * @section pipeline_sec [en] Pipeline
- *     - vm::load_pcd / vm::preprocess_cloud: load and voxel-downsample the point cloud
- *     - vm::build_baseline_model: empty-oven baseline height map
- *     - vm::extract_food_components: foreground clustering and component selection
- *     - vm::measure_component_volume: height-difference integration with hole completion
- *     - vm::VolumeMeasurement::measure: end-to-end composition
+ *     - vm::FoodVolumeMeasurer::set_baseline / set_food: provide the empty-oven baseline and the food frame
+ *     - vm::FoodVolumeMeasurer::run: preprocess, remove the background plane, build the baseline
+ *       height map, extract food components, and integrate with conservative hole completion
  * @section pipeline_sec [zh] 流水线
- *     - vm::load_pcd / vm::preprocess_cloud：载入并体素降采样点云
- *     - vm::build_baseline_model：空炉基线高度图
- *     - vm::extract_food_components：前景聚类与组件选择
- *     - vm::measure_component_volume：高度差积分与补洞
- *     - vm::VolumeMeasurement::measure：端到端组合
+ *     - vm::FoodVolumeMeasurer::set_baseline / set_food：提供空炉基线与食材帧
+ *     - vm::FoodVolumeMeasurer::run：预处理、移除背景平面、构建基线高度图、提取食材块、含保守补洞的积分
  *
  * @section usage_sec usage
  *     include headers in code:
  *     @code{.cpp}
  *     #include "volume_measurement.hpp"
- *     #include "volume_pointcloudprocess.hpp"
  *
  *     vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
  *     vm::PointCloud food = vm::load_pcd("food.pcd");
- *     vm::VolumeMeasurement measurement;
- *     vm::VolumeEstimate est = measurement.measure({baseline}, food);
+ *     vm::FoodVolumeMeasurer measurer;
+ *     vm::VolumeEstimate est = measurer.set_baseline({baseline}).set_food(food).run();
  *     @endcode
  *
  * @author Chen Zhang <chen2.zhang@szhittech.com>

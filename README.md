@@ -46,48 +46,40 @@ It implements the IM (baseline-plane height-difference integral) algorithm:
    Measured and interpolated cells are reported separately.
 
 ```cpp
-fcpp::MeasurementConfig cfg;               // defaults match the IM reference
-fcpp::VolumeMeasurement measurement;
-std::vector<fcpp::PointCloud> baseline{ /* one or more empty-oven frames */ };
-fcpp::PointCloud food{ /* one food frame */ };
-measurement.set_config(cfg);
-fcpp::VolumeEstimate est = measurement.measure(baseline, food);
+vm::FoodVolumeMeasurer measurer;          // defaults match the IM reference
+measurer.set_baseline({empty_oven_frame}) // one or more empty-oven frames
+    .set_food(food_frame)                 // the food frame
+    .set_input_unit(vm::LengthUnit::kMillimeter); // optional: inputs in mm
+vm::VolumeEstimate est = measurer.run();
 // est.volume_cm3, est.raw_volume_cm3, est.interpolated_volume_cm3, est.component_count, ...
 ```
 
-- All geometry is in metres internally; set `cfg.input_unit` when inputs are millimetres.
+- All geometry is in metres internally; set the input unit when inputs are millimetres.
 - At least one baseline frame is required; a baseline cell that is missing from the empty-oven map
   is never replaced with an ideal zero plane.
 - Hole filling is intentionally conservative: only holes whose boundary belongs to exactly one food
   component are considered, and several area / rim / fit-safety guards must pass.
 
-### Atomic algorithm API
+### Configuring the measurement
 
-Beyond `VolumeMeasurement`, the library exposes each stage as an independently reusable algorithm. These are
-the units used for focused testing and advanced composition:
-
-| Header | Public API |
-|--------|-----------|
-| `volume_pointcloudprocess.hpp` | `preprocess_cloud` — validate/unit-normalize/ROI-crop/voxel-downsample; `voxel_downsample` — Open3D-equivalent voxel centroid downsample; `dbscan_labels` — Open3D-equivalent density clustering; `fit_plane_ransac` — plane estimation; `remove_dominant_plane` — background removal. |
-| `volume_baseline.hpp` | `build_baseline_model` — build a reusable, opaque `BaselineModel`. |
-| `volume_component.hpp` | `extract_food_components` — filter, cluster, and select foreground food components. |
-| `volume_integrator.hpp` | `measure_component_volume` — integrate baseline-relative heights with hole completion. |
+`FoodVolumeMeasurer` exposes chainable setters for the common parameters, a full
+`MeasurementConfig` override via `set_config`, and JSON load/save for every field (including the
+advanced hole-completion guards):
 
 ```cpp
-// Build a reusable baseline once, then measure one or more food frames against it.
-fcpp::BaselineModel baseline;
-fcpp::build_baseline_model(baseline_frames, orientation, cfg, baseline);
-
-fcpp::FoodComponents components;
-fcpp::extract_food_components(food_after_plane_removal, baseline, cfg, components);
-
-fcpp::ComponentVolumeEstimate volume;
-fcpp::measure_component_volume(components, baseline, cfg, volume);
-// volume.volume_cm3, volume.raw_volume_cm3, volume.interpolated_volume_cm3, ...
+vm::FoodVolumeMeasurer measurer;
+measurer.set_voxel_size(0.003)                       // downsampling voxel edge (m)
+    .set_integration_resolution(0.003)               // raster cell edge (m)
+    .set_height_range(0.0015, 0.05)                  // accepted food height (m); max <= 0 disables the cap
+    .set_cluster_params(0.010, 8)                    // footprint DBSCAN radius + min points
+    .set_plane_distance_threshold(0.003)             // background-plane RANSAC threshold (m)
+    .set_roi(roi)                                    // optional axis-aligned crop before downsampling
+    .load_config_from_json("measurement_config.json"); // or set everything from JSON
 ```
 
-Implementation-only details (plane-local frames, grid keys, ROI bounds, height maps, hole candidates) stay
-private to `src/` and are never part of the installed headers.
+Implementation-only details (plane fitting, plane-local frames, grid keys, ROI bounds, height
+maps, hole candidates, per-stage algorithms) stay private to `src/` and are never part of the
+installed headers.
 
 ## Features
 

@@ -26,24 +26,24 @@ completed cells are counted separately from measured cells.
 _`Usage demonstration`
 ----------------------
 
-The end-to-end :code:`VolumeMeasurement::measure` composes the atomic stages. It
-returns a :code:`VolumeEstimate` with the integrated volume (cm³), point counts,
-footprint area and coverage, mean/max height, and reference volumes (AABB, OBB,
-convex hull).
+The end-to-end :code:`FoodVolumeMeasurer` class composes the whole pipeline. Set the
+empty-oven baseline and the food frame, optionally tune parameters through chainable setters or a
+JSON config, then call :code:`run`. It returns a :code:`VolumeEstimate` with the integrated
+volume (cm³), point counts, footprint area and coverage, mean/max height, per-component
+breakdowns, and reference volumes (AABB, OBB, convex hull).
 
 .. code-block:: cpp
    :caption: IM measurement demo
    :name: pcd im measurement
 
    #include "volume_measurement.hpp"
-   #include "volume_pointcloudprocess.hpp"
 
    int main() {
        vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
        vm::PointCloud food = vm::load_pcd("food.pcd");
-       vm::VolumeMeasurement measurement;
+       vm::FoodVolumeMeasurer measurer;
        vm::VolumeEstimate est =
-           measurement.measure({baseline}, food);
+           measurer.set_baseline({baseline}).set_food(food).run();
        if (est.status != vm::MeasurementStatus::kSuccess) {
            return 1;
        }
@@ -51,14 +51,20 @@ convex hull).
        return 0;
    }
 
-_`Atomic pipeline stages`
--------------------------
+_`Parameter configuration`
+--------------------------
 
-The pipeline can also be driven stage by stage:
+Common parameters are exposed as chainable setters; every field (including the advanced
+hole-completion guards) can also be loaded from or saved to JSON:
 
-- :code:`vm::load_pcd` — load a PCD file into the PCL-free :code:`vm::PointCloud` model
-- :code:`vm::preprocess_cloud` / :code:`vm::voxel_downsample` — unit normalization and voxel downsampling
-- :code:`vm::remove_dominant_plane` — remove the dominant background plane(s)
-- :code:`vm::build_baseline_model` — empty-oven baseline height map
-- :code:`vm::extract_food_components` — foreground clustering and component selection
-- :code:`vm::measure_component_volume` — height-difference integration with hole completion
+.. code-block:: cpp
+   :caption: chainable parameter setters
+   :name: chainable setters
+
+   vm::FoodVolumeMeasurer measurer;
+   measurer.set_voxel_size(0.003)
+       .set_integration_resolution(0.003)
+       .set_height_range(0.0015, 0.05)
+       .set_cluster_params(0.010, 8)
+       .set_plane_distance_threshold(0.003);
+   measurer.load_config_from_json("measurement_config.json");

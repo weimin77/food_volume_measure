@@ -66,386 +66,70 @@ msgstr "使用演示"
 
 #: ../../source/export.rst:29 50b4c7733e474676a89f6702346bf579
 msgid ""
-"The end-to-end :code:`VolumePipeline::measure` composes the atomic "
-"stages. It returns a :code:`VolumeEstimate` with the integrated volume "
-"(cm³), point counts, footprint area and coverage, mean/max height, and "
-"reference volumes (AABB, OBB, convex hull)."
-msgstr "端到端的 :code:`VolumePipeline::measure` 组合了各个原子阶段。它返回一个 :code:`VolumeEstimate`，包含积分体积（cm³）、点数、足迹面积与覆盖率、平均/最大高度以及参考体积（AABB、OBB、凸包）。"
+"The end-to-end :code:`FoodVolumeMeasurer` class composes the whole "
+"pipeline. Set the empty-oven baseline and the food frame, optionally "
+"tune parameters through chainable setters or a JSON config, then call "
+":code:`run`. It returns a :code:`VolumeEstimate` with the integrated "
+"volume (cm³), point counts, footprint area and coverage, mean/max "
+"height, per-component breakdowns, and reference volumes (AABB, OBB, "
+"convex hull)."
+msgstr ""
+"端到端的 :code:`FoodVolumeMeasurer` 类组合了整条流水线。设置空炉基线与食材帧，"
+"可选地通过链式 setter 或 JSON 配置调节参数，然后调用 :code:`run`。"
+"它返回一个 :code:`VolumeEstimate`，包含积分体积（cm³）、点数、足迹面积与覆盖率、"
+"平均/最大高度、逐组件明细以及参考体积（AABB、OBB、凸包）。"
 
 #: ../../source/export.rst:34 402cd4a73ac647a78037b498e31f4aa7
 msgid "PCD-IM measurement demo"
 msgstr "PCD-IM 测量演示"
 
 #: ../../source/export.rst:55 1336f357f7f14609ae8b0656677a7a19
-msgid "_`Atomic pipeline stages`"
-msgstr "原子流水线阶段"
+msgid "_`Parameter configuration`"
+msgstr "参数配置"
 
 #: ../../source/export.rst:57 d4cd138e56ba4d369fe19eae10f283cb
-msgid "The pipeline can also be driven stage by stage:"
-msgstr "流水线也可以逐阶段调用："
-
-#: ../../source/export.rst:59 fcf7cd1ee3d74d47ba82a5a77b303964
 msgid ""
-":code:`vm::load_pcd` — load a PCD file into the PCL-free "
-":code:`vm::PointCloud` model"
-msgstr ":code:`vm::load_pcd` — 将 PCD 文件载入与 PCL 无关的 :code:`vm::PointCloud` 模型"
+"Common parameters are exposed as chainable setters; every field "
+"(including the advanced hole-completion guards) can also be loaded from "
+"or saved to JSON:"
+msgstr ""
+"常用参数以链式 setter 暴露；每个字段（包括高级补洞护栏）也可以从 JSON 载入或保存为 JSON："
 
-#: ../../source/export.rst:60 828cf2d7621349629a7cc020e1e8d83f
-msgid ""
-":code:`vm::preprocess_cloud` / :code:`vm::voxel_downsample` — unit "
-"normalization and voxel downsampling"
-msgstr ":code:`vm::preprocess_cloud` / :code:`vm::voxel_downsample` — 单位归一化与体素降采样"
+#: ../../source/export.rst:59 828cf2d7621349629a7cc020e1e8d83f
+msgid "chainable parameter setters"
+msgstr "链式参数 setter"
 
-#: ../../source/export.rst:61 ababfe790fce4e48b7e0c718af928621
-msgid ""
-":code:`vm::remove_dominant_plane` — remove the dominant background "
-"plane(s)"
-msgstr ":code:`vm::remove_dominant_plane` — 移除主背景平面"
+#~ msgid "_`Atomic pipeline stages`"
+#~ msgstr "原子流水线阶段"
 
-#: ../../source/export.rst:62 575accae1d2e43e2b4a68bf692b1c240
-msgid ":code:`vm::build_baseline_model` — empty-oven baseline height map"
-msgstr ":code:`vm::build_baseline_model` — 空炉基线高度图"
-
-#: ../../source/export.rst:63 ecdb8c8f2e2f4533993a31a53131c823
-msgid ""
-":code:`vm::extract_food_components` — foreground clustering and component"
-" selection"
-msgstr ":code:`vm::extract_food_components` — 前景聚类与组件选择"
-
-#: ../../source/export.rst:64 472078bea72e44d0af56468c9287d97c
-msgid ""
-":code:`vm::measure_component_volume` — height-difference integration with"
-" hole completion"
-msgstr ":code:`vm::measure_component_volume` — 高度差积分与补洞"
-
-#~ msgid "heatmap for design matrix"
-#~ msgstr ""
-
-#~ msgid "The following."
-#~ msgstr ""
-
-#~ msgid "No good."
-#~ msgstr ""
+#~ msgid "The pipeline can also be driven stage by stage:"
+#~ msgstr "流水线也可以逐阶段调用："
 
 #~ msgid ""
-#~ "Or further combined with other image "
-#~ "processing pipelines to obtain more "
-#~ "complicated application such as background "
-#~ "blur, showed in :numref:`Figure %s "
-#~ "<background blur>`."
-#~ msgstr ""
+#~ ":code:`vm::load_pcd` — load a PCD file into the PCL-free "
+#~ ":code:`vm::PointCloud` model"
+#~ msgstr ":code:`vm::load_pcd` — 将 PCD 文件载入与 PCL 无关的 :code:`vm::PointCloud` 模型"
 
 #~ msgid ""
-#~ "Or further combined with other image "
-#~ "processing pipelines to obtain more "
-#~ "complicated application such as background "
-#~ "blur (fill the real implementation of"
-#~ " :code`// downstream tasks` in "
-#~ ":numref:`background blur`), showed in "
-#~ ":numref:`Figure %s <background blur>`."
-#~ msgstr ""
-
-#~ msgid "_`Applying effect`"
-#~ msgstr ""
-
-#~ msgid "heee."
-#~ msgstr ""
-
-#~ msgid "cortex-a53(*4)"
-#~ msgstr ""
-
-#~ msgid "cortex-a76(*4)"
-#~ msgstr ""
+#~ ":code:`vm::preprocess_cloud` / :code:`vm::voxel_downsample` — unit "
+#~ "normalization and voxel downsampling"
+#~ msgstr ":code:`vm::preprocess_cloud` / :code:`vm::voxel_downsample` — 单位归一化与体素降采样"
 
 #~ msgid ""
-#~ "The platforms with B+ or greater "
-#~ "scores are suggested to run this "
-#~ "algorithms."
-#~ msgstr ""
+#~ ":code:`vm::remove_dominant_plane` — remove the dominant background "
+#~ "plane(s)"
+#~ msgstr ":code:`vm::remove_dominant_plane` — 移除主背景平面"
 
-#~ msgid "_`Full demonstration of specific lib`"
-#~ msgstr "特定库的完整演示"
-
-#~ msgid ""
-#~ "Brief overview: the library :code:`fcpp` "
-#~ "integrates segmentation algorithms for natural"
-#~ " images."
-#~ msgstr "简要概述：:code:`fcpp` 库集成了针对自然图像的分割算法。"
-
-#~ msgid "_`Theories or introduction`"
-#~ msgstr "理论或简介"
+#~ msgid ":code:`vm::build_baseline_model` — empty-oven baseline height map"
+#~ msgstr ":code:`vm::build_baseline_model` — 空炉基线高度图"
 
 #~ msgid ""
-#~ "Segmentation in :code:`fcpp` is an "
-#~ "iterative image segmentation algorithm that"
-#~ " separates foreground from background using"
-#~ " user input (e.g., a bounding box)."
-#~ " It models color distributions of "
-#~ "foreground and background with Gaussian "
-#~ "Mixture Models (GMMs), and formulates "
-#~ "segmentation as an energy minimization "
-#~ "problem on a graph. The algorithm "
-#~ "alternates between estimating pixel labels "
-#~ "via graph cuts and refining the "
-#~ "GMM parameters, converging to an optimal"
-#~ " segmentation."
-#~ msgstr ""
-#~ ":code:`fcpp` "
-#~ "中的分割是一种迭代式图像分割算法，它利用用户输入（例如边界框）将前景从背景中分离出来。它使用高斯混合模型 (GMMs) "
-#~ "对前景和背景的颜色分布进行建模，并将分割表述为图上的能量最小化问题。该算法在通过图割估计像素标签和细化 GMM "
-#~ "参数之间交替进行，最终收敛至最优分割结果。"
+#~ ":code:`vm::extract_food_components` — foreground clustering and component"
+#~ selection"
+#~ msgstr ":code:`vm::extract_food_components` — 前景聚类与组件选择"
 
 #~ msgid ""
-#~ "E(\\mathbf{L}) = \\sum_p D_p(l_p) + "
-#~ "\\lambda \\sum_{p,q \\in \\mathcal{N}} w_{p,q}"
-#~ " \\cdot \\delta(l_p \\neq l_q)"
-#~ msgstr ""
-#~ "E(\\mathbf{L}) = \\sum_p D_p(l_p) + "
-#~ "\\lambda \\sum_{p,q \\in \\mathcal{N}} w_{p,q}"
-#~ " \\cdot \\delta(l_p \\neq l_q)"
-
-#~ msgid ""
-#~ "The total energy is composed of "
-#~ "the data term (pixel assignment cost)"
-#~ " and the smoothness term (penalty for"
-#~ " the difference in labels of adjacent"
-#~ " pixels). The unary term :math:`D_p(l_p)"
-#~ " = -\\log P(I_p | \\Theta_{l_p})` "
-#~ "describes The negative log-likelihood of"
-#~ " the color :math:`I_p` of pixel "
-#~ ":math:`p` under the foreground or "
-#~ "background GMM model :math:`\\Theta_{l_p}`, "
-#~ "while :math:`w_{p, q}` is the edge "
-#~ "weight between pixel :math:`p` and "
-#~ ":math:`q`."
-#~ msgstr ""
-#~ "总能量由数据项（像素分配代价）和平滑项（相邻像素标签差异的惩罚）组成。一元项 \\ :math:`D_p(l_p)"
-#~ " = -\\log P(I_p | \\Theta_{l_p})`\\ "
-#~ "描述了像素 :math:`p` 的颜色 :math:`I_p` 在前台或后台GMM模型"
-#~ " :math:`\\Theta_{l_p}` 下的负对数似然，而 :math:`w_{p, q}`"
-#~ " 是像素 :math:`p` 和 :math:`q` 之间的边权重。"
-
-#~ msgid "This part is optional."
-#~ msgstr "此部分是可选的。"
-
-#~ msgid ""
-#~ "The segmentation function segments the "
-#~ "input image x by automatically defining"
-#~ " a bounding box with margins "
-#~ "proportional to image size. It "
-#~ "initializes foreground and background models,"
-#~ " then runs inner grabCut with the "
-#~ "rectangle mode for 5 iterations. The "
-#~ "output mask is refined to distinguish"
-#~ " foreground (True) from background (False),"
-#~ " effectively extracting the main object "
-#~ "while suppressing borders. Ideal for "
-#~ "automated foreground extraction without user"
-#~ " input."
-#~ msgstr ""
-#~ "分割函数通过自动定义一个边距与图像大小成比例的边界框来分割输入图像 x。它初始化前景和背景模型，然后以矩形模式运行内部 "
-#~ "GrabCut 算法 5 次迭代。输出掩码经过细化以区分前景 (True) "
-#~ "和背景 (False)，在有效提取主体的同时抑制边缘。非常适用于无需用户输入的自动化前景提取。"
-
-#~ msgid "segmentation demo"
-#~ msgstr "分割演示"
-
-#~ msgid "Further explanation for your code block."
-#~ msgstr "关于您代码块的进一步说明。"
-
-#~ msgid "_`Applying results`"
-#~ msgstr "应用结果"
-
-#~ msgid ""
-#~ "The following illustration takes pictures "
-#~ "of doll, person, and chicken wing "
-#~ "as input. The algorithm can "
-#~ "automatically calculate the their contours "
-#~ "and areas (as shown in :numref:`Figure"
-#~ " %s <images segmentation>`)."
-#~ msgstr ""
-#~ "下图以玩偶、人物和鸡翅的照片作为输入。该算法可以自动计算它们的轮廓和面积（如 :numref:`图 %s "
-#~ "<images segmentation>` 所示）。"
-
-#~ msgid "Image segmentation illustration"
-#~ msgstr "图像分割示意图"
-
-#~ msgid ""
-#~ "With this segmentation algorithm, you "
-#~ "can extract the main object with "
-#~ "binding box in pictures. Like the "
-#~ ":numref:`Figure %s <food segmentations>` "
-#~ "illustrated, the proper binding boxes "
-#~ "can extract the main food objects, "
-#~ "which step is helpful for downstream "
-#~ "analysis."
-#~ msgstr ""
-#~ "利用此分割算法，您可以在图片中通过边界框提取主要物体。如\\ :numref:`图 %s <food"
-#~ " segmentations>`\\ 所示，合适的边框可以提取出主要食物对象，这一步骤有助于下游分析。"
-
-#~ msgid "Get foods from original figure"
-#~ msgstr "从原图中获取食物"
-
-#~ msgid ""
-#~ "Or further combined with other image "
-#~ "processing pipelines to obtain more "
-#~ "complicated application such as background "
-#~ "blur (fill the real implementation of"
-#~ " :code:`// downstream tasks` in "
-#~ ":numref:`background blur`), showed in "
-#~ ":numref:`Figure %s <background blur>`."
-#~ msgstr ""
-#~ "或者进一步结合其他图像处理流水线以获得更复杂的应用，例如背景虚化（在 :numref:`background "
-#~ "blur` 中填充 :code:`// downstream tasks` "
-#~ "的实际实现），如 :numref:`图 %s <background blur>` "
-#~ "所示。"
-
-#~ msgid "Background blur via segmentation algorithm"
-#~ msgstr "通过分割算法实现背景虚化"
-
-#~ msgid "_`Algorithm benchmark from test frame`"
-#~ msgstr "来自测试框架的算法基准测试"
-
-#~ msgid ""
-#~ "The following table displays our testing"
-#~ " matrix. As-checked platforms both in"
-#~ " fields of **unit** and **stress**, "
-#~ "are ideal choices if necessary."
-#~ msgstr "下表展示了我们的测试矩阵。在 **单元测试** 和 **压力测试** 领域均已验证的平台，如有需要，是理想的选择。"
-
-#~ msgid "test result among platforms"
-#~ msgstr "跨平台测试结果"
-
-#~ msgid "architecture"
-#~ msgstr "架构"
-
-#~ msgid "OS"
-#~ msgstr "操作系统"
-
-#~ msgid "CPU"
-#~ msgstr "CPU"
-
-#~ msgid "unit total"
-#~ msgstr "单元测试总计"
-
-#~ msgid "stress total"
-#~ msgstr "压力测试总计"
-
-#~ msgid "score"
-#~ msgstr "得分"
-
-#~ msgid "x86_64"
-#~ msgstr "x86_64"
-
-#~ msgid "Windows"
-#~ msgstr "Windows"
-
-#~ msgid "Core-i7 13gen"
-#~ msgstr "Core-i7 13代"
-
-#~ msgid "14822ms"
-#~ msgstr "14822毫秒"
-
-#~ msgid "173297ms"
-#~ msgstr "173297毫秒"
-
-#~ msgid "A"
-#~ msgstr "A"
-
-#~ msgid "Linux"
-#~ msgstr "Linux"
-
-#~ msgid "AMD Ryzen 7"
-#~ msgstr "AMD Ryzen 7"
-
-#~ msgid "13823ms"
-#~ msgstr "13823毫秒"
-
-#~ msgid "154512ms"
-#~ msgstr "154512毫秒"
-
-#~ msgid "A+"
-#~ msgstr "A+"
-
-#~ msgid "arm"
-#~ msgstr "arm"
-
-#~ msgid "cortex-m3"
-#~ msgstr "Cortex-M3"
-
-#~ msgid "failed"
-#~ msgstr "失败"
-
-#~ msgid "D"
-#~ msgstr "D"
-
-#~ msgid "cortex-a53"
-#~ msgstr "Cortex-A53"
-
-#~ msgid "25392ms"
-#~ msgstr "25392毫秒"
-
-#~ msgid "254129ms"
-#~ msgstr "254129毫秒"
-
-#~ msgid "B"
-#~ msgstr "B"
-
-#~ msgid "cortex-a53(4)"
-#~ msgstr "Cortex-A53(4核)"
-
-#~ msgid "20365ms"
-#~ msgstr "20365毫秒"
-
-#~ msgid "233820ms"
-#~ msgstr "233820毫秒"
-
-#~ msgid "B+"
-#~ msgstr "B+"
-
-#~ msgid "cortex-a76(4)"
-#~ msgstr "Cortex-A76(4)"
-
-#~ msgid "16928ms"
-#~ msgstr "16928毫秒"
-
-#~ msgid "198923ms"
-#~ msgstr "198923毫秒"
-
-#~ msgid "..."
-#~ msgstr "..."
-
-#~ msgid "risc-v"
-#~ msgstr "risc-v"
-
-#~ msgid "SiFive U74"
-#~ msgstr "SiFive U74"
-
-#~ msgid "35329ms"
-#~ msgstr "35329毫秒"
-
-#~ msgid "735723ms"
-#~ msgstr "735723毫秒"
-
-#~ msgid "C"
-#~ msgstr "C"
-
-#~ msgid "Allwinner D1"
-#~ msgstr "全志 D1"
-
-#~ msgid "38234ms"
-#~ msgstr "38234毫秒"
-
-#~ msgid "825231ms"
-#~ msgstr "825231毫秒"
-
-#~ msgid "C-"
-#~ msgstr "C-"
-
-#~ msgid ""
-#~ "The platforms with B+ or greater "
-#~ "scores in :numref:`Table %s <test "
-#~ "results>` are suggested to run this "
-#~ "algorithms."
-#~ msgstr "建议使用 :numref:`表 %s <test results>` 中评分为 B+ 或更高的平台来运行此算法。"
+#~ ":code:`vm::measure_component_volume` — height-difference integration with"
+#~ hole completion"
+#~ msgstr ":code:`vm::measure_component_volume` — 高度差积分与补洞"
 
