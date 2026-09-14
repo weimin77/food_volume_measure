@@ -16,7 +16,7 @@ namespace vm {
 /**
  * @brief [en] An empty-oven baseline for the IM pipeline.
  * @brief [zh] IM 流水线的空炉基线。
- * @exporter
+
  */
 struct BaselineModel {
     std::size_t frame_count = 0;
@@ -39,7 +39,7 @@ struct BaselineModel {
  * @param out [zh] 构建好的基线模型。
  * @return [en] kSuccess, kEmptyBaseline, kNonFiniteBaseline, kInvalidConfig, kPlaneNotFound, or kBaselineNoCells.
  * @return [zh] kSuccess、kEmptyBaseline、kNonFiniteBaseline、kInvalidConfig、kPlaneNotFound 或 kBaselineNoCells。
- * @exporter
+
  */
 MeasurementStatus build_baseline_model(const std::vector<PointCloud>& baseline_frames,
                                        const PointCloud& orientation_points, const MeasurementConfig& cfg,
@@ -56,7 +56,7 @@ MeasurementStatus build_baseline_model(const std::vector<PointCloud>& baseline_f
  * @param origin [zh] 坐标系原点，通常取平面内点均值。
  * @return [en] The orthonormal frame.
  * @return [zh] 正交坐标系。
- * @exporter
+
  */
 PlaneFrame build_plane_frame(const Plane& plane, const Point3f& origin);
 
@@ -77,7 +77,7 @@ PlaneFrame build_plane_frame(const Plane& plane, const Point3f& origin);
  * @param out [zh] 逐格高度中位数图及其外接框。
  * @return [en] kSuccess or kBaselineNoCells.
  * @return [zh] kSuccess 或 kBaselineNoCells。
- * @exporter
+
  */
 MeasurementStatus rasterize_baseline(const std::vector<PointCloud>& baseline_frames, const PlaneFrame& frame,
                                      double cell_size_m, double max_surface_height_m, BaselineData& out);
@@ -93,7 +93,7 @@ MeasurementStatus rasterize_baseline(const std::vector<PointCloud>& baseline_fra
  * @param border_margin_m [zh] 相对足迹外接框的内缩距离。
  * @return [en] True when a non-empty ROI was produced.
  * @return [zh] 产生非空 ROI 时为真。
- * @exporter
+
  */
 bool build_plane_roi(BaselineData& baseline, double border_margin_m);
 

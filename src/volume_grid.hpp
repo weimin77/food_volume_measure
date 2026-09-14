@@ -15,9 +15,23 @@ namespace vm {
 
 
 /**
+ * @brief [en] A plane in Hessian form: dot(n, p) = d, with unit normal n.
+ *        Points on the food side satisfy dot(n, p) > d.
+ * @brief [zh] Hessian 形式的平面：dot(n,p)=d，法向量 n 为单位向量，食材一侧满足 dot(n,p)>d。
+ */
+struct Plane {
+    float nx = 0.0F;
+    float ny = 0.0F;
+    float nz = 1.0F;
+    float d = 0.0F;
+};
+
+
+
+/**
  * @brief [en] A stable integer cell index in the baseline plane frame.
  * @brief [zh] 基准面局部坐标系中的稳定整数栅格索引。
- * @exporter
+
  */
 using CellKey = std::pair<std::int64_t, std::int64_t>;
 
@@ -26,7 +40,7 @@ using CellKey = std::pair<std::int64_t, std::int64_t>;
 /**
  * @brief [en] A local orthonormal frame on the baseline plane.
  * @brief [zh] 基准面上的局部正交坐标系。
- * @exporter
+
  */
 struct PlaneFrame {
     double ox = 0.0;
@@ -48,7 +62,7 @@ struct PlaneFrame {
 /**
  * @brief [en] The inset valid region inside the baseline footprint bounding box.
  * @brief [zh] 空炉足迹外接框内缩后的有效区域。
- * @exporter
+
  */
 struct PlaneRoi {
     double u_min_m = 0.0;
@@ -63,7 +77,7 @@ struct PlaneRoi {
 /**
  * @brief [en] Storage of the empty-oven baseline: frame, ROI and per-cell median heights.
  * @brief [zh] 空炉基线的存储：坐标系、ROI 与逐格高度中位数。
- * @exporter
+
  */
 struct BaselineData {
     Plane plane;
@@ -82,7 +96,7 @@ struct BaselineData {
 /**
  * @brief [en] The baseline-difference height grid plus derived volume statistics.
  * @brief [zh] 基线差分高度栅格及其派生的体积统计。
- * @exporter
+
  */
 struct HeightGrid {
     std::vector<CellKey> cells;
@@ -114,7 +128,7 @@ struct HeightGrid {
 /**
  * @brief [en] Statistics of the component-aware hole-filling stage.
  * @brief [zh] 按连通块补洞的统计信息。
- * @exporter
+
  */
 struct HoleFillStats {
     std::size_t candidate_hole_count = 0;
@@ -131,7 +145,7 @@ struct HoleFillStats {
 /**
  * @brief [en] Per-cell top surface of the selected components, with each cell's component label.
  * @brief [zh] 选中食材块的逐格顶表面，以及每个格子的连通块标签。
- * @exporter
+
  */
 struct SurfaceMap {
     std::vector<CellKey> cells;
@@ -152,7 +166,7 @@ constexpr double kFoodMinHeightM = -0.003;
 /**
  * @brief [en] Robust median of a value vector.
  * @brief [zh] 数值向量的稳健中位数。
- * @exporter
+
  */
 double median(std::vector<double> values);
 
@@ -161,7 +175,7 @@ double median(std::vector<double> values);
 /**
  * @brief [en] Projects a point into the baseline plane frame: (u, v, height) in metres.
  * @brief [zh] 把点投影到基准面局部坐标系：(u,v,height)，单位为米。
- * @exporter
+
  */
 void project_to_plane_frame(const PlaneFrame& frame, const Point3f& p, double& u, double& v, double& height);
 
@@ -170,7 +184,7 @@ void project_to_plane_frame(const PlaneFrame& frame, const Point3f& p, double& u
 /**
  * @brief [en] Converts continuous plane coordinates to integer cell indices by floor.
  * @brief [zh] 用向下取整把连续平面坐标映射为整数栅格索引。
- * @exporter
+
  */
 CellKey cell_index_of(double u, double v, double cell_size_m);
 
@@ -179,7 +193,7 @@ CellKey cell_index_of(double u, double v, double cell_size_m);
 /**
  * @brief [en] Tests whether continuous plane coordinates lie inside a plane ROI.
  * @brief [zh] 判断连续平面坐标是否位于平面 ROI 内。
- * @exporter
+
  */
 bool inside_roi(double u, double v, const PlaneRoi& roi);
 
@@ -188,7 +202,7 @@ bool inside_roi(double u, double v, const PlaneRoi& roi);
 /**
  * @brief [en] Looks up the baseline height for a cell, filling missing cells from bounded Chebyshev neighbours.
  * @brief [zh] 查询某格基线高度，缺失时在有限切比雪夫半径内取邻居中位数补齐。
- * @exporter
+
  */
 bool lookup_baseline_height(const BaselineData& baseline, CellKey key, int fill_radius_cells, double& out_height);
 

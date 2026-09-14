@@ -36,7 +36,7 @@ namespace vm {
  *     - `"roi"`：含 `min_x` / `max_x` / `min_y` / `max_y` / `min_z` / `max_z` 的对象
  *     - `"selected_labels"`：整数数组
  *     - 其余字段为与结构体成员同名的标量。
- * @exporter
+
  */
 bool load_config_from_json(const std::string& path, MeasurementConfig& out);
 
@@ -58,7 +58,7 @@ bool load_config_from_json(const std::string& path, MeasurementConfig& out);
  *     as their string forms).
  * @details [zh] 输出的 JSON 与 `load_config_from_json` 读取的 schema 一致
  *     （字段名与 `MeasurementConfig` 成员同名；枚举以字符串形式写出）。
- * @exporter
+
  */
 bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path);
 

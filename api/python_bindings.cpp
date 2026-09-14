@@ -2,13 +2,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "volume_baseline.hpp"
-#include "volume_component.hpp"
-#include "volume_grid.hpp"
-#include "volume_integrator.hpp"
+#include <string>
+#include <vector>
+
 #include "volume_log.hpp"
 #include "volume_measurement.hpp"
-#include "volume_pointcloudprocess.hpp"
 #include "volume_types.hpp"
 // Conan::ImportEnd
 
@@ -22,27 +20,6 @@ namespace {
 
 
 
-py::dict height_map_to_dict(const std::map<vm::CellKey, double>& cells) {
-    py::dict out;
-    for (const auto& entry : cells) {
-        out[py::make_tuple(entry.first.first, entry.first.second)] = entry.second;
-    }
-    return out;
-}
-
-
-
-std::map<vm::CellKey, double> height_map_from_dict(const py::dict& dict_in) {
-    std::map<vm::CellKey, double> out;
-    for (const auto& item : dict_in) {
-        const py::tuple key = py::cast<py::tuple>(item.first);
-        out[{py::cast<std::int64_t>(key[0]), py::cast<std::int64_t>(key[1])}] = py::cast<double>(item.second);
-    }
-    return out;
-}
-
-
-
 vm::VolumeEstimate measure_from_pcd(const std::vector<std::string>& baseline_paths, const std::string& food_path,
                                     const vm::MeasurementConfig& cfg) {
     std::vector<vm::PointCloud> baseline_frames;
@@ -51,9 +28,9 @@ vm::VolumeEstimate measure_from_pcd(const std::vector<std::string>& baseline_pat
         baseline_frames.push_back(vm::load_pcd(path));
     }
     const vm::PointCloud food = vm::load_pcd(food_path);
-    vm::VolumeMeasurement measurement;
-    measurement.set_config(cfg);
-    return measurement.measure(baseline_frames, food);
+    vm::FoodVolumeMeasurer measurer;
+    measurer.set_config(cfg).set_baseline(baseline_frames).set_food(food);
+    return measurer.run();
 }
 
 
@@ -125,14 +102,6 @@ void bind_structures(py::module& m) {
             "append", [](vm::PointCloud& cloud, const vm::Point3f& point) { cloud.points.push_back(point); },
             py::arg("point"))
         .def("__len__", [](const vm::PointCloud& cloud) { return cloud.points.size(); });
-
-    py::class_<vm::Plane>(m, "Plane")
-        .def(py::init<>())
-        .def(py::init<float, float, float, float>(), py::arg("nx"), py::arg("ny"), py::arg("nz"), py::arg("d"))
-        .def_readwrite("nx", &vm::Plane::nx)
-        .def_readwrite("ny", &vm::Plane::ny)
-        .def_readwrite("nz", &vm::Plane::nz)
-        .def_readwrite("d", &vm::Plane::d);
 
     py::class_<vm::AxisAlignedRoi>(m, "AxisAlignedRoi")
         .def(py::init<>())
@@ -214,26 +183,6 @@ void bind_structures(py::module& m) {
                    " volume_cm3=" + std::to_string(estimate.volume_cm3) + ">";
         });
 
-    py::class_<vm::BaselineModel>(m, "BaselineModel")
-        .def(py::init<>())
-        .def_readonly("frame_count", &vm::BaselineModel::frame_count)
-        .def_readonly("cell_count", &vm::BaselineModel::cell_count)
-        .def_property_readonly(
-            "data", [](const vm::BaselineModel& model) -> const vm::BaselineData* { return model.data.get(); },
-            py::return_value_policy::reference_internal);
-
-    py::class_<vm::FoodComponents>(m, "FoodComponents")
-        .def(py::init<>())
-        .def_readonly("cluster_count", &vm::FoodComponents::cluster_count)
-        .def_readonly("labels", &vm::FoodComponents::labels)
-        .def_readonly("clouds", &vm::FoodComponents::clouds);
-
-    py::class_<vm::PreprocessResult>(m, "PreprocessResult")
-        .def(py::init<>())
-        .def_readonly("cloud", &vm::PreprocessResult::cloud)
-        .def_readonly("input_points", &vm::PreprocessResult::input_points)
-        .def_readonly("retained_points", &vm::PreprocessResult::retained_points);
-
     py::class_<vm::ComponentVolumeEstimate>(m, "ComponentVolumeEstimate")
         .def(py::init<>())
         .def_readonly("raw_volume_cm3", &vm::ComponentVolumeEstimate::raw_volume_cm3)
@@ -250,91 +199,6 @@ void bind_structures(py::module& m) {
         .def_readonly("coverage_ratio", &vm::ComponentVolumeEstimate::coverage_ratio)
         .def_readonly("mean_height_m", &vm::ComponentVolumeEstimate::mean_height_m)
         .def_readonly("max_height_m", &vm::ComponentVolumeEstimate::max_height_m);
-
-    py::class_<vm::PlaneFrame>(m, "PlaneFrame")
-        .def(py::init<>())
-        .def_readwrite("ox", &vm::PlaneFrame::ox)
-        .def_readwrite("oy", &vm::PlaneFrame::oy)
-        .def_readwrite("oz", &vm::PlaneFrame::oz)
-        .def_readwrite("ux", &vm::PlaneFrame::ux)
-        .def_readwrite("uy", &vm::PlaneFrame::uy)
-        .def_readwrite("uz", &vm::PlaneFrame::uz)
-        .def_readwrite("vx", &vm::PlaneFrame::vx)
-        .def_readwrite("vy", &vm::PlaneFrame::vy)
-        .def_readwrite("vz", &vm::PlaneFrame::vz)
-        .def_readwrite("nx", &vm::PlaneFrame::nx)
-        .def_readwrite("ny", &vm::PlaneFrame::ny)
-        .def_readwrite("nz", &vm::PlaneFrame::nz);
-
-    py::class_<vm::PlaneRoi>(m, "PlaneRoi")
-        .def(py::init<>())
-        .def_readwrite("u_min_m", &vm::PlaneRoi::u_min_m)
-        .def_readwrite("u_max_m", &vm::PlaneRoi::u_max_m)
-        .def_readwrite("v_min_m", &vm::PlaneRoi::v_min_m)
-        .def_readwrite("v_max_m", &vm::PlaneRoi::v_max_m)
-        .def_readwrite("border_margin_m", &vm::PlaneRoi::border_margin_m);
-
-    py::class_<vm::BaselineData>(m, "BaselineData")
-        .def(py::init<>())
-        .def_readwrite("plane", &vm::BaselineData::plane)
-        .def_readwrite("frame", &vm::BaselineData::frame)
-        .def_readwrite("roi", &vm::BaselineData::roi)
-        .def_readwrite("cell_size_m", &vm::BaselineData::cell_size_m)
-        .def_property(
-            "height_by_cell",
-            [](const vm::BaselineData& baseline) { return height_map_to_dict(baseline.height_by_cell); },
-            [](vm::BaselineData& baseline, const py::dict& dict_in) {
-                baseline.height_by_cell = height_map_from_dict(dict_in);
-            })
-        .def_readwrite("bbox_u_min_m", &vm::BaselineData::bbox_u_min_m)
-        .def_readwrite("bbox_u_max_m", &vm::BaselineData::bbox_u_max_m)
-        .def_readwrite("bbox_v_min_m", &vm::BaselineData::bbox_v_min_m)
-        .def_readwrite("bbox_v_max_m", &vm::BaselineData::bbox_v_max_m);
-
-    py::class_<vm::HeightGrid>(m, "HeightGrid")
-        .def(py::init<>())
-        .def_readwrite("cells", &vm::HeightGrid::cells)
-        .def_readwrite("baseline_heights_m", &vm::HeightGrid::baseline_heights_m)
-        .def_readwrite("heights_m", &vm::HeightGrid::heights_m)
-        .def_property(
-            "is_interpolated",
-            [](const vm::HeightGrid& grid) {
-                return std::vector<int>(grid.is_interpolated.begin(), grid.is_interpolated.end());
-            },
-            [](vm::HeightGrid& grid, const std::vector<int>& values) {
-                grid.is_interpolated.assign(values.begin(), values.end());
-            })
-        .def_readwrite("component_labels", &vm::HeightGrid::component_labels)
-        .def_readwrite("cell_size_m", &vm::HeightGrid::cell_size_m)
-        .def_readwrite("frame", &vm::HeightGrid::frame)
-        .def_readonly("measured_cells", &vm::HeightGrid::measured_cells)
-        .def_readonly("interpolated_cells", &vm::HeightGrid::interpolated_cells)
-        .def_readonly("occupied_cells", &vm::HeightGrid::occupied_cells)
-        .def_readonly("bbox_cells", &vm::HeightGrid::bbox_cells)
-        .def_readonly("missing_baseline_cells", &vm::HeightGrid::missing_baseline_cells)
-        .def_readonly("raw_volume_m3", &vm::HeightGrid::raw_volume_m3)
-        .def_readonly("interpolated_volume_m3", &vm::HeightGrid::interpolated_volume_m3)
-        .def_readonly("volume_m3", &vm::HeightGrid::volume_m3)
-        .def_readonly("footprint_area_m2", &vm::HeightGrid::footprint_area_m2)
-        .def_readonly("coverage_ratio", &vm::HeightGrid::coverage_ratio)
-        .def_readonly("mean_height_m", &vm::HeightGrid::mean_height_m)
-        .def_readonly("max_height_m", &vm::HeightGrid::max_height_m);
-
-    py::class_<vm::HoleFillStats>(m, "HoleFillStats")
-        .def(py::init<>())
-        .def_readonly("candidate_hole_count", &vm::HoleFillStats::candidate_hole_count)
-        .def_readonly("filled_hole_count", &vm::HoleFillStats::filled_hole_count)
-        .def_readonly("filled_cell_count", &vm::HoleFillStats::filled_cell_count)
-        .def_readonly("small_filled_hole_count", &vm::HoleFillStats::small_filled_hole_count)
-        .def_readonly("curve_filled_hole_count", &vm::HoleFillStats::curve_filled_hole_count)
-        .def_readonly("unfilled_hole_cells", &vm::HoleFillStats::unfilled_hole_cells)
-        .def_readonly("max_component_inferred_ratio", &vm::HoleFillStats::max_component_inferred_ratio);
-
-    py::class_<vm::SurfaceMap>(m, "SurfaceMap")
-        .def(py::init<>())
-        .def_readwrite("cells", &vm::SurfaceMap::cells)
-        .def_readwrite("heights_m", &vm::SurfaceMap::heights_m)
-        .def_readwrite("labels", &vm::SurfaceMap::labels);
 }
 
 
@@ -343,160 +207,33 @@ void bind_functions(py::module& m) {
     m.def("length_unit_to_meter_scale", &vm::length_unit_to_meter_scale, py::arg("unit"));
     m.def("status_to_string", &vm::status_to_string, py::arg("status"));
     m.def("is_finite", &vm::is_finite, py::arg("point"));
-
     m.def("load_pcd", &vm::load_pcd, py::arg("path"));
-    m.def("voxel_downsample", &vm::voxel_downsample, py::arg("cloud"), py::arg("voxel_size"));
-    m.def("dbscan_labels", &vm::dbscan_labels, py::arg("points"), py::arg("eps"), py::arg("min_points"));
-
-    m.def(
-        "fit_plane_ransac",
-        [](const vm::PointCloud& cloud, double distance_threshold_m, int iterations) {
-            vm::Plane plane;
-            std::vector<std::size_t> inlier_indices;
-            const vm::MeasurementStatus status =
-                vm::fit_plane_ransac(cloud, distance_threshold_m, iterations, plane, inlier_indices);
-            return py::make_tuple(status, plane, inlier_indices);
-        },
-        py::arg("cloud"), py::arg("distance_threshold_m"), py::arg("iterations"));
-
-    m.def(
-        "remove_dominant_plane",
-        [](const vm::PointCloud& cloud, const vm::MeasurementConfig& cfg) {
-            vm::PointCloud remaining;
-            const vm::MeasurementStatus status = vm::remove_dominant_plane(cloud, cfg, remaining);
-            return py::make_tuple(status, remaining);
-        },
-        py::arg("cloud"), py::arg("cfg"));
-
-    m.def(
-        "preprocess_cloud",
-        [](const vm::PointCloud& input, const vm::MeasurementConfig& cfg) {
-            vm::PreprocessResult out;
-            const vm::MeasurementStatus status = vm::preprocess_cloud(input, cfg, out);
-            return py::make_tuple(status, out);
-        },
-        py::arg("cloud"), py::arg("cfg"));
-
-    m.def(
-        "build_baseline_model",
-        [](const std::vector<vm::PointCloud>& baseline_frames, const vm::PointCloud& orientation_points,
-           const vm::MeasurementConfig& cfg) {
-            vm::BaselineModel out;
-            const vm::MeasurementStatus status =
-                vm::build_baseline_model(baseline_frames, orientation_points, cfg, out);
-            return py::make_tuple(status, out);
-        },
-        py::arg("baseline_frames"), py::arg("orientation_points"), py::arg("cfg"));
-
-    m.def(
-        "extract_food_components",
-        [](const vm::PointCloud& food_m, const vm::BaselineModel& baseline, const vm::MeasurementConfig& cfg) {
-            vm::FoodComponents out;
-            const vm::MeasurementStatus status = vm::extract_food_components(food_m, baseline, cfg, out);
-            return py::make_tuple(status, out);
-        },
-        py::arg("food_m"), py::arg("baseline"), py::arg("cfg"));
-
-    m.def(
-        "measure_component_volume",
-        [](const vm::FoodComponents& components, const vm::BaselineModel& baseline, const vm::MeasurementConfig& cfg) {
-            vm::ComponentVolumeEstimate out;
-            const vm::MeasurementStatus status = vm::measure_component_volume(components, baseline, cfg, out);
-            return py::make_tuple(status, out);
-        },
-        py::arg("components"), py::arg("baseline"), py::arg("cfg"));
-
-    m.def(
-        "measure_component_volumes",
-        [](const vm::FoodComponents& components, const vm::BaselineModel& baseline, const vm::MeasurementConfig& cfg) {
-            std::vector<vm::ComponentVolumeEstimate> out;
-            const vm::MeasurementStatus status = vm::measure_component_volumes(components, baseline, cfg, out);
-            return py::make_tuple(status, out);
-        },
-        py::arg("components"), py::arg("baseline"), py::arg("cfg"));
-
     m.def("measure_from_pcd", &measure_from_pcd, py::arg("baseline_pcd_paths"), py::arg("food_pcd_path"),
           py::arg("cfg") = vm::MeasurementConfig{});
 
-    // Fine-grained operators (point-cloud preprocessing).
-    m.def("scale_to_meters", &vm::scale_to_meters, py::arg("cloud"), py::arg("unit"));
-    m.def("crop_axis_aligned", &vm::crop_axis_aligned, py::arg("cloud"), py::arg("roi"));
-    m.def("orient_plane", &vm::orient_plane, py::arg("plane"), py::arg("points"));
-    m.def(
-        "split_plane_inliers",
-        [](const vm::PointCloud& cloud, const vm::Plane& plane, double distance_threshold_m) {
-            vm::PointCloud remaining;
-            std::vector<std::size_t> inlier_indices;
-            vm::split_plane_inliers(cloud, plane, distance_threshold_m, remaining, inlier_indices);
-            return py::make_tuple(remaining, inlier_indices);
-        },
-        py::arg("cloud"), py::arg("plane"), py::arg("distance_threshold_m"));
-
-    // Fine-grained operators (baseline).
-    m.def("build_plane_frame", &vm::build_plane_frame, py::arg("plane"), py::arg("origin"));
-    m.def("build_plane_roi", &vm::build_plane_roi, py::arg("baseline"), py::arg("border_margin_m"));
-    m.def(
-        "rasterize_baseline",
-        [](const std::vector<vm::PointCloud>& baseline_frames, const vm::PlaneFrame& frame, double cell_size_m,
-           double max_surface_height_m) {
-            vm::BaselineData out;
-            const vm::MeasurementStatus status =
-                vm::rasterize_baseline(baseline_frames, frame, cell_size_m, max_surface_height_m, out);
-            return py::make_tuple(status, out);
-        },
-        py::arg("baseline_frames"), py::arg("frame"), py::arg("cell_size_m"), py::arg("max_surface_height_m"));
-
-    // Fine-grained operators (foreground extraction).
-    m.def(
-        "filter_baseline_difference",
-        [](const vm::PointCloud& food_m, const vm::BaselineModel& baseline, const vm::MeasurementConfig& cfg) {
-            vm::PointCloud dense;
-            const vm::MeasurementStatus status = vm::filter_baseline_difference(food_m, baseline, cfg, dense);
-            return py::make_tuple(status, dense);
-        },
-        py::arg("food_m"), py::arg("baseline"), py::arg("cfg"));
-    m.def("project_to_plane", &vm::project_to_plane, py::arg("cloud"), py::arg("baseline"));
-    m.def(
-        "select_components",
-        [](const std::vector<int>& labels, const vm::PointCloud& cloud, const vm::MeasurementConfig& cfg) {
-            vm::FoodComponents out;
-            const vm::MeasurementStatus status = vm::select_components(labels, cloud, cfg, out);
-            return py::make_tuple(status, out);
-        },
-        py::arg("labels"), py::arg("cloud"), py::arg("cfg"));
-
-    // Fine-grained operators (integration + hole completion).
-    m.def("build_top_surface", &vm::build_top_surface, py::arg("components"), py::arg("baseline"));
-    m.def(
-        "build_height_grid",
-        [](const vm::SurfaceMap& surface, const vm::BaselineModel& baseline, const vm::MeasurementConfig& cfg) {
-            vm::HeightGrid out;
-            const vm::MeasurementStatus status = vm::build_height_grid(surface, baseline, cfg, out);
-            return py::make_tuple(status, out);
-        },
-        py::arg("surface"), py::arg("baseline"), py::arg("cfg"));
-    m.def(
-        "complete_holes",
-        [](vm::HeightGrid& grid, const vm::BaselineModel& baseline, const vm::MeasurementConfig& cfg) {
-            vm::HoleFillStats stats;
-            const vm::MeasurementStatus status = vm::complete_holes(grid, baseline, cfg, stats);
-            return py::make_tuple(status, stats);
-        },
-        py::arg("grid"), py::arg("baseline"), py::arg("cfg"));
-    m.def("compute_grid_estimate", &vm::compute_grid_estimate, py::arg("grid"));
-
-    // Fine-grained operators (reference volumes).
-    m.def("compute_aabb_volume", &vm::compute_aabb_volume, py::arg("cloud"));
-    m.def("compute_obb_volume", &vm::compute_obb_volume, py::arg("cloud"));
-    m.def("compute_convex_hull_volume", &vm::compute_convex_hull_volume, py::arg("cloud"));
-
-    py::class_<vm::VolumeMeasurement>(m, "VolumeMeasurement")
+    py::class_<vm::FoodVolumeMeasurer>(m, "FoodVolumeMeasurer")
         .def(py::init<>())
-        .def("set_config", &vm::VolumeMeasurement::set_config, py::arg("cfg"))
-        .def("config", &vm::VolumeMeasurement::config, py::return_value_policy::reference_internal)
-        .def("save_config_to_json", &vm::VolumeMeasurement::save_config_to_json, py::arg("path"))
-        .def("load_config_from_json", &vm::VolumeMeasurement::load_config_from_json, py::arg("path"))
-        .def("measure", &vm::VolumeMeasurement::measure, py::arg("baseline_frames"), py::arg("food_frame"));
+        .def("set_baseline", &vm::FoodVolumeMeasurer::set_baseline, py::arg("frames"))
+        .def("add_baseline_frame", &vm::FoodVolumeMeasurer::add_baseline_frame, py::arg("frame"))
+        .def("set_food", &vm::FoodVolumeMeasurer::set_food, py::arg("cloud"))
+        .def("set_input_unit", &vm::FoodVolumeMeasurer::set_input_unit, py::arg("unit"))
+        .def("set_voxel_size", &vm::FoodVolumeMeasurer::set_voxel_size, py::arg("size_m"))
+        .def("set_integration_resolution", &vm::FoodVolumeMeasurer::set_integration_resolution,
+             py::arg("resolution_m"))
+        .def("set_height_range", &vm::FoodVolumeMeasurer::set_height_range, py::arg("min_m"), py::arg("max_m"))
+        .def("set_roi", &vm::FoodVolumeMeasurer::set_roi, py::arg("roi"))
+        .def("clear_roi", &vm::FoodVolumeMeasurer::clear_roi)
+        .def("set_selection_mode", &vm::FoodVolumeMeasurer::set_selection_mode, py::arg("mode"))
+        .def("set_selected_labels", &vm::FoodVolumeMeasurer::set_selected_labels, py::arg("labels"))
+        .def("set_cluster_params", &vm::FoodVolumeMeasurer::set_cluster_params, py::arg("footprint_eps_m"),
+             py::arg("min_points"))
+        .def("set_plane_distance_threshold", &vm::FoodVolumeMeasurer::set_plane_distance_threshold,
+             py::arg("threshold_m"))
+        .def("set_config", &vm::FoodVolumeMeasurer::set_config, py::arg("cfg"))
+        .def("config", &vm::FoodVolumeMeasurer::config, py::return_value_policy::reference_internal)
+        .def("load_config_from_json", &vm::FoodVolumeMeasurer::load_config_from_json, py::arg("path"))
+        .def("save_config_to_json", &vm::FoodVolumeMeasurer::save_config_to_json, py::arg("path"))
+        .def("run", &vm::FoodVolumeMeasurer::run);
 
     // Logging.
     m.def("log_set_level", &vm::log_set_level, py::arg("level"));

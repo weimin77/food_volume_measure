@@ -15,7 +15,7 @@ namespace vm {
 /**
  * @brief [en] Selected foreground food components: stable public labels plus their point clouds.
  * @brief [zh] 选中的前景食材块：稳定的公开标签及其点云。
- * @exporter
+
  */
 struct FoodComponents {
     std::size_t cluster_count = 0;  // total non-noise DBSCAN clusters found before selection
@@ -38,7 +38,7 @@ struct FoodComponents {
  * @param out [zh] 选中的连通块标签及其点云。
  * @return [en] kSuccess, kInsufficientCoverage, kFoodNotFound, or kInvalidConfig.
  * @return [zh] kSuccess、kInsufficientCoverage、kFoodNotFound 或 kInvalidConfig。
- * @exporter
+
  */
 MeasurementStatus extract_food_components(const PointCloud& food_m, const BaselineModel& baseline,
                                           const MeasurementConfig& cfg, FoodComponents& out);
@@ -58,7 +58,7 @@ MeasurementStatus extract_food_components(const PointCloud& food_m, const Baseli
  * @param dense_out [zh] 稠密的有效前景点。
  * @return [en] kSuccess, kInvalidConfig, or kInsufficientCoverage.
  * @return [zh] kSuccess、kInvalidConfig 或 kInsufficientCoverage。
- * @exporter
+
  */
 MeasurementStatus filter_baseline_difference(const PointCloud& food_m, const BaselineModel& baseline,
                                              const MeasurementConfig& cfg, PointCloud& dense_out);
@@ -74,7 +74,7 @@ MeasurementStatus filter_baseline_difference(const PointCloud& food_m, const Bas
  * @param baseline [zh] 空炉基线模型。
  * @return [en] Projected points with z = 0.
  * @return [zh] z=0 的投影点。
- * @exporter
+
  */
 PointCloud project_to_plane(const PointCloud& cloud, const BaselineModel& baseline);
 
@@ -93,7 +93,7 @@ PointCloud project_to_plane(const PointCloud& cloud, const BaselineModel& baseli
  * @param out [zh] 选中的连通块标签及其点云。
  * @return [en] kSuccess, kInvalidConfig, or kFoodNotFound.
  * @return [zh] kSuccess、kInvalidConfig 或 kFoodNotFound。
- * @exporter
+
  */
 MeasurementStatus select_components(const std::vector<int>& labels, const PointCloud& cloud,
                                     const MeasurementConfig& cfg, FoodComponents& out);

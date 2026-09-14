@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "volume_pointcloudprocess.hpp"
 #include "volume_log.hpp"
 #include "volume_measurement.hpp"
 
@@ -56,8 +55,8 @@ int main(int argc, char* argv[]) {
     std::cout << "baseline points: " << baseline.points.size() << std::endl;
     std::cout << "初始点云数量: " << food.points.size() << std::endl;
 
-    vm::VolumeMeasurement measurement;
-    const vm::VolumeEstimate est = measurement.measure(std::vector<vm::PointCloud>{baseline}, food);
+    vm::FoodVolumeMeasurer measurer;
+    const vm::VolumeEstimate est = measurer.set_baseline({baseline}).set_food(food).run();
 
     std::cout << "\n=== IM 复现完成 ===" << std::endl;
     std::cout << "输入点数: " << est.input_points << std::endl;

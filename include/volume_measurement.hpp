@@ -12,111 +12,184 @@ namespace vm {
 
 
 /**
- * @brief [en] End-to-end IM food volume measurement pipeline.
- * @brief [zh] 端到端的 IM 食材体积测量流水线。
+ * @brief [en] Chain-configurable food volume measurer: set inputs and parameters, then call `run`.
+ * @brief [zh] 链式配置的食材体积量测器：设置输入与参数后调用 `run` 即可测量。
+ *
+ * @details [en] All setters return a reference to this instance so calls can be chained.
+ *     Inputs and parameters are stored on the instance; `run` executes the full IM pipeline
+ *     (preprocess → background-plane removal → baseline → component extraction → integration
+ *     with hole completion) and returns a `VolumeEstimate`.
+ * @details [zh] 所有 setter 返回本实例引用，可链式调用。输入与参数保存在实例中；
+ *     `run` 执行完整 IM 流水线（预处理 → 背景平面移除 → 基线 → 连通块提取 → 含补洞的积分），
+ *     返回 `VolumeEstimate`。
  * @exporter
  */
-class VolumeMeasurement {
+class FoodVolumeMeasurer {
   public:
-    VolumeMeasurement() = default;
+    FoodVolumeMeasurer() = default;
+
+    // ---------- inputs ----------
 
     /**
-     * @brief [en] Sets the measurement configuration used by `measure`.
-     * @brief [zh] 设置 `measure` 使用的测量配置。
-     * @param cfg [en] The configuration to use.
-     * @param cfg [zh] 要使用的配置。
+     * @brief [en] Replaces the empty-oven baseline frames (in `input_unit`).
+     * @brief [zh] 替换空炉基线帧（单位为 `input_unit`）。
      * @exporter
      */
-    void set_config(const MeasurementConfig& cfg);
+    FoodVolumeMeasurer& set_baseline(const std::vector<PointCloud>& frames);
+
+    /**
+     * @brief [en] Appends one empty-oven baseline frame (in `input_unit`).
+     * @brief [zh] 追加一帧空炉基线（单位为 `input_unit`）。
+     * @exporter
+     */
+    FoodVolumeMeasurer& add_baseline_frame(const PointCloud& frame);
+
+    /**
+     * @brief [en] Sets the food point cloud to measure (in `input_unit`).
+     * @brief [zh] 设置待测食材点云（单位为 `input_unit`）。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_food(const PointCloud& cloud);
+
+    // ---------- common parameters ----------
+
+    /**
+     * @brief [en] Sets the linear unit of all input point clouds.
+     * @brief [zh] 设置所有输入点云的线性单位。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_input_unit(LengthUnit unit);
+
+    /**
+     * @brief [en] Sets the voxel size used for downsampling, in metres.
+     * @brief [zh] 设置降采样体素边长（米）。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_voxel_size(double size_m);
+
+    /**
+     * @brief [en] Sets the baseline/integration raster cell size, in metres.
+     * @brief [zh] 设置基线/积分栅格边长（米）。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_integration_resolution(double resolution_m);
+
+    /**
+     * @brief [en] Sets the accepted baseline-relative height range of food points, in metres.
+     * @brief [zh] 设置食材点相对基线高度的接受范围（米）。
+     * @param min_m [en] Minimum accepted height; must be non-negative.
+     * @param min_m [zh] 最小接受高度，必须非负。
+     * @param max_m [en] Maximum accepted height; values <= 0 disable the cap.
+     * @param max_m [zh] 最大接受高度；<= 0 表示关闭上限。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_height_range(double min_m, double max_m);
+
+    /**
+     * @brief [en] Enables an axis-aligned crop region applied before downsampling.
+     * @brief [zh] 启用降采样前应用的轴对齐裁剪区域。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_roi(const AxisAlignedRoi& roi);
+
+    /**
+     * @brief [en] Disables the axis-aligned crop region.
+     * @brief [zh] 禁用轴对齐裁剪区域。
+     * @exporter
+     */
+    FoodVolumeMeasurer& clear_roi();
+
+    /**
+     * @brief [en] Sets how foreground food components are selected.
+     * @brief [zh] 设置前景食材块的选择方式。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_selection_mode(ComponentSelectionMode mode);
+
+    /**
+     * @brief [en] Sets the manually selected component labels (used in manual selection mode).
+     * @brief [zh] 设置手动选择的连通块标签（手动模式下使用）。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_selected_labels(const std::vector<int>& labels);
+
+    /**
+     * @brief [en] Sets the footprint clustering radius and minimum cluster size.
+     * @brief [zh] 设置足迹聚类半径与最小簇规模。
+     * @param footprint_eps_m [en] DBSCAN neighbourhood radius in the baseline plane, in metres.
+     * @param footprint_eps_m [zh] 基准面内 DBSCAN 邻域半径（米）。
+     * @param min_points [en] Minimum cluster size including the point itself; must be positive.
+     * @param min_points [zh] 构成簇所需的最小邻域点数（含自身），必须为正。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_cluster_params(double footprint_eps_m, int min_points);
+
+    /**
+     * @brief [en] Sets the RANSAC inlier distance threshold for background-plane removal.
+     * @brief [zh] 设置背景平面移除的 RANSAC 内点距离阈值。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_plane_distance_threshold(double threshold_m);
+
+    // ---------- full configuration ----------
+
+    /**
+     * @brief [en] Replaces the full measurement configuration, including advanced fields.
+     * @brief [zh] 替换完整测量配置（含高级字段）。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_config(const MeasurementConfig& cfg);
 
     /**
      * @brief [en] Returns the current measurement configuration.
      * @brief [zh] 返回当前测量配置。
-     * @return [en] The stored configuration.
-     * @return [zh] 存储的配置。
      * @exporter
      */
     const MeasurementConfig& config() const;
 
     /**
-     * @brief [en] Saves the current configuration to a JSON file.
-     * @brief [zh] 将当前配置保存到 JSON 文件。
-     * @param path [en] Output JSON file path.
-     * @param path [zh] 输出的 JSON 文件路径。
-     * @return [en] True when the file was written successfully.
-     * @return [zh] 文件成功写入时为真。
-     * @exporter
-     */
-    bool save_config_to_json(const std::string& path) const;
-
-    /**
-     * @brief [en] Loads the configuration from a JSON file into this instance.
-     * @brief [zh] 从 JSON 文件载入配置到本实例。
-     * @param path [en] JSON config file path.
-     * @param path [zh] JSON 配置文件路径。
-     * @return [en] True when the file was parsed successfully.
-     * @return [zh] 文件解析成功时为真。
+     * @brief [en] Loads the configuration from a JSON file, overriding stored values.
+     * @brief [zh] 从 JSON 文件载入配置并覆盖已存值。
      * @exporter
      */
     bool load_config_from_json(const std::string& path);
 
     /**
-     * @brief [en] Measures food volume in cubic centimeters from empty-oven baseline frames and a food frame.
-     * @brief [zh] 从空炉基线帧与食材帧测量食材体积（立方厘米）。
-     * @param baseline_frames [en] One or more empty-oven point clouds in `cfg.input_unit`.
-     * @param baseline_frames [zh] 一帧或多帧以 `cfg.input_unit` 为单位的空炉点云。
-     * @param food_frame [en] The food point cloud in `cfg.input_unit`.
-     * @param food_frame [zh] 以 `cfg.input_unit` 为单位的食材点云。
-     * @note [en] The measurement configuration is taken from the instance's `cfg_` member.
-     * @note [zh] 测量配置取自实例的 `cfg_` 成员。
+     * @brief [en] Saves the current configuration to a JSON file.
+     * @brief [zh] 将当前配置保存到 JSON 文件。
+     * @exporter
+     */
+    bool save_config_to_json(const std::string& path) const;
+
+    // ---------- execution ----------
+
+    /**
+     * @brief [en] Runs the IM pipeline and returns the volume estimate.
+     * @brief [zh] 运行 IM 流水线并返回体积估计。
      * @return [en] A VolumeEstimate whose status indicates success or the first failing stage.
      * @return [zh] 一个 VolumeEstimate，其状态指示成功或第一个失败阶段。
      * @exporter
      */
-    VolumeEstimate measure(const std::vector<PointCloud>& baseline_frames, const PointCloud& food_frame) const;
+    VolumeEstimate run() const;
 
   private:
-    MeasurementConfig cfg_; // 测量配置
+    MeasurementConfig cfg_;
+    std::vector<PointCloud> baseline_frames_;
+    PointCloud food_;
 };
 
 
 
 /**
- * @brief [en] Computes the axis-aligned bounding-box volume of a point cloud in cubic metres.
- * @brief [zh] 计算点云的轴对齐包围盒体积（立方米）。
- * @param cloud [en] Points in metres.
- * @param cloud [zh] 以米为单位的点。
- * @return [en] AABB volume, or NaN when the cloud is empty.
- * @return [zh] AABB 体积；点云为空时为 NaN。
+ * @brief [en] Loads a PCD point-cloud file into the library's point model.
+ * @brief [zh] 将 PCD 点云文件载入到库的点模型。
+ * @param path [en] Path to the PCD file.
+ * @param path [zh] PCD 文件路径。
+ * @return [en] The loaded points, or an empty cloud when the file cannot be read.
+ * @return [zh] 载入的点；文件无法读取时返回空点云。
  * @exporter
  */
-double compute_aabb_volume(const PointCloud& cloud);
-
-
-
-/**
- * @brief [en] Computes the moment-based oriented bounding-box volume of a point cloud in cubic metres.
- * @brief [zh] 计算点云基于矩的定向包围盒体积（立方米）。
- * @param cloud [en] Points in metres.
- * @param cloud [zh] 以米为单位的点。
- * @return [en] OBB volume, or NaN when the cloud is empty.
- * @return [zh] OBB 体积；点云为空时为 NaN。
- * @exporter
- */
-double compute_obb_volume(const PointCloud& cloud);
-
-
-
-/**
- * @brief [en] Computes the convex-hull volume of a point cloud in cubic metres.
- * @brief [zh] 计算点云的凸包体积（立方米）。
- * @param cloud [en] Points in metres.
- * @param cloud [zh] 以米为单位的点。
- * @return [en] Convex-hull volume, or NaN when it cannot be computed.
- * @return [zh] 凸包体积；无法计算时为 NaN。
- * @exporter
- */
-double compute_convex_hull_volume(const PointCloud& cloud);
+PointCloud load_pcd(const std::string& path);
 
 
 

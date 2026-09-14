@@ -27,7 +27,7 @@ namespace vm {
  * @param out [zh] 积分体积与诊断信息。
  * @return [en] kSuccess, kInvalidConfig, kInsufficientCoverage, or kFoodNotFound.
  * @return [zh] kSuccess、kInvalidConfig、kInsufficientCoverage 或 kFoodNotFound。
- * @exporter
+
  */
 MeasurementStatus measure_component_volume(const FoodComponents& components, const BaselineModel& baseline,
                                            const MeasurementConfig& cfg, ComponentVolumeEstimate& out);
@@ -47,7 +47,7 @@ MeasurementStatus measure_component_volume(const FoodComponents& components, con
  * @param out [zh] 每个连通块各一条积分结果，顺序与 `components.labels` 一致。
  * @return [en] kSuccess, or the first per-component failure status.
  * @return [zh] kSuccess，或首个失败连通块的状态。
- * @exporter
+
  */
 MeasurementStatus measure_component_volumes(const FoodComponents& components, const BaselineModel& baseline,
                                             const MeasurementConfig& cfg, std::vector<ComponentVolumeEstimate>& out);
@@ -63,7 +63,7 @@ MeasurementStatus measure_component_volumes(const FoodComponents& components, co
  * @param baseline [zh] 空炉基线模型。
  * @return [en] The top-surface map.
  * @return [zh] 顶表面图。
- * @exporter
+
  */
 SurfaceMap build_top_surface(const FoodComponents& components, const BaselineModel& baseline);
 
@@ -82,7 +82,7 @@ SurfaceMap build_top_surface(const FoodComponents& components, const BaselineMod
  * @param out [zh] 带派生统计的高度栅格。
  * @return [en] kSuccess, kInvalidConfig, or kInsufficientCoverage.
  * @return [zh] kSuccess、kInvalidConfig 或 kInsufficientCoverage。
- * @exporter
+
  */
 MeasurementStatus build_height_grid(const SurfaceMap& surface, const BaselineModel& baseline,
                                     const MeasurementConfig& cfg, HeightGrid& out);
@@ -102,7 +102,7 @@ MeasurementStatus build_height_grid(const SurfaceMap& surface, const BaselineMod
  * @param stats [zh] 补洞统计。
  * @return [en] kSuccess or kInvalidConfig.
  * @return [zh] kSuccess 或 kInvalidConfig。
- * @exporter
+
  */
 MeasurementStatus complete_holes(HeightGrid& grid, const BaselineModel& baseline, const MeasurementConfig& cfg,
                                  HoleFillStats& stats);
@@ -116,7 +116,7 @@ MeasurementStatus complete_holes(HeightGrid& grid, const BaselineModel& baseline
  * @param grid [zh] 带派生统计的高度栅格。
  * @return [en] The component volume estimate.
  * @return [zh] 连通块体积估计。
- * @exporter
+
  */
 ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid);
 

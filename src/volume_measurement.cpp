@@ -37,12 +37,26 @@ namespace vm {
 
 namespace {
 
-VolumeEstimate failure(MeasurementStatus status, std::string message) {
+VolumeEstimate failure(MeasurementStatus status, const std::string& message) {
     log_error("pipeline failed: " + message);
     VolumeEstimate est{};
     est.status = status;
-    est.message = std::move(message);
+    est.message = message;
     return est;
+}
+
+// Concatenates the selected component clouds once for the reference-volume helpers.
+PointCloud merged_components_cloud(const FoodComponents& components) {
+    PointCloud merged;
+    std::size_t total = 0;
+    for (const auto& cloud : components.clouds) {
+        total += cloud.points.size();
+    }
+    merged.points.reserve(total);
+    for (const auto& cloud : components.clouds) {
+        merged.points.insert(merged.points.end(), cloud.points.begin(), cloud.points.end());
+    }
+    return merged;
 }
 
 // Chooses orientation points from the largest 3D DBSCAN component, or empty when none qualifies.
@@ -89,181 +103,243 @@ PointCloud select_largest_cluster(const PointCloud& cloud_m, const MeasurementCo
 #endif // __ARM_EABI__
 }
 
-#ifndef __ARM_EABI__
-
-struct ReferenceVolumes {
-    double aabb_volume_m3 = std::numeric_limits<double>::quiet_NaN();
-    double obb_volume_m3 = std::numeric_limits<double>::quiet_NaN();
-    double convex_hull_volume_m3 = std::numeric_limits<double>::quiet_NaN();
-};
-
-// Reference volumes from the selected food points, mirroring the Python POC's AABB / OBB / convex-hull
-// comparison block. The OBB here is PCL's moment-based OBB rather than the Python minimum-volume OBB, so
-// its value is indicative rather than identical.
-ReferenceVolumes compute_reference_volumes(const std::vector<PointCloud>& component_clouds) {
-    VM_PROFILE_FUNC();
-    ReferenceVolumes out{};
-
-    std::size_t total = 0;
-    for (const auto& cloud : component_clouds) {
-        total += cloud.points.size();
-    }
-    if (total == 0) {
-        return out;
-    }
-
-    PointCloud merged;
-    merged.points.reserve(total);
-    for (const auto& cloud : component_clouds) {
-        merged.points.insert(merged.points.end(), cloud.points.begin(), cloud.points.end());
-    }
-
-    out.aabb_volume_m3 = compute_aabb_volume(merged);
-    out.obb_volume_m3 = compute_obb_volume(merged);
-    out.convex_hull_volume_m3 = compute_convex_hull_volume(merged);
-    return out;
-}
-
-#endif // __ARM_EABI__
-
 } // namespace
 
 
 
-double compute_aabb_volume(const PointCloud& cloud) {
-    VM_PROFILE_FUNC();
-#ifdef __ARM_EABI__
-    (void)cloud;
-    return std::numeric_limits<double>::quiet_NaN();
-#else
-    if (cloud.points.empty()) {
-        return std::numeric_limits<double>::quiet_NaN();
-    }
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
-    pc->points.reserve(cloud.points.size());
-    for (const auto& p : cloud.points) {
-        pc->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
-    }
-    pc->width = static_cast<std::uint32_t>(pc->points.size());
-    pc->height = 1;
-
-    pcl::PointXYZ min_pt;
-    pcl::PointXYZ max_pt;
-    pcl::getMinMax3D(*pc, min_pt, max_pt);
-    return static_cast<double>(max_pt.x - min_pt.x) * static_cast<double>(max_pt.y - min_pt.y) *
-           static_cast<double>(max_pt.z - min_pt.z);
-#endif // __ARM_EABI__
-}
+/**
+ * @brief [en] Loads a PCD point-cloud file into the library's point model.
+ * @brief [zh] 将 PCD 点云文件载入到库的点模型。
+ * @attacher
+ */
+PointCloud load_pcd(const std::string& path) { return load_pcd_impl(path); }
 
 
 
-double compute_obb_volume(const PointCloud& cloud) {
-    VM_PROFILE_FUNC();
-#ifdef __ARM_EABI__
-    (void)cloud;
-    return std::numeric_limits<double>::quiet_NaN();
-#else
-    if (cloud.points.empty()) {
-        return std::numeric_limits<double>::quiet_NaN();
-    }
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
-    pc->points.reserve(cloud.points.size());
-    for (const auto& p : cloud.points) {
-        pc->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
-    }
-    pc->width = static_cast<std::uint32_t>(pc->points.size());
-    pc->height = 1;
-
-    pcl::MomentOfInertiaEstimation<pcl::PointXYZ> moi;
-    moi.setInputCloud(pc);
-    moi.compute();
-    pcl::PointXYZ obb_min;
-    pcl::PointXYZ obb_max;
-    pcl::PointXYZ obb_position;
-    Eigen::Matrix3f obb_rotation = Eigen::Matrix3f::Identity();
-    moi.getOBB(obb_min, obb_max, obb_position, obb_rotation);
-    return static_cast<double>(obb_max.x - obb_min.x) * static_cast<double>(obb_max.y - obb_min.y) *
-           static_cast<double>(obb_max.z - obb_min.z);
-#endif // __ARM_EABI__
-}
-
-
-
-double compute_convex_hull_volume(const PointCloud& cloud) {
-    VM_PROFILE_FUNC();
-#ifdef __ARM_EABI__
-    (void)cloud;
-    return std::numeric_limits<double>::quiet_NaN();
-#else
-    if (cloud.points.empty()) {
-        return std::numeric_limits<double>::quiet_NaN();
-    }
-    pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
-    pc->points.reserve(cloud.points.size());
-    for (const auto& p : cloud.points) {
-        pc->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
-    }
-    pc->width = static_cast<std::uint32_t>(pc->points.size());
-    pc->height = 1;
-
-    pcl::ConvexHull<pcl::PointXYZ> hull;
-    hull.setInputCloud(pc);
-    pcl::PolygonMesh mesh;
-    hull.reconstruct(mesh);
-    pcl::PointCloud<pcl::PointXYZ> hull_vertices;
-    pcl::fromPCLPointCloud2(mesh.cloud, hull_vertices);
-    if (hull_vertices.points.empty()) {
-        return std::numeric_limits<double>::quiet_NaN();
-    }
-
-    Eigen::Vector3d center = Eigen::Vector3d::Zero();
-    for (const auto& v : hull_vertices.points) {
-        center += Eigen::Vector3d(static_cast<double>(v.x), static_cast<double>(v.y), static_cast<double>(v.z));
-    }
-    center /= static_cast<double>(hull_vertices.points.size());
-
-    double volume = 0.0;
-    for (const auto& poly : mesh.polygons) {
-        if (poly.vertices.size() != 3) {
-            continue;
-        }
-        const auto& a = hull_vertices.points[poly.vertices[0]];
-        const auto& b = hull_vertices.points[poly.vertices[1]];
-        const auto& c = hull_vertices.points[poly.vertices[2]];
-        const Eigen::Vector3d va(static_cast<double>(a.x) - center.x(), static_cast<double>(a.y) - center.y(),
-                                 static_cast<double>(a.z) - center.z());
-        const Eigen::Vector3d vb(static_cast<double>(b.x) - center.x(), static_cast<double>(b.y) - center.y(),
-                                 static_cast<double>(b.z) - center.z());
-        const Eigen::Vector3d vc(static_cast<double>(c.x) - center.x(), static_cast<double>(c.y) - center.y(),
-                                 static_cast<double>(c.z) - center.z());
-        // For a convex hull and an interior reference point, the tetrahedra formed by each boundary
-        // triangle partition the hull exactly, so their absolute volumes sum to the hull volume.
-        volume += std::fabs(va.dot(vb.cross(vc))) / 6.0;
-    }
-    return volume;
-#endif // __ARM_EABI__
+/**
+ * @brief [en] Replaces the empty-oven baseline frames (in `input_unit`).
+ * @brief [zh] 替换空炉基线帧（单位为 `input_unit`）。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_baseline(const std::vector<PointCloud>& frames) {
+    baseline_frames_ = frames;
+    return *this;
 }
 
 
 
 /**
- * @brief [en] Measures food volume in cubic centimeters from empty-oven baseline frames and a food frame.
- * @brief [zh] 从空炉基线帧与食材帧测量食材体积（立方厘米）。
+ * @brief [en] Appends one empty-oven baseline frame (in `input_unit`).
+ * @brief [zh] 追加一帧空炉基线（单位为 `input_unit`）。
  * @attacher
  */
-VolumeEstimate VolumeMeasurement::measure(const std::vector<PointCloud>& baseline_frames,
-                                          const PointCloud& food_frame) const {
+FoodVolumeMeasurer& FoodVolumeMeasurer::add_baseline_frame(const PointCloud& frame) {
+    baseline_frames_.push_back(frame);
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the food point cloud to measure (in `input_unit`).
+ * @brief [zh] 设置待测食材点云（单位为 `input_unit`）。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_food(const PointCloud& cloud) {
+    food_ = cloud;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the linear unit of all input point clouds.
+ * @brief [zh] 设置所有输入点云的线性单位。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_input_unit(LengthUnit unit) {
+    cfg_.input_unit = unit;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the voxel size used for downsampling, in metres.
+ * @brief [zh] 设置降采样体素边长（米）。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_voxel_size(double size_m) {
+    cfg_.voxel_size_m = size_m;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the baseline/integration raster cell size, in metres.
+ * @brief [zh] 设置基线/积分栅格边长（米）。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_integration_resolution(double resolution_m) {
+    cfg_.integration_resolution_m = resolution_m;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the accepted baseline-relative height range of food points, in metres.
+ * @brief [zh] 设置食材点相对基线高度的接受范围（米）。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_height_range(double min_m, double max_m) {
+    cfg_.min_height_m = min_m;
+    cfg_.max_height_m = max_m;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Enables an axis-aligned crop region applied before downsampling.
+ * @brief [zh] 启用降采样前应用的轴对齐裁剪区域。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_roi(const AxisAlignedRoi& roi) {
+    cfg_.roi = roi;
+    cfg_.use_roi = true;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Disables the axis-aligned crop region.
+ * @brief [zh] 禁用轴对齐裁剪区域。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::clear_roi() {
+    cfg_.use_roi = false;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets how foreground food components are selected.
+ * @brief [zh] 设置前景食材块的选择方式。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_selection_mode(ComponentSelectionMode mode) {
+    cfg_.selection_mode = mode;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the manually selected component labels (used in manual selection mode).
+ * @brief [zh] 设置手动选择的连通块标签（手动模式下使用）。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_selected_labels(const std::vector<int>& labels) {
+    cfg_.selected_labels = labels;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the footprint clustering radius and minimum cluster size.
+ * @brief [zh] 设置足迹聚类半径与最小簇规模。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_cluster_params(double footprint_eps_m, int min_points) {
+    cfg_.foreground_cluster_eps_m = footprint_eps_m;
+    cfg_.cluster_min_points = min_points;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the RANSAC inlier distance threshold for background-plane removal.
+ * @brief [zh] 设置背景平面移除的 RANSAC 内点距离阈值。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_plane_distance_threshold(double threshold_m) {
+    cfg_.plane_distance_threshold_m = threshold_m;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Replaces the full measurement configuration, including advanced fields.
+ * @brief [zh] 替换完整测量配置（含高级字段）。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_config(const MeasurementConfig& cfg) {
+    cfg_ = cfg;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Returns the current measurement configuration.
+ * @brief [zh] 返回当前测量配置。
+ * @attacher
+ */
+const MeasurementConfig& FoodVolumeMeasurer::config() const { return cfg_; }
+
+
+
+/**
+ * @brief [en] Loads the configuration from a JSON file, overriding stored values.
+ * @brief [zh] 从 JSON 文件载入配置并覆盖已存值。
+ * @attacher
+ */
+bool FoodVolumeMeasurer::load_config_from_json(const std::string& path) {
+    return vm::load_config_from_json(path, cfg_);
+}
+
+
+
+/**
+ * @brief [en] Saves the current configuration to a JSON file.
+ * @brief [zh] 将当前配置保存到 JSON 文件。
+ * @attacher
+ */
+bool FoodVolumeMeasurer::save_config_to_json(const std::string& path) const {
+    return vm::save_config_to_json(cfg_, path);
+}
+
+
+
+/**
+ * @brief [en] Runs the IM pipeline and returns the volume estimate.
+ * @brief [zh] 运行 IM 流水线并返回体积估计。
+ * @attacher
+ */
+VolumeEstimate FoodVolumeMeasurer::run() const {
     VM_PROFILE_FUNC();
     const MeasurementConfig& cfg = cfg_;
 #ifdef __ARM_EABI__
-    (void)baseline_frames;
-    (void)food_frame;
     (void)cfg;
     return failure(MeasurementStatus::kUnsupportedPlatform, "PCL volume pipeline is unavailable on bare-metal");
 #else
+    if (baseline_frames_.empty()) {
+        return failure(MeasurementStatus::kEmptyBaseline, status_to_string(MeasurementStatus::kEmptyBaseline));
+    }
+    if (food_.points.empty()) {
+        return failure(MeasurementStatus::kEmptyInput, status_to_string(MeasurementStatus::kEmptyInput));
+    }
+
     // 1. Preprocess the food frame (unit-normalize, optional crop, voxel downsample).
     PreprocessResult pre{};
-    MeasurementStatus st = preprocess_cloud(food_frame, cfg, pre);
+    MeasurementStatus st = preprocess_cloud(food_, cfg, pre);
     if (st != MeasurementStatus::kSuccess) {
         return failure(st, status_to_string(st));
     }
@@ -283,7 +359,7 @@ VolumeEstimate VolumeMeasurement::measure(const std::vector<PointCloud>& baselin
 
     // 4. Build the reusable empty-oven baseline model.
     BaselineModel baseline{};
-    st = build_baseline_model(baseline_frames, orientation, cfg, baseline);
+    st = build_baseline_model(baseline_frames_, orientation, cfg, baseline);
     if (st != MeasurementStatus::kSuccess) {
         return failure(st, status_to_string(st));
     }
@@ -338,41 +414,16 @@ VolumeEstimate VolumeMeasurement::measure(const std::vector<PointCloud>& baselin
     est.coverage_ratio = component_volume.coverage_ratio;
     est.mean_height_m = component_volume.mean_height_m;
     est.max_height_m = component_volume.max_height_m;
-    const ReferenceVolumes reference = compute_reference_volumes(components.clouds);
-    est.aabb_volume_m3 = reference.aabb_volume_m3;
-    est.obb_volume_m3 = reference.obb_volume_m3;
-    est.convex_hull_volume_m3 = reference.convex_hull_volume_m3;
+    // Reference volumes from the merged selected-component cloud.
+    const PointCloud merged = merged_components_cloud(components);
+    est.aabb_volume_m3 = compute_aabb_volume(merged);
+    est.obb_volume_m3 = compute_obb_volume(merged);
+    est.convex_hull_volume_m3 = compute_convex_hull_volume(merged);
     est.message = status_to_string(MeasurementStatus::kSuccess);
     log_info("result: status=" + std::string(status_to_string(est.status)) +
              " volume_cm3=" + std::to_string(est.volume_cm3));
     return est;
 #endif // __ARM_EABI__
 }
-
-
-
-void VolumeMeasurement::set_config(const MeasurementConfig& cfg) {
-    cfg_ = cfg;
-}
-
-
-
-const MeasurementConfig& VolumeMeasurement::config() const {
-    return cfg_;
-}
-
-
-
-bool VolumeMeasurement::save_config_to_json(const std::string& path) const {
-    return vm::save_config_to_json(cfg_, path);
-}
-
-
-
-bool VolumeMeasurement::load_config_from_json(const std::string& path) {
-    return vm::load_config_from_json(path, cfg_);
-}
-
-
 
 } // namespace vm

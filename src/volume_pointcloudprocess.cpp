@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -13,6 +14,10 @@
 #include <Eigen/Dense>
 #include <pcl/ModelCoefficients.h>
 #include <pcl/PointIndices.h>
+#include <pcl/PolygonMesh.h>
+#include <pcl/common/common.h>
+#include <pcl/conversions.h>
+#include <pcl/features/moment_of_inertia_estimation.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/voxel_grid.h>
@@ -23,6 +28,7 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/surface/convex_hull.h>
 #endif
 // Conan::ImportEnd
 
@@ -50,7 +56,7 @@ double signed_height(const Plane& plane, const Point3f& p) {
  * @brief [zh] 将 PCD 点云文件载入到库的点模型。
  * @attacher
  */
-PointCloud load_pcd(const std::string& path) {
+PointCloud load_pcd_impl(const std::string& path) {
     VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)path;
@@ -58,7 +64,7 @@ PointCloud load_pcd(const std::string& path) {
 #else
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
     if (pcl::io::loadPCDFile<pcl::PointXYZ>(path, *cloud) < 0) {
-        log_error("load_pcd failed: " + path);
+        log_error("load_pcd_impl failed: " + path);
         return PointCloud{};
     }
 
@@ -484,6 +490,137 @@ MeasurementStatus remove_dominant_plane(const PointCloud& cloud_m, const Measure
     }
     log_info("remove_dominant_plane: remaining=" + std::to_string(remaining.points.size()));
     return MeasurementStatus::kSuccess;
+#endif // __ARM_EABI__
+}
+
+
+
+/**
+ * @brief [en] Computes the axis-aligned bounding-box volume of a point cloud in cubic metres.
+ * @brief [zh] 计算点云的轴对齐包围盒体积（立方米）。
+ * @attacher
+ */
+double compute_aabb_volume(const PointCloud& cloud) {
+    VM_PROFILE_FUNC();
+#ifdef __ARM_EABI__
+    (void)cloud;
+    return std::numeric_limits<double>::quiet_NaN();
+#else
+    if (cloud.points.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
+    pc->points.reserve(cloud.points.size());
+    for (const auto& p : cloud.points) {
+        pc->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
+    }
+    pc->width = static_cast<std::uint32_t>(pc->points.size());
+    pc->height = 1;
+
+    pcl::PointXYZ min_pt;
+    pcl::PointXYZ max_pt;
+    pcl::getMinMax3D(*pc, min_pt, max_pt);
+    return static_cast<double>(max_pt.x - min_pt.x) * static_cast<double>(max_pt.y - min_pt.y) *
+           static_cast<double>(max_pt.z - min_pt.z);
+#endif // __ARM_EABI__
+}
+
+
+
+/**
+ * @brief [en] Computes the moment-based oriented bounding-box volume of a point cloud in cubic metres.
+ * @brief [zh] 计算点云基于矩的定向包围盒体积（立方米）。
+ * @attacher
+ */
+double compute_obb_volume(const PointCloud& cloud) {
+    VM_PROFILE_FUNC();
+#ifdef __ARM_EABI__
+    (void)cloud;
+    return std::numeric_limits<double>::quiet_NaN();
+#else
+    if (cloud.points.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
+    pc->points.reserve(cloud.points.size());
+    for (const auto& p : cloud.points) {
+        pc->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
+    }
+    pc->width = static_cast<std::uint32_t>(pc->points.size());
+    pc->height = 1;
+
+    pcl::MomentOfInertiaEstimation<pcl::PointXYZ> moi;
+    moi.setInputCloud(pc);
+    moi.compute();
+    pcl::PointXYZ obb_min;
+    pcl::PointXYZ obb_max;
+    pcl::PointXYZ obb_position;
+    Eigen::Matrix3f obb_rotation = Eigen::Matrix3f::Identity();
+    moi.getOBB(obb_min, obb_max, obb_position, obb_rotation);
+    return static_cast<double>(obb_max.x - obb_min.x) * static_cast<double>(obb_max.y - obb_min.y) *
+           static_cast<double>(obb_max.z - obb_min.z);
+#endif // __ARM_EABI__
+}
+
+
+
+/**
+ * @brief [en] Computes the convex-hull volume of a point cloud in cubic metres.
+ * @brief [zh] 计算点云的凸包体积（立方米）。
+ * @attacher
+ */
+double compute_convex_hull_volume(const PointCloud& cloud) {
+    VM_PROFILE_FUNC();
+#ifdef __ARM_EABI__
+    (void)cloud;
+    return std::numeric_limits<double>::quiet_NaN();
+#else
+    if (cloud.points.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+    pcl::PointCloud<pcl::PointXYZ>::Ptr pc(new pcl::PointCloud<pcl::PointXYZ>);
+    pc->points.reserve(cloud.points.size());
+    for (const auto& p : cloud.points) {
+        pc->points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
+    }
+    pc->width = static_cast<std::uint32_t>(pc->points.size());
+    pc->height = 1;
+
+    pcl::ConvexHull<pcl::PointXYZ> hull;
+    hull.setInputCloud(pc);
+    pcl::PolygonMesh mesh;
+    hull.reconstruct(mesh);
+    pcl::PointCloud<pcl::PointXYZ> hull_vertices;
+    pcl::fromPCLPointCloud2(mesh.cloud, hull_vertices);
+    if (hull_vertices.points.empty()) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    Eigen::Vector3d center = Eigen::Vector3d::Zero();
+    for (const auto& v : hull_vertices.points) {
+        center += Eigen::Vector3d(static_cast<double>(v.x), static_cast<double>(v.y), static_cast<double>(v.z));
+    }
+    center /= static_cast<double>(hull_vertices.points.size());
+
+    double volume = 0.0;
+    for (const auto& poly : mesh.polygons) {
+        if (poly.vertices.size() != 3) {
+            continue;
+        }
+        const auto& a = hull_vertices.points[poly.vertices[0]];
+        const auto& b = hull_vertices.points[poly.vertices[1]];
+        const auto& c = hull_vertices.points[poly.vertices[2]];
+        const Eigen::Vector3d va(static_cast<double>(a.x) - center.x(), static_cast<double>(a.y) - center.y(),
+                                 static_cast<double>(a.z) - center.z());
+        const Eigen::Vector3d vb(static_cast<double>(b.x) - center.x(), static_cast<double>(b.y) - center.y(),
+                                 static_cast<double>(b.z) - center.z());
+        const Eigen::Vector3d vc(static_cast<double>(c.x) - center.x(), static_cast<double>(c.y) - center.y(),
+                                 static_cast<double>(c.z) - center.z());
+        // For a convex hull and an interior reference point, the tetrahedra formed by each boundary
+        // triangle partition the hull exactly, so their absolute volumes sum to the hull volume.
+        volume += std::fabs(va.dot(vb.cross(vc))) / 6.0;
+    }
+    return volume;
 #endif // __ARM_EABI__
 }
 
