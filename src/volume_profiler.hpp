@@ -14,8 +14,8 @@ struct ProfileEntry {
     std::string name;
     long calls = 0;
     double wall_ms = 0.0;
-    double usr_ms = 0.0;   // 用户态 CPU 时间（含被调函数）
-    double sys_ms = 0.0;   // 内核态 CPU 时间（含被调函数）
+    double usr_ms = 0.0;            // 用户态 CPU 时间（含被调函数）
+    double sys_ms = 0.0;            // 内核态 CPU 时间（含被调函数）
     double heap_kb = 0.0;           // 净增堆内存（含被调函数，可正可负）
     double peak_rss_delta_kb = 0.0; // 该函数期间进程峰值 RSS 的增量（ru_maxrss 水线，含被调函数）
     long nvcsw = 0;                 // 自愿上下文切换（ru_nvcsw）
@@ -39,23 +39,23 @@ struct ProfileSample {
 };
 
 class Profiler {
-public:
+  public:
     static Profiler& instance();
     void add(const char* name, const ProfileSample& sample);
     ~Profiler();
 
-private:
+  private:
     std::mutex mu_;
     std::vector<ProfileEntry> entries_;
     double peak_heap_kb_ = 0.0;
 };
 
 class ScopedTimer {
-public:
+  public:
     explicit ScopedTimer(const char* name);
     ~ScopedTimer();
 
-private:
+  private:
     const char* name_;
     std::chrono::steady_clock::time_point wall_;
     rusage cpu0_;

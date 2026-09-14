@@ -62,8 +62,7 @@ const char* selection_mode_to_string(ComponentSelectionMode mode) {
 
 // Reads a scalar member only when the key is present; leaves the target untouched otherwise.
 // A type-mismatched field is ignored (the target keeps its previous value).
-template <typename T>
-void read_if_present(const Json& j, const char* key, T& target) {
+template <typename T> void read_if_present(const Json& j, const char* key, T& target) {
     if (!j.contains(key)) {
         return;
     }
@@ -186,12 +185,8 @@ bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path) 
 
     root["input_unit"] = length_unit_to_string(cfg.input_unit);
     root["use_roi"] = cfg.use_roi;
-    root["roi"] = Json{{"min_x", cfg.roi.min_x},
-                       {"max_x", cfg.roi.max_x},
-                       {"min_y", cfg.roi.min_y},
-                       {"max_y", cfg.roi.max_y},
-                       {"min_z", cfg.roi.min_z},
-                       {"max_z", cfg.roi.max_z}};
+    root["roi"] = Json{{"min_x", cfg.roi.min_x}, {"max_x", cfg.roi.max_x}, {"min_y", cfg.roi.min_y},
+                       {"max_y", cfg.roi.max_y}, {"min_z", cfg.roi.min_z}, {"max_z", cfg.roi.max_z}};
     root["voxel_size_m"] = cfg.voxel_size_m;
     root["plane_distance_threshold_m"] = cfg.plane_distance_threshold_m;
     root["plane_ransac_iterations"] = cfg.plane_ransac_iterations;

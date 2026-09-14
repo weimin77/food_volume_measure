@@ -147,13 +147,13 @@ void log_write(LogLevel level, const std::string& message) {
     const std::string line = "[" + timestamp() + "] [" + level_name(level) + "] " + message;
     if (g_log_console) {
         if (level == LogLevel::kWarning || level == LogLevel::kError) {
-            std::cerr << line << std::endl;
+            std::cerr << line << '\n';
         } else {
-            std::cout << line << std::endl;
+            std::cout << line << '\n';
         }
     }
     if (g_log_file.is_open()) {
-        g_log_file << line << std::endl;
+        g_log_file << line << '\n';
         g_log_file.flush();
     }
 }
