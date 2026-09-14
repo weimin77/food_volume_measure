@@ -27,3 +27,6 @@ CMakeUserPresets.json
 # megalinter reports
 /megalinter-reports/
 mega-linter.log
+
+/build
+/vscode
