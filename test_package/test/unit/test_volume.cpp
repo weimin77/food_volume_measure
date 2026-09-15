@@ -4,8 +4,10 @@
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <iomanip>
 #include <iterator>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <vector>
 #include "volume_log.hpp"
@@ -53,6 +55,20 @@ vm::PointCloud make_food_with_rect_hole(double hole_x_min, double hole_x_max, do
                 continue;
             }
             cloud.points.push_back({static_cast<float>(x), static_cast<float>(y), static_cast<float>(kCuboidTop)});
+        }
+    }
+    return cloud;
+}
+
+// Two separated cuboids on a wide tray; the gap is wide enough that they become
+// two distinct footprint clusters.
+vm::PointCloud make_two_cuboid_food() {
+    vm::PointCloud cloud = make_baseline(0.25);
+    for (const double x0 : {0.0025, 0.1125}) {
+        for (double x = x0; x <= x0 + 0.095 + 1.0e-9; x += kCell) {
+            for (double y = 0.0025; y <= 0.0975 + 1.0e-9; y += kCell) {
+                cloud.points.push_back({static_cast<float>(x), static_cast<float>(y), static_cast<float>(kCuboidTop)});
+            }
         }
     }
     return cloud;
@@ -564,6 +580,38 @@ TEST(Measurer, SaveMiddleCloudDisabledWritesNothing) {
     const auto est = measurer.set_middle_cloud_dir(dir).set_baseline({make_baseline()}).set_food(make_food()).run();
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_FALSE(std::filesystem::exists(dir));
+}
+
+
+
+TEST(Measurer, SaveMiddleCloudWritesPerComponentFiles) {
+    // Every selected connected component must land in its own PCD, named by its label,
+    // so a multi-food frame can be inspected one region at a time.
+    const std::string dir = "unit_middle_cloud_components_test";
+    std::filesystem::remove_all(dir);
+
+    auto measurer = make_measurer();
+    const auto est = measurer.set_save_middle_cloud(true)
+                         .set_middle_cloud_dir(dir)
+                         .set_baseline({make_baseline(0.25)})
+                         .set_food(make_two_cuboid_food())
+                         .run();
+    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.component_count, 2u);
+    ASSERT_EQ(est.selected_cluster_labels.size(), est.component_estimates.size());
+
+    for (const int label : est.selected_cluster_labels) {
+        std::ostringstream name;
+        name << dir << "/4_food_component_label" << std::setw(2) << std::setfill('0') << label << ".pcd";
+        std::ifstream file(name.str());
+        EXPECT_TRUE(file.is_open()) << "missing component cloud: " << name.str();
+    }
+
+    // The merged cloud stays available next to the per-component ones.
+    std::ifstream merged(dir + "/4_food_components.pcd");
+    EXPECT_TRUE(merged.is_open());
+
+    std::filesystem::remove_all(dir);
 }
 
 

@@ -84,6 +84,16 @@ PointCloud cells_to_world_cloud(const std::vector<CellKey>& cells, const std::ve
     return out;
 }
 
+// Left-pads a non-negative value with zeros so the per-component files sort in
+// component order rather than lexicographically.
+std::string zero_padded(int value, int width) {
+    std::string text = std::to_string(value);
+    if (static_cast<int>(text.size()) < width) {
+        text.insert(0, static_cast<std::size_t>(width) - text.size(), '0');
+    }
+    return text;
+}
+
 // Writes one PCD per pipeline stage when the caller asked for the intermediate dump.
 #ifndef __ARM_EABI__
 void dump_middle_clouds(const MeasurementConfig& cfg, const PointCloud& raw_food, const PointCloud& downsampled,
@@ -119,7 +129,20 @@ void dump_middle_clouds(const MeasurementConfig& cfg, const PointCloud& raw_food
                       cells_to_world_cloud(cells, heights, data.frame, data.cell_size_m));
     }
 
+    // Stage 4: the selected food components. The merged cloud keeps the whole scene
+    // together, and every component is additionally written on its own so a
+    // multi-food frame can be inspected one connected region at a time.
     save_pcd_impl(path_of("4_food_components.pcd"), merged_components_cloud(components));
+
+    std::size_t component_files = 0;
+    for (std::size_t i = 0; i < components.clouds.size(); ++i) {
+        const int label = (i < components.labels.size()) ? components.labels[i] : static_cast<int>(i);
+        const std::string name = "4_food_component_label" + zero_padded(label, 2) + ".pcd";
+        if (save_pcd_impl(path_of(name.c_str()), components.clouds[i])) {
+            ++component_files;
+        }
+    }
+    log_debug("wrote " + std::to_string(component_files) + " per-component cloud(s)");
 
     const SurfaceMap surface = build_top_surface(components, baseline);
     if (baseline.data && !surface.cells.empty()) {

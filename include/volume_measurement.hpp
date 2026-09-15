@@ -135,11 +135,15 @@ class FoodVolumeMeasurer {
     /**
      * @brief [en] Enables or disables the dump of intermediate stage point clouds.
      * @brief [zh] 启用或禁用中间阶段点云的落盘。
-     * @details [en] When enabled, `run` writes one PCD per pipeline stage (input, downsampled,
-     *     plane removed, baseline surface, food components, top surface) into the directory
-     *     set by `set_middle_cloud_dir`.
+     * @details [en] When enabled, `run` writes one PCD per pipeline stage
+     *     (input, downsampled, plane removed, baseline surface, food components, top surface)
+     *     into the directory set by `set_middle_cloud_dir`. Every selected food component is
+     *     also written separately, as `4_food_component_label<NN>.pcd`, so a multi-food frame
+     *     can be inspected one connected region at a time.
      * @details [zh] 启用后 `run` 会把流水线各阶段（输入、降采样后、去平面后、基线表面、
      *     食材块、顶表面）各写入一个 PCD 到 `set_middle_cloud_dir` 指定的目录。
+     *     每个选中的食材连通域还会单独写出为 `4_food_component_label<NN>.pcd`，
+     *     便于对多食材帧逐个连通域排查。
      * @param enabled [en] True to write the stage clouds.
      * @param enabled [zh] 为真时写出各阶段点云。
      * @exporter
