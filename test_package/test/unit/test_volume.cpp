@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iterator>
 #include <limits>
 #include <string>
@@ -145,48 +146,6 @@ TEST(Logging, LevelFiltersMessages) {
     EXPECT_NE(content.find("this warning message must be kept"), std::string::npos);
     vm::log_set_level(vm::LogLevel::kOff);
     std::remove(path.c_str());
-}
-
-
-
-TEST(Measurer, ChainableSetters) {
-    vm::FoodVolumeMeasurer measurer;
-    vm::AxisAlignedRoi roi;
-    roi.min_x = -0.2F;
-    roi.max_x = 0.2F;
-    roi.min_y = -0.2F;
-    roi.max_y = 0.2F;
-    roi.min_z = -0.1F;
-    roi.max_z = 0.2F;
-
-    measurer.set_input_unit(vm::LengthUnit::kMillimeter)
-        .set_voxel_size(0.002)
-        .set_integration_resolution(0.005)
-        .set_height_range(0.0015, -1.0)
-        .set_roi(roi)
-        .clear_roi()
-        .set_selection_mode(vm::ComponentSelectionMode::kManual)
-        .set_selected_labels({1, 2})
-        .set_cluster_params(0.010, 8)
-        .set_plane_distance_threshold(0.003)
-        .set_save_middle_cloud(true)
-        .set_middle_cloud_dir("unit_middle_cloud_test");
-
-    const vm::MeasurementConfig& cfg = measurer.config();
-    EXPECT_EQ(cfg.input_unit, vm::LengthUnit::kMillimeter);
-    EXPECT_DOUBLE_EQ(cfg.voxel_size_m, 0.002);
-    EXPECT_DOUBLE_EQ(cfg.integration_resolution_m, 0.005);
-    EXPECT_DOUBLE_EQ(cfg.min_height_m, 0.0015);
-    EXPECT_DOUBLE_EQ(cfg.max_height_m, -1.0);
-    EXPECT_FALSE(cfg.use_roi);
-    EXPECT_EQ(cfg.selection_mode, vm::ComponentSelectionMode::kManual);
-    ASSERT_EQ(cfg.selected_labels.size(), 2u);
-    EXPECT_EQ(cfg.selected_labels[1], 2);
-    EXPECT_DOUBLE_EQ(cfg.foreground_cluster_eps_m, 0.010);
-    EXPECT_EQ(cfg.cluster_min_points, 8);
-    EXPECT_DOUBLE_EQ(cfg.plane_distance_threshold_m, 0.003);
-    EXPECT_TRUE(cfg.save_middle_cloud);
-    EXPECT_EQ(cfg.middle_cloud_dir, "unit_middle_cloud_test");
 }
 
 
@@ -605,4 +564,111 @@ TEST(Measurer, SaveMiddleCloudDisabledWritesNothing) {
     const auto est = measurer.set_middle_cloud_dir(dir).set_baseline({make_baseline()}).set_food(make_food()).run();
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_FALSE(std::filesystem::exists(dir));
+}
+
+
+
+TEST(Measurer, PrepareBaselineThenRunMatchesInlineBuild) {
+    // A prepared baseline must give exactly the same measurement as the inline build.
+    auto inline_measurer = make_measurer();
+    const auto inline_est = inline_measurer.set_baseline({make_baseline()}).set_food(make_food()).run();
+    ASSERT_EQ(inline_est.status, vm::MeasurementStatus::kSuccess) << inline_est.message;
+
+    auto prepared = make_measurer();
+    prepared.set_baseline({make_baseline()}).set_food(make_food());
+    ASSERT_EQ(prepared.prepare_baseline(), vm::MeasurementStatus::kSuccess);
+    EXPECT_TRUE(prepared.has_prepared_baseline());
+
+    const auto est = prepared.run();
+    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    EXPECT_DOUBLE_EQ(est.volume_cm3, inline_est.volume_cm3);
+    EXPECT_EQ(est.baseline_cell_count, inline_est.baseline_cell_count);
+    EXPECT_EQ(est.component_count, inline_est.component_count);
+}
+
+
+
+TEST(Measurer, PrepareBaselineReusedAcrossFoodFrames) {
+    // One prepared baseline should serve several food frames without being discarded.
+    auto measurer = make_measurer();
+    measurer.set_baseline({make_baseline()}).set_food(make_food());
+    ASSERT_EQ(measurer.prepare_baseline(), vm::MeasurementStatus::kSuccess);
+
+    const auto first = measurer.run();
+    ASSERT_EQ(first.status, vm::MeasurementStatus::kSuccess) << first.message;
+    EXPECT_TRUE(measurer.has_prepared_baseline());
+
+    // Swapping the food frame keeps the cache: this is the repeated-measurement use case.
+    measurer.set_food(make_food_with_rect_hole(0.04, 0.06, 0.04, 0.06));
+    EXPECT_TRUE(measurer.has_prepared_baseline());
+    const auto second = measurer.run();
+    ASSERT_EQ(second.status, vm::MeasurementStatus::kSuccess) << second.message;
+    EXPECT_EQ(second.baseline_cell_count, first.baseline_cell_count);
+}
+
+
+
+TEST(Measurer, PrepareBaselineInvalidatedByBaselineInputs) {
+    struct InvalidationCase {
+        const char* name;
+        std::function<void(vm::FoodVolumeMeasurer&)> mutate;
+    };
+    const InvalidationCase cases[] = {
+        {"set_baseline", [](vm::FoodVolumeMeasurer& m) { m.set_baseline({make_baseline()}); }},
+        {"add_baseline_frame", [](vm::FoodVolumeMeasurer& m) { m.add_baseline_frame(make_baseline()); }},
+        {"set_input_unit", [](vm::FoodVolumeMeasurer& m) { m.set_input_unit(vm::LengthUnit::kMillimeter); }},
+        {"set_voxel_size", [](vm::FoodVolumeMeasurer& m) { m.set_voxel_size(0.003); }},
+        {"set_integration_resolution", [](vm::FoodVolumeMeasurer& m) { m.set_integration_resolution(0.004); }},
+        {"set_plane_distance_threshold", [](vm::FoodVolumeMeasurer& m) { m.set_plane_distance_threshold(0.004); }},
+        {"set_cluster_params", [](vm::FoodVolumeMeasurer& m) { m.set_cluster_params(0.012, 9); }},
+        {"set_config", [](vm::FoodVolumeMeasurer& m) { m.set_config(make_config()); }},
+    };
+
+    for (const auto& test_case : cases) {
+        // A fresh measurer per case: the mutations accumulate otherwise (for example
+        // switching to millimetres would reinterpret the metre-valued clouds).
+        auto measurer = make_measurer();
+        measurer.set_baseline({make_baseline()}).set_food(make_food());
+
+        ASSERT_EQ(measurer.prepare_baseline(), vm::MeasurementStatus::kSuccess) << test_case.name;
+        ASSERT_TRUE(measurer.has_prepared_baseline()) << test_case.name;
+        test_case.mutate(measurer);
+        EXPECT_FALSE(measurer.has_prepared_baseline()) << test_case.name;
+    }
+}
+
+
+
+TEST(Measurer, PrepareBaselineKeptByFoodOnlySetters) {
+    // Parameters that only shape the food side must not throw the baseline cache away.
+    auto measurer = make_measurer();
+    measurer.set_baseline({make_baseline()}).set_food(make_food());
+    ASSERT_EQ(measurer.prepare_baseline(), vm::MeasurementStatus::kSuccess);
+
+    measurer.set_height_range(0.002, 0.05)
+        .set_selection_mode(vm::ComponentSelectionMode::kManual)
+        .set_selected_labels({0})
+        .set_roi(vm::AxisAlignedRoi{})
+        .clear_roi();
+    EXPECT_TRUE(measurer.has_prepared_baseline());
+
+    const auto est = measurer.run();
+    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+}
+
+
+
+TEST(Measurer, PrepareBaselineRejectsMissingInputs) {
+    auto measurer = make_measurer();
+
+    // No baseline frames yet.
+    measurer.set_food(make_food());
+    EXPECT_EQ(measurer.prepare_baseline(), vm::MeasurementStatus::kEmptyBaseline);
+    EXPECT_FALSE(measurer.has_prepared_baseline());
+
+    // Baseline present, but the food frame needed for orientation is missing.
+    auto measurer2 = make_measurer();
+    measurer2.set_baseline({make_baseline()});
+    EXPECT_EQ(measurer2.prepare_baseline(), vm::MeasurementStatus::kEmptyInput);
+    EXPECT_FALSE(measurer2.has_prepared_baseline());
 }

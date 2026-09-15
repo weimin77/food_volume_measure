@@ -37,6 +37,13 @@ namespace vm {
 
 
 
+// Cached empty-oven baseline model; opaque to the public header.
+struct FoodVolumeMeasurer::PreparedBaseline {
+    BaselineModel model;
+};
+
+
+
 namespace {
 
 VolumeEstimate failure(MeasurementStatus status, const std::string& message) {
@@ -189,6 +196,7 @@ PointCloud load_pcd(const std::string& path) { return load_pcd_impl(path); }
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_baseline(const std::vector<PointCloud>& frames) {
     baseline_frames_ = frames;
+    invalidate_prepared_baseline();
     return *this;
 }
 
@@ -201,6 +209,7 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_baseline(const std::vector<PointClou
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::add_baseline_frame(const PointCloud& frame) {
     baseline_frames_.push_back(frame);
+    invalidate_prepared_baseline();
     return *this;
 }
 
@@ -225,6 +234,7 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_food(const PointCloud& cloud) {
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_input_unit(LengthUnit unit) {
     cfg_.input_unit = unit;
+    invalidate_prepared_baseline();
     return *this;
 }
 
@@ -237,6 +247,7 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_input_unit(LengthUnit unit) {
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_voxel_size(double size_m) {
     cfg_.voxel_size_m = size_m;
+    invalidate_prepared_baseline();
     return *this;
 }
 
@@ -249,6 +260,7 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_voxel_size(double size_m) {
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_integration_resolution(double resolution_m) {
     cfg_.integration_resolution_m = resolution_m;
+    invalidate_prepared_baseline();
     return *this;
 }
 
@@ -324,6 +336,7 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_selected_labels(const std::vector<in
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_cluster_params(double footprint_eps_m, int min_points) {
     cfg_.foreground_cluster_eps_m = footprint_eps_m;
     cfg_.cluster_min_points = min_points;
+    invalidate_prepared_baseline();
     return *this;
 }
 
@@ -336,6 +349,7 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_cluster_params(double footprint_eps_
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_plane_distance_threshold(double threshold_m) {
     cfg_.plane_distance_threshold_m = threshold_m;
+    invalidate_prepared_baseline();
     return *this;
 }
 
@@ -372,6 +386,7 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_middle_cloud_dir(const std::string& 
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_config(const MeasurementConfig& cfg) {
     cfg_ = cfg;
+    invalidate_prepared_baseline();
     return *this;
 }
 
@@ -392,7 +407,11 @@ const MeasurementConfig& FoodVolumeMeasurer::config() const { return cfg_; }
  * @attacher
  */
 bool FoodVolumeMeasurer::load_config_from_json(const std::string& path) {
-    return vm::load_config_from_json(path, cfg_);
+    const bool ok = vm::load_config_from_json(path, cfg_);
+    if (ok) {
+        invalidate_prepared_baseline();
+    }
+    return ok;
 }
 
 
@@ -409,10 +428,75 @@ bool FoodVolumeMeasurer::save_config_to_json(const std::string& path) const {
 
 
 /**
- * @brief [en] Runs the IM pipeline and returns the volume estimate.
- * @brief [zh] 运行 IM 流水线并返回体积估计。
+ * @brief [en] Builds and caches the empty-oven baseline model so repeated `run` calls skip it.
+ * @brief [zh] 构建并缓存空炉基线模型，使后续 `run` 调用无需重复构建。
  * @attacher
  */
+MeasurementStatus FoodVolumeMeasurer::prepare_baseline() {
+    VM_PROFILE_FUNC();
+    prepared_baseline_.reset();
+#ifdef __ARM_EABI__
+    return MeasurementStatus::kUnsupportedPlatform;
+#else
+    const MeasurementConfig& cfg = cfg_;
+    if (baseline_frames_.empty()) {
+        return MeasurementStatus::kEmptyBaseline;
+    }
+    // The food frame is what orients the baseline normal, so it must be known up front.
+    if (food_.points.empty()) {
+        log_error("prepare_baseline needs a food frame for orientation; call set_food first");
+        return MeasurementStatus::kEmptyInput;
+    }
+
+    // Reproduce the pipeline's first stages exactly so the cached baseline is identical to
+    // the one run() would have built inline.
+    PreprocessResult pre{};
+    MeasurementStatus st = preprocess_cloud(food_, cfg, pre);
+    if (st != MeasurementStatus::kSuccess) {
+        return st;
+    }
+
+    PointCloud remaining{};
+    st = remove_dominant_plane(pre.cloud, cfg, remaining);
+    if (st != MeasurementStatus::kSuccess) {
+        return st;
+    }
+
+    PointCloud orientation = select_largest_cluster(remaining, cfg);
+    if (orientation.points.empty()) {
+        orientation = remaining;
+    }
+
+    BaselineModel model{};
+    st = build_baseline_model(baseline_frames_, orientation, cfg, model);
+    if (st != MeasurementStatus::kSuccess) {
+        return st;
+    }
+
+    auto cache = std::make_shared<PreparedBaseline>();
+    cache->model = std::move(model);
+    prepared_baseline_ = std::move(cache);
+    log_info("prepare_baseline: cached baseline frames=" + std::to_string(prepared_baseline_->model.frame_count) +
+             " cells=" + std::to_string(prepared_baseline_->model.cell_count));
+    return MeasurementStatus::kSuccess;
+#endif // __ARM_EABI__
+}
+
+
+
+/**
+ * @brief [en] Returns whether a prepared baseline model is currently cached.
+ * @brief [zh] 返回当前是否已缓存了准备好的基线模型。
+ * @attacher
+ */
+bool FoodVolumeMeasurer::has_prepared_baseline() const { return prepared_baseline_ != nullptr; }
+
+
+
+void FoodVolumeMeasurer::invalidate_prepared_baseline() { prepared_baseline_.reset(); }
+
+
+
 VolumeEstimate FoodVolumeMeasurer::run() const {
     VM_PROFILE_FUNC();
     const MeasurementConfig& cfg = cfg_;
@@ -441,17 +525,22 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
         return failure(st, status_to_string(st));
     }
 
-    // 3. Orientation points: largest DBSCAN component, or all remaining when none qualifies.
-    PointCloud orientation = select_largest_cluster(remaining, cfg);
-    if (orientation.points.empty()) {
-        orientation = remaining;
-    }
-
-    // 4. Build the reusable empty-oven baseline model.
+    // 3-4. Baseline model: reuse the one prepared by prepare_baseline() when available,
+    // which also lets us skip the orientation DBSCAN pass entirely.
     BaselineModel baseline{};
-    st = build_baseline_model(baseline_frames_, orientation, cfg, baseline);
-    if (st != MeasurementStatus::kSuccess) {
-        return failure(st, status_to_string(st));
+    if (prepared_baseline_) {
+        baseline = prepared_baseline_->model;
+        log_debug("run: reusing the prepared baseline model");
+    } else {
+        // Orientation points: largest DBSCAN component, or all remaining when none qualifies.
+        PointCloud orientation = select_largest_cluster(remaining, cfg);
+        if (orientation.points.empty()) {
+            orientation = remaining;
+        }
+        st = build_baseline_model(baseline_frames_, orientation, cfg, baseline);
+        if (st != MeasurementStatus::kSuccess) {
+            return failure(st, status_to_string(st));
+        }
     }
 
     // 5. Extract selected food components.

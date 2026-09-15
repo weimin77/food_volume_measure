@@ -1,5 +1,6 @@
 // Conan::ImportStart
 #pragma once
+#include <memory>
 #include <string>
 #include <vector>
 #include "volume_types.hpp"
@@ -187,6 +188,37 @@ class FoodVolumeMeasurer {
     // ---------- execution ----------
 
     /**
+     * @brief [en] Builds and caches the empty-oven baseline model so repeated `run` calls skip it.
+     * @brief [zh] 构建并缓存空炉基线模型，使后续 `run` 调用无需重复构建。
+     *
+     * @details [en] The baseline depends only on the baseline frames (and the parameters that
+     *     shape them), not on the food frame, so it is worth building once when several food
+     *     frames are measured against the same empty oven. The food frame set by `set_food` is
+     *     used only to orient the baseline plane normal, so `set_food` must be called first.
+     *     Any later call that changes the baseline frames or the baseline-shaping parameters
+     *     (input unit, voxel size, integration resolution, plane threshold, cluster parameters,
+     *     or a whole-config replacement) discards the cache; `set_food` does not, which is what
+     *     lets one prepared baseline serve several food frames.
+     *     `run` works with or without a prepared baseline; when one is cached it reuses it.
+     * @details [zh] 基线只取决于基线帧（以及塑造基线的参数），与食材帧无关，因此在「同一个空炉、
+     *     多次测量不同食材」的场景下值得只构建一次。`set_food` 设置的食材帧仅用于确定基准面法向的
+     *     朝向，所以必须先调用 `set_food`。之后任何改变基线帧或基线相关参数的调用（输入单位、体素
+     *     边长、积分分辨率、平面阈值、聚类参数，或整体替换配置）都会丢弃缓存；`set_food` 不会丢弃，
+     *     这正是「一份基线服务多个食材帧」的关键。有缓存时 `run` 复用，没有时 `run` 自行构建。
+     * @return [en] kSuccess, or the first failing stage status.
+     * @return [zh] kSuccess，或首个失败阶段的状态。
+     * @exporter
+     */
+    MeasurementStatus prepare_baseline();
+
+    /**
+     * @brief [en] Returns whether a prepared baseline model is currently cached.
+     * @brief [zh] 返回当前是否已缓存了准备好的基线模型。
+     * @exporter
+     */
+    bool has_prepared_baseline() const;
+
+    /**
      * @brief [en] Runs the IM pipeline and returns the volume estimate.
      * @brief [zh] 运行 IM 流水线并返回体积估计。
      * @return [en] A VolumeEstimate whose status indicates success or the first failing stage.
@@ -196,9 +228,16 @@ class FoodVolumeMeasurer {
     VolumeEstimate run() const;
 
   private:
+    // Opaque cache holding the prebuilt baseline model; defined in the implementation.
+    struct PreparedBaseline;
+
+    // Drops the cached baseline; called by every setter that shapes the baseline inputs.
+    void invalidate_prepared_baseline();
+
     MeasurementConfig cfg_;
     std::vector<PointCloud> baseline_frames_;
     PointCloud food_;
+    std::shared_ptr<PreparedBaseline> prepared_baseline_;
 };
 
 
