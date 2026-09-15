@@ -146,7 +146,9 @@ void bind_structures(py::module& m) {
         .def_readwrite("curve_fill_min_rim_samples", &vm::MeasurementConfig::curve_fill_min_rim_samples)
         .def_readwrite("curve_fill_min_rim_coverage", &vm::MeasurementConfig::curve_fill_min_rim_coverage)
         .def_readwrite("curve_fill_max_fit_rmse_m", &vm::MeasurementConfig::curve_fill_max_fit_rmse_m)
-        .def_readwrite("curve_fill_max_prediction_rise_m", &vm::MeasurementConfig::curve_fill_max_prediction_rise_m);
+        .def_readwrite("curve_fill_max_prediction_rise_m", &vm::MeasurementConfig::curve_fill_max_prediction_rise_m)
+        .def_readwrite("save_middle_cloud", &vm::MeasurementConfig::save_middle_cloud)
+        .def_readwrite("middle_cloud_dir", &vm::MeasurementConfig::middle_cloud_dir);
 
     py::class_<vm::VolumeEstimate>(m, "VolumeEstimate")
         .def_readonly("status", &vm::VolumeEstimate::status)
@@ -229,6 +231,8 @@ void bind_functions(py::module& m) {
              py::arg("min_points"))
         .def("set_plane_distance_threshold", &vm::FoodVolumeMeasurer::set_plane_distance_threshold,
              py::arg("threshold_m"))
+        .def("set_save_middle_cloud", &vm::FoodVolumeMeasurer::set_save_middle_cloud, py::arg("enabled"))
+        .def("set_middle_cloud_dir", &vm::FoodVolumeMeasurer::set_middle_cloud_dir, py::arg("dir"))
         .def("set_config", &vm::FoodVolumeMeasurer::set_config, py::arg("cfg"))
         .def("config", &vm::FoodVolumeMeasurer::config, py::return_value_policy::reference_internal)
         .def("load_config_from_json", &vm::FoodVolumeMeasurer::load_config_from_json, py::arg("path"))

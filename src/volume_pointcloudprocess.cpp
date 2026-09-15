@@ -80,6 +80,42 @@ PointCloud load_pcd_impl(const std::string& path) {
 
 
 
+bool save_pcd_impl(const std::string& path, const PointCloud& cloud) {
+#ifdef __ARM_EABI__
+    (void)path;
+    (void)cloud;
+    return false;
+#else
+    if (cloud.points.empty()) {
+        log_debug("save_pcd_impl skipped (empty cloud): " + path);
+        return false;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ> pcd;
+    pcd.points.reserve(cloud.points.size());
+    for (const auto& p : cloud.points) {
+        if (!is_finite(p)) {
+            continue;
+        }
+        pcd.points.push_back(pcl::PointXYZ{p.x, p.y, p.z});
+    }
+    if (pcd.points.empty()) {
+        return false;
+    }
+    pcd.width = static_cast<std::uint32_t>(pcd.points.size());
+    pcd.height = 1;
+
+    if (pcl::io::savePCDFileBinary(path, pcd) < 0) {
+        log_error("save_pcd_impl failed: " + path);
+        return false;
+    }
+    log_debug("save_pcd_impl: " + path + " points=" + std::to_string(pcd.points.size()));
+    return true;
+#endif // __ARM_EABI__
+}
+
+
+
 PointCloud voxel_downsample(const PointCloud& cloud, double voxel_size) {
     VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__

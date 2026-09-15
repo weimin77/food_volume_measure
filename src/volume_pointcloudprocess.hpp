@@ -24,6 +24,20 @@ PointCloud load_pcd_impl(const std::string& path);
 
 
 /**
+ * @brief [en] PCD writing implementation backing the intermediate-cloud dump.
+ * @brief [zh] 中间点云落盘所用的 PCD 写出实现。
+ * @param path [en] Output PCD path.
+ * @param path [zh] 输出 PCD 路径。
+ * @param cloud [en] Cloud to write, in metres.
+ * @param cloud [zh] 待写出的点云（米）。
+ * @return [en] True when the file was written.
+ * @return [zh] 文件成功写出时为真。
+ */
+bool save_pcd_impl(const std::string& path, const PointCloud& cloud);
+
+
+
+/**
  * @brief [en] Output of the point-cloud preprocessing stage.
  * @brief [zh] 点云预处理阶段的输出。
  */

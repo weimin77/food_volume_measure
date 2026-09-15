@@ -166,6 +166,8 @@ bool load_config_from_json(const std::string& path, MeasurementConfig& out) {
     read_if_present(root, "curve_fill_min_rim_coverage", out.curve_fill_min_rim_coverage);
     read_if_present(root, "curve_fill_max_fit_rmse_m", out.curve_fill_max_fit_rmse_m);
     read_if_present(root, "curve_fill_max_prediction_rise_m", out.curve_fill_max_prediction_rise_m);
+    read_if_present(root, "save_middle_cloud", out.save_middle_cloud);
+    read_if_present(root, "middle_cloud_dir", out.middle_cloud_dir);
 
     if (root.contains("selected_labels")) {
         if (!root.at("selected_labels").is_array()) {
@@ -214,6 +216,8 @@ bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path) 
     root["curve_fill_min_rim_coverage"] = cfg.curve_fill_min_rim_coverage;
     root["curve_fill_max_fit_rmse_m"] = cfg.curve_fill_max_fit_rmse_m;
     root["curve_fill_max_prediction_rise_m"] = cfg.curve_fill_max_prediction_rise_m;
+    root["save_middle_cloud"] = cfg.save_middle_cloud;
+    root["middle_cloud_dir"] = cfg.middle_cloud_dir;
 
     std::ofstream file(path);
     if (!file.is_open()) {

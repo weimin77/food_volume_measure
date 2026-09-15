@@ -186,6 +186,10 @@ struct MeasurementConfig {
     double curve_fill_min_rim_coverage = volume_defaults::kCurveFillMinRimCoverage;
     double curve_fill_max_fit_rmse_m = volume_defaults::kCurveFillMaxFitRmseM;
     double curve_fill_max_prediction_rise_m = volume_defaults::kCurveFillMaxPredictionRiseM;
+
+    // Optional per-stage point-cloud dump for debugging and visualisation.
+    bool save_middle_cloud = false;
+    std::string middle_cloud_dir = "middle_data";
 };
 
 

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <cmath>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <iterator>
 #include <limits>
@@ -167,7 +168,9 @@ TEST(Measurer, ChainableSetters) {
         .set_selection_mode(vm::ComponentSelectionMode::kManual)
         .set_selected_labels({1, 2})
         .set_cluster_params(0.010, 8)
-        .set_plane_distance_threshold(0.003);
+        .set_plane_distance_threshold(0.003)
+        .set_save_middle_cloud(true)
+        .set_middle_cloud_dir("unit_middle_cloud_test");
 
     const vm::MeasurementConfig& cfg = measurer.config();
     EXPECT_EQ(cfg.input_unit, vm::LengthUnit::kMillimeter);
@@ -182,6 +185,8 @@ TEST(Measurer, ChainableSetters) {
     EXPECT_DOUBLE_EQ(cfg.foreground_cluster_eps_m, 0.010);
     EXPECT_EQ(cfg.cluster_min_points, 8);
     EXPECT_DOUBLE_EQ(cfg.plane_distance_threshold_m, 0.003);
+    EXPECT_TRUE(cfg.save_middle_cloud);
+    EXPECT_EQ(cfg.middle_cloud_dir, "unit_middle_cloud_test");
 }
 
 
@@ -270,8 +275,7 @@ TEST(Measurer, MillimeterInput) {
         }
     }
     auto measurer = make_measurer();
-    const auto est =
-        measurer.set_input_unit(vm::LengthUnit::kMillimeter).set_baseline({baseline}).set_food(food).run();
+    const auto est = measurer.set_input_unit(vm::LengthUnit::kMillimeter).set_baseline({baseline}).set_food(food).run();
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
 }
@@ -431,8 +435,9 @@ TEST(Measurer, ManualSelectionMode) {
 
 TEST(Measurer, SmallHoleInterpolated) {
     auto measurer = make_measurer();
-    const auto est =
-        measurer.set_baseline({make_baseline()}).set_food(make_food(0.0025, 0.0975, 0.0025, 0.0975, 0.0525, 0.0525)).run();
+    const auto est = measurer.set_baseline({make_baseline()})
+                         .set_food(make_food(0.0025, 0.0975, 0.0025, 0.0975, 0.0525, 0.0525))
+                         .run();
     ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
     EXPECT_EQ(est.interpolated_cells, 1u);
@@ -567,3 +572,37 @@ TEST(Measurer, SaveConfigRoundTrip) {
     std::remove(path.c_str());
 }
 
+TEST(Measurer, SaveMiddleCloudWritesStageFiles) {
+    // Enabling the dump must leave one PCD per pipeline stage on disk.
+    const std::string dir = "unit_middle_cloud_test";
+    std::filesystem::remove_all(dir);
+
+    auto measurer = make_measurer();
+    const auto est = measurer.set_save_middle_cloud(true)
+                         .set_middle_cloud_dir(dir)
+                         .set_baseline({make_baseline()})
+                         .set_food(make_food())
+                         .run();
+    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+
+    const char* const kExpected[] = {"0_input_food.pcd",       "1_downsampled.pcd",     "2_remaining.pcd",
+                                     "3_baseline_surface.pcd", "4_food_components.pcd", "5_top_surface.pcd"};
+    for (const char* name : kExpected) {
+        std::ifstream file(dir + "/" + name);
+        EXPECT_TRUE(file.is_open()) << "missing stage cloud: " << name;
+    }
+
+    std::filesystem::remove_all(dir);
+}
+
+
+
+TEST(Measurer, SaveMiddleCloudDisabledWritesNothing) {
+    const std::string dir = "unit_middle_cloud_off_test";
+    std::filesystem::remove_all(dir);
+
+    auto measurer = make_measurer();
+    const auto est = measurer.set_middle_cloud_dir(dir).set_baseline({make_baseline()}).set_food(make_food()).run();
+    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    EXPECT_FALSE(std::filesystem::exists(dir));
+}

@@ -19,6 +19,8 @@
 #ifndef __ARM_EABI__
 #include <algorithm>
 #include <cstdint>
+#include <filesystem>
+#include <system_error>
 #include <Eigen/Dense>
 #include <pcl/PolygonMesh.h>
 #include <pcl/common/common.h>
@@ -58,6 +60,70 @@ PointCloud merged_components_cloud(const FoodComponents& components) {
     }
     return merged;
 }
+
+// Renders plane-frame cell centres back into world coordinates at their stored heights.
+PointCloud cells_to_world_cloud(const std::vector<CellKey>& cells, const std::vector<double>& heights_m,
+                                const PlaneFrame& frame, double cell_size_m) {
+    PointCloud out;
+    out.points.reserve(cells.size());
+    for (std::size_t i = 0; i < cells.size(); ++i) {
+        const double u = (static_cast<double>(cells[i].first) + 0.5) * cell_size_m;
+        const double v = (static_cast<double>(cells[i].second) + 0.5) * cell_size_m;
+        const double h = heights_m[i];
+        out.points.push_back(Point3f{static_cast<float>(frame.ox + u * frame.ux + v * frame.vx + h * frame.nx),
+                                     static_cast<float>(frame.oy + u * frame.uy + v * frame.vy + h * frame.ny),
+                                     static_cast<float>(frame.oz + u * frame.uz + v * frame.vz + h * frame.nz)});
+    }
+    return out;
+}
+
+// Writes one PCD per pipeline stage when the caller asked for the intermediate dump.
+#ifndef __ARM_EABI__
+void dump_middle_clouds(const MeasurementConfig& cfg, const PointCloud& raw_food, const PointCloud& downsampled,
+                        const PointCloud& remaining, const BaselineModel& baseline, const FoodComponents& components) {
+    if (cfg.middle_cloud_dir.empty()) {
+        log_warning("save_middle_cloud is on but middle_cloud_dir is empty; skipping the dump");
+        return;
+    }
+
+    std::error_code ec;
+    std::filesystem::create_directories(cfg.middle_cloud_dir, ec);
+    if (ec) {
+        log_error("cannot create middle cloud dir '" + cfg.middle_cloud_dir + "': " + ec.message());
+        return;
+    }
+
+    const auto path_of = [&cfg](const char* name) { return cfg.middle_cloud_dir + "/" + name; };
+    save_pcd_impl(path_of("0_input_food.pcd"), raw_food);
+    save_pcd_impl(path_of("1_downsampled.pcd"), downsampled);
+    save_pcd_impl(path_of("2_remaining.pcd"), remaining);
+
+    if (baseline.data) {
+        const BaselineData& data = *baseline.data;
+        std::vector<CellKey> cells;
+        std::vector<double> heights;
+        cells.reserve(data.height_by_cell.size());
+        heights.reserve(data.height_by_cell.size());
+        for (const auto& entry : data.height_by_cell) {
+            cells.push_back(entry.first);
+            heights.push_back(entry.second);
+        }
+        save_pcd_impl(path_of("3_baseline_surface.pcd"),
+                      cells_to_world_cloud(cells, heights, data.frame, data.cell_size_m));
+    }
+
+    save_pcd_impl(path_of("4_food_components.pcd"), merged_components_cloud(components));
+
+    const SurfaceMap surface = build_top_surface(components, baseline);
+    if (baseline.data && !surface.cells.empty()) {
+        save_pcd_impl(
+            path_of("5_top_surface.pcd"),
+            cells_to_world_cloud(surface.cells, surface.heights_m, baseline.data->frame, baseline.data->cell_size_m));
+    }
+    log_info("middle clouds written to " + cfg.middle_cloud_dir);
+}
+#endif // __ARM_EABI__
+
 
 // Chooses orientation points from the largest 3D DBSCAN component, or empty when none qualifies.
 PointCloud select_largest_cluster(const PointCloud& cloud_m, const MeasurementConfig& cfg) {
@@ -276,6 +342,30 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_plane_distance_threshold(double thre
 
 
 /**
+ * @brief [en] Enables or disables the dump of intermediate stage point clouds.
+ * @brief [zh] 启用或禁用中间阶段点云的落盘。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_save_middle_cloud(bool enabled) {
+    cfg_.save_middle_cloud = enabled;
+    return *this;
+}
+
+
+
+/**
+ * @brief [en] Sets the output directory for the intermediate stage point clouds.
+ * @brief [zh] 设置中间阶段点云的输出目录。
+ * @attacher
+ */
+FoodVolumeMeasurer& FoodVolumeMeasurer::set_middle_cloud_dir(const std::string& dir) {
+    cfg_.middle_cloud_dir = dir;
+    return *this;
+}
+
+
+
+/**
  * @brief [en] Replaces the full measurement configuration, including advanced fields.
  * @brief [zh] 替换完整测量配置（含高级字段）。
  * @attacher
@@ -376,6 +466,11 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
     st = measure_component_volume(components, baseline, cfg, component_volume);
     if (st != MeasurementStatus::kSuccess) {
         return failure(st, status_to_string(st));
+    }
+
+    // 6b. Optional per-stage point-cloud dump, only after the run fully succeeded.
+    if (cfg.save_middle_cloud) {
+        dump_middle_clouds(cfg, food_, pre.cloud, remaining, baseline, components);
     }
 
     // 7. Translate the component result and pipeline diagnostics into the public estimate.

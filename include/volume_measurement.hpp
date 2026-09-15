@@ -131,6 +131,29 @@ class FoodVolumeMeasurer {
      */
     FoodVolumeMeasurer& set_plane_distance_threshold(double threshold_m);
 
+    /**
+     * @brief [en] Enables or disables the dump of intermediate stage point clouds.
+     * @brief [zh] 启用或禁用中间阶段点云的落盘。
+     * @details [en] When enabled, `run` writes one PCD per pipeline stage (input, downsampled,
+     *     plane removed, baseline surface, food components, top surface) into the directory
+     *     set by `set_middle_cloud_dir`.
+     * @details [zh] 启用后 `run` 会把流水线各阶段（输入、降采样后、去平面后、基线表面、
+     *     食材块、顶表面）各写入一个 PCD 到 `set_middle_cloud_dir` 指定的目录。
+     * @param enabled [en] True to write the stage clouds.
+     * @param enabled [zh] 为真时写出各阶段点云。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_save_middle_cloud(bool enabled);
+
+    /**
+     * @brief [en] Sets the output directory of the intermediate stage point clouds.
+     * @brief [zh] 设置中间阶段点云的输出目录。
+     * @param dir [en] Directory path; created when missing.
+     * @param dir [zh] 目录路径；不存在时自动创建。
+     * @exporter
+     */
+    FoodVolumeMeasurer& set_middle_cloud_dir(const std::string& dir);
+
     // ---------- full configuration ----------
 
     /**
