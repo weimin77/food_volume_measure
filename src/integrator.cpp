@@ -845,6 +845,12 @@ SurfaceMap build_top_surface(const FoodComponents& components, const BaselineMod
 
 
 
+namespace {
+
+// Grid construction, hole completion and grid-to-estimate conversion. Only
+// measure_component_volume below uses them; build_top_surface stays in the header because the
+// intermediate-cloud dump needs it. 栅格构建、补洞与转估计，仅供下方积分使用。
+
 /**
  * @brief [en] Builds the baseline-difference height grid from a top-surface map.
  * @brief [zh] 从顶表面图构建基线差分高度栅格。
@@ -923,9 +929,7 @@ ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid) {
     return out;
 #endif // __ARM_EABI__
 }
-
-
-
+} // namespace
 /**
  * @brief [en] Measures component volume by integrating baseline-relative heights with conservative hole completion.
  * @brief [zh] 通过积分相对基线高度并保守补洞来测量连通块体积。

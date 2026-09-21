@@ -66,6 +66,11 @@ PlaneFrame make_frame(double nx, double ny, double nz, double ox, double oy, dou
 
 
 
+namespace {
+
+// Plane-frame construction, baseline rasterisation and the plane ROI, used only by
+// build_baseline_model below. 平面坐标系构建、基线栅格化与平面 ROI，仅供下方使用。
+
 /**
  * @brief [en] Builds the local orthonormal (u,v,n) frame for a plane and an origin.
  * @brief [zh] 为平面和原点构建局部正交 (u,v,n) 坐标系。
@@ -157,9 +162,7 @@ bool build_plane_roi(BaselineData& baseline, double border_margin_m) {
     baseline.roi.border_margin_m = border_margin_m;
     return true;
 }
-
-
-
+} // namespace
 /**
  * @brief [en] Builds the empty-oven baseline model from one or more baseline frames.
  * @brief [zh] 从一帧或多帧空炉点云建立空炉基线模型。

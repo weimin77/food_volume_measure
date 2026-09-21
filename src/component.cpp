@@ -63,6 +63,14 @@ MeasurementStatus build_valid_difference_points(const PointCloud& food_m, const 
     return MeasurementStatus::kSuccess;
 }
 
+// Defined further down but called by extract_food_components above, so they are declared here.
+// 定义在下方，但被上方的 extract_food_components 调用，故在此前置声明。
+MeasurementStatus filter_baseline_difference(const PointCloud& food_m, const BaselineModel& baseline,
+                                             const MeasurementConfig& cfg, PointCloud& dense_out);
+PointCloud project_to_plane(const PointCloud& cloud, const BaselineModel& baseline);
+MeasurementStatus select_components(const std::vector<int>& labels, const PointCloud& cloud,
+                                    const MeasurementConfig& cfg, FoodComponents& out);
+
 } // namespace
 
 
@@ -110,6 +118,10 @@ MeasurementStatus extract_food_components(const PointCloud& food_m, const Baseli
 }
 
 
+namespace {
+
+// Foreground filtering and footprint clustering, used only by extract_food_components above.
+// 前景过滤与足迹聚类，仅供上方的 extract_food_components 使用。
 
 MeasurementStatus filter_baseline_difference(const PointCloud& food_m, const BaselineModel& baseline,
                                              const MeasurementConfig& cfg, PointCloud& dense_out) {
@@ -238,3 +250,4 @@ MeasurementStatus select_components(const std::vector<int>& labels, const PointC
     return MeasurementStatus::kSuccess;
 #endif // __ARM_EABI__
 }
+} // namespace
