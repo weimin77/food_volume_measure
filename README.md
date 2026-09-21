@@ -77,9 +77,14 @@ measurer.set_voxel_size(0.003)                       // downsampling voxel edge 
     .load_config_from_json("measurement_config.json"); // or set everything from JSON
 ```
 
-Implementation-only details (plane fitting, plane-local frames, grid keys, ROI bounds, height
-maps, hole candidates, per-stage algorithms) stay private to `src/` and are never part of the
-installed headers.
+Implementation-only details (plane-local frames, grid keys, ROI bounds, height maps, hole
+candidates, baseline rasters) stay private to `src/` and are never part of the installed
+headers.
+
+`include/volume_pointcloudprocess.hpp` additionally exposes the fine-grained point-cloud
+operators the pipeline is built from — unit scaling, axis-aligned cropping, RANSAC plane
+fitting and orientation, voxel downsampling, DBSCAN labelling, background-plane removal, and
+the AABB / OBB / convex-hull reference volumes — so they can be reused and tested directly.
 
 ## Features
 
