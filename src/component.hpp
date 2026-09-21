@@ -2,13 +2,9 @@
 #pragma once
 #include <cstddef>
 #include <vector>
-#include "volume_baseline.hpp"
-#include "volume_types.hpp"
+#include "baseline.hpp"
+#include "types.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -97,7 +93,3 @@ PointCloud project_to_plane(const PointCloud& cloud, const BaselineModel& baseli
  */
 MeasurementStatus select_components(const std::vector<int>& labels, const PointCloud& cloud,
                                     const MeasurementConfig& cfg, FoodComponents& out);
-
-
-
-} // namespace vm

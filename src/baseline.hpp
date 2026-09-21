@@ -3,13 +3,9 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
-#include "volume_grid.hpp"
-#include "volume_types.hpp"
+#include "grid.hpp"
+#include "types.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -96,7 +92,3 @@ MeasurementStatus rasterize_baseline(const std::vector<PointCloud>& baseline_fra
 
  */
 bool build_plane_roi(BaselineData& baseline, double border_margin_m);
-
-
-
-} // namespace vm

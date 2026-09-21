@@ -77,8 +77,8 @@ msgid "Reference volumes (AABB / OBB / convex hull)"
 msgstr "参考体积（AABB / OBB / 凸包）"
 
 #: ../../source/index.rst:20 13ef126de94d49fdbce764b43e09557e
-msgid "PCD loading via ``vm::load_pcd``"
-msgstr "通过 ``vm::load_pcd`` 载入 PCD"
+msgid "PCD loading via ``load_pcd``"
+msgstr "通过 ``load_pcd`` 载入 PCD"
 
 #: ../../source/index.rst:21 a431e9aa56b44501ba3f37e9dde03e52
 msgid ""

@@ -5,14 +5,14 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "volume_measurement.hpp"
-#include "volume_baseline.hpp"
-#include "volume_component.hpp"
-#include "volume_config.hpp"
-#include "volume_integrator.hpp"
-#include "volume_internal.hpp"
-#include "volume_log.hpp"
-#include "volume_pointcloudprocess.hpp"
+#include "measurement.hpp"
+#include "baseline.hpp"
+#include "component.hpp"
+#include "config.hpp"
+#include "integrator.hpp"
+#include "internal.hpp"
+#include "log.hpp"
+#include "pointcloudprocess.hpp"
 // Conan::ImportEnd
 
 
@@ -30,10 +30,6 @@
 #include <pcl/point_types.h>
 #include <pcl/surface/convex_hull.h>
 #endif
-
-
-
-namespace vm {
 
 
 
@@ -429,7 +425,7 @@ const MeasurementConfig& FoodVolumeMeasurer::config() const { return cfg_; }
  * @attacher
  */
 bool FoodVolumeMeasurer::load_config_from_json(const std::string& path) {
-    const bool ok = vm::load_config_from_json(path, cfg_);
+    const bool ok = ::load_config_from_json(path, cfg_);
     if (ok) {
         invalidate_prepared_baseline();
     }
@@ -444,7 +440,7 @@ bool FoodVolumeMeasurer::load_config_from_json(const std::string& path) {
  * @attacher
  */
 bool FoodVolumeMeasurer::save_config_to_json(const std::string& path) const {
-    return vm::save_config_to_json(cfg_, path);
+    return ::save_config_to_json(cfg_, path);
 }
 
 
@@ -629,5 +625,3 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
     return est;
 #endif // __ARM_EABI__
 }
-
-} // namespace vm

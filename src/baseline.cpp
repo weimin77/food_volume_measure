@@ -6,15 +6,11 @@
 #include <memory>
 #include <utility>
 #include <vector>
-#include "volume_baseline.hpp"
-#include "volume_internal.hpp"
-#include "volume_log.hpp"
-#include "volume_pointcloudprocess.hpp"
+#include "baseline.hpp"
+#include "internal.hpp"
+#include "log.hpp"
+#include "pointcloudprocess.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -256,7 +252,3 @@ MeasurementStatus build_baseline_model(const std::vector<PointCloud>& baseline_f
     return MeasurementStatus::kSuccess;
 #endif // __ARM_EABI__
 }
-
-
-
-} // namespace vm

@@ -1,12 +1,8 @@
 // Conan::ImportStart
 #pragma once
 #include <string>
-#include "volume_types.hpp"
+#include "types.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -61,7 +57,3 @@ bool load_config_from_json(const std::string& path, MeasurementConfig& out);
 
  */
 bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path);
-
-
-
-} // namespace vm

@@ -4,15 +4,11 @@
 #include <cstddef>
 #include <map>
 #include <vector>
-#include "volume_component.hpp"
-#include "volume_internal.hpp"
-#include "volume_log.hpp"
-#include "volume_pointcloudprocess.hpp"
+#include "component.hpp"
+#include "internal.hpp"
+#include "log.hpp"
+#include "pointcloudprocess.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -242,7 +238,3 @@ MeasurementStatus select_components(const std::vector<int>& labels, const PointC
     return MeasurementStatus::kSuccess;
 #endif // __ARM_EABI__
 }
-
-
-
-} // namespace vm

@@ -1,24 +1,24 @@
 // demo.cxx — IM food volume measurement example.
-#include "volume_measurement.hpp"
+#include "measurement.hpp"
 
 #include <iostream>
 #include <vector>
 
 int main() {
     // Load the empty-oven baseline and the food point cloud from PCD files.
-    const vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
-    const vm::PointCloud food = vm::load_pcd("food.pcd");
+    const PointCloud baseline = load_pcd("empty_oven.pcd");
+    const PointCloud food = load_pcd("food.pcd");
     if (baseline.points.empty() || food.points.empty()) {
         std::cerr << "failed to load PCD inputs" << std::endl;
         return 1;
     }
 
     // Run the end-to-end IM measurement.
-    const vm::VolumeEstimate est =
-        vm::FoodVolumeMeasurer().set_baseline({baseline}).set_food(food).run();
+    const VolumeEstimate est =
+        FoodVolumeMeasurer().set_baseline({baseline}).set_food(food).run();
 
-    if (est.status != vm::MeasurementStatus::kSuccess) {
-        std::cerr << "measurement failed: " << vm::status_to_string(est.status) << std::endl;
+    if (est.status != MeasurementStatus::kSuccess) {
+        std::cerr << "measurement failed: " << status_to_string(est.status) << std::endl;
         return 1;
     }
 

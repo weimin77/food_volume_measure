@@ -36,15 +36,15 @@ breakdowns, and reference volumes (AABB, OBB, convex hull).
    :caption: IM measurement demo
    :name: pcd im measurement
 
-   #include "volume_measurement.hpp"
+   #include "measurement.hpp"
 
    int main() {
-       vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
-       vm::PointCloud food = vm::load_pcd("food.pcd");
-       vm::FoodVolumeMeasurer measurer;
-       vm::VolumeEstimate est =
+       PointCloud baseline = load_pcd("empty_oven.pcd");
+       PointCloud food = load_pcd("food.pcd");
+       FoodVolumeMeasurer measurer;
+       VolumeEstimate est =
            measurer.set_baseline({baseline}).set_food(food).run();
-       if (est.status != vm::MeasurementStatus::kSuccess) {
+       if (est.status != MeasurementStatus::kSuccess) {
            return 1;
        }
        // est.volume_cm3, est.raw_volume_cm3, est.interpolated_volume_cm3
@@ -61,7 +61,7 @@ hole-completion guards) can also be loaded from or saved to JSON:
    :caption: chainable parameter setters
    :name: chainable setters
 
-   vm::FoodVolumeMeasurer measurer;
+   FoodVolumeMeasurer measurer;
    measurer.set_voxel_size(0.003)
        .set_integration_resolution(0.003)
        .set_height_range(0.0015, 0.05)

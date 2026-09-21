@@ -1,5 +1,5 @@
 // Conan::ImportStart
-#include "volume_log.hpp"
+#include "log.hpp"
 #include <string>
 // Conan::ImportEnd
 
@@ -11,10 +11,6 @@
 #include <mutex>
 #include <sstream>
 #endif
-
-
-
-namespace vm {
 
 
 
@@ -181,7 +177,3 @@ void log_error(const std::string& message) { log_write(LogLevel::kError, message
 
 
 #endif // __ARM_EABI__
-
-
-
-} // namespace vm

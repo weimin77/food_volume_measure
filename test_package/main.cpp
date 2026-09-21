@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "volume_log.hpp"
-#include "volume_measurement.hpp"
+#include "log.hpp"
+#include "measurement.hpp"
 
 
 
@@ -41,12 +41,12 @@ int main(int argc, char* argv[]) {
     }
 
     // 开启日志：五级日志 + 控制台 + 文件（覆盖写），记录算法中间结果与状态。
-    vm::log_set_level(vm::LogLevel::kInfo);
-    vm::log_set_console(true);
-    vm::log_set_file("pcd_im_trace.txt", vm::LogFileMode::kTruncate);
+    log_set_level(LogLevel::kInfo);
+    log_set_console(true);
+    log_set_file("pcd_im_trace.txt", LogFileMode::kTruncate);
 
-    const vm::PointCloud baseline = vm::load_pcd(baseline_path);
-    const vm::PointCloud food = vm::load_pcd(food_path);
+    const PointCloud baseline = load_pcd(baseline_path);
+    const PointCloud food = load_pcd(food_path);
     if (baseline.points.empty() || food.points.empty()) {
         std::cerr << "failed to load test point clouds" << std::endl;
         return 1;
@@ -55,8 +55,8 @@ int main(int argc, char* argv[]) {
     std::cout << "baseline points: " << baseline.points.size() << std::endl;
     std::cout << "初始点云数量: " << food.points.size() << std::endl;
 
-    vm::FoodVolumeMeasurer measurer;
-    const vm::VolumeEstimate est = measurer.set_baseline({baseline}).set_food(food).run();
+    FoodVolumeMeasurer measurer;
+    const VolumeEstimate est = measurer.set_baseline({baseline}).set_food(food).run();
 
     std::cout << "\n=== IM 复现完成 ===" << std::endl;
     std::cout << "输入点数: " << est.input_points << std::endl;
@@ -87,9 +87,9 @@ int main(int argc, char* argv[]) {
     std::cout << std::defaultfloat;
     std::cout << "未匹配 baseline cell 数: " << est.missing_baseline_cells << std::endl;
 
-    vm::log_close_file();
+    log_close_file();
 
-    return est.status == vm::MeasurementStatus::kSuccess ? 0 : 1;
+    return est.status == MeasurementStatus::kSuccess ? 0 : 1;
 #else
     (void)argc;
     (void)argv;

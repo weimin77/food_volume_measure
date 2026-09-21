@@ -10,9 +10,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include "volume_log.hpp"
-#include "volume_measurement.hpp"
-#include "volume_types.hpp"
+#include "log.hpp"
+#include "measurement.hpp"
+#include "types.hpp"
 
 
 
@@ -22,8 +22,8 @@ constexpr double kCell = 0.005;
 constexpr double kCuboidTop = 0.02;
 constexpr double kExpectedVolumeCm3 = 200.0;
 
-vm::PointCloud make_baseline(double half = 0.15) {
-    vm::PointCloud cloud;
+PointCloud make_baseline(double half = 0.15) {
+    PointCloud cloud;
     for (double x = -half; x <= half + 1.0e-9; x += kCell) {
         for (double y = -half; y <= half + 1.0e-9; y += kCell) {
             cloud.points.push_back({static_cast<float>(x), static_cast<float>(y), 0.0F});
@@ -32,9 +32,9 @@ vm::PointCloud make_baseline(double half = 0.15) {
     return cloud;
 }
 
-vm::PointCloud make_food(double u_min = 0.0025, double u_max = 0.0975, double v_min = 0.0025, double v_max = 0.0975,
-                         double hole_u = -1.0, double hole_v = -1.0) {
-    vm::PointCloud cloud = make_baseline();
+PointCloud make_food(double u_min = 0.0025, double u_max = 0.0975, double v_min = 0.0025, double v_max = 0.0975,
+                     double hole_u = -1.0, double hole_v = -1.0) {
+    PointCloud cloud = make_baseline();
     for (double x = u_min; x <= u_max + 1.0e-9; x += kCell) {
         for (double y = v_min; y <= v_max + 1.0e-9; y += kCell) {
             if (std::fabs(x - hole_u) < 1.0e-6 && std::fabs(y - hole_v) < 1.0e-6) {
@@ -46,8 +46,8 @@ vm::PointCloud make_food(double u_min = 0.0025, double u_max = 0.0975, double v_
     return cloud;
 }
 
-vm::PointCloud make_food_with_rect_hole(double hole_x_min, double hole_x_max, double hole_y_min, double hole_y_max) {
-    vm::PointCloud cloud = make_baseline();
+PointCloud make_food_with_rect_hole(double hole_x_min, double hole_x_max, double hole_y_min, double hole_y_max) {
+    PointCloud cloud = make_baseline();
     for (double x = 0.0025; x <= 0.0975 + 1.0e-9; x += kCell) {
         for (double y = 0.0025; y <= 0.0975 + 1.0e-9; y += kCell) {
             if (x >= hole_x_min - 1.0e-9 && x <= hole_x_max + 1.0e-9 && y >= hole_y_min - 1.0e-9 &&
@@ -62,8 +62,8 @@ vm::PointCloud make_food_with_rect_hole(double hole_x_min, double hole_x_max, do
 
 // Two separated cuboids on a wide tray; the gap is wide enough that they become
 // two distinct footprint clusters.
-vm::PointCloud make_two_cuboid_food() {
-    vm::PointCloud cloud = make_baseline(0.25);
+PointCloud make_two_cuboid_food() {
+    PointCloud cloud = make_baseline(0.25);
     for (const double x0 : {0.0025, 0.1125}) {
         for (double x = x0; x <= x0 + 0.095 + 1.0e-9; x += kCell) {
             for (double y = 0.0025; y <= 0.0975 + 1.0e-9; y += kCell) {
@@ -74,8 +74,8 @@ vm::PointCloud make_two_cuboid_food() {
     return cloud;
 }
 
-vm::MeasurementConfig make_config() {
-    vm::MeasurementConfig cfg;
+MeasurementConfig make_config() {
+    MeasurementConfig cfg;
     cfg.voxel_size_m = 0.002F;
     cfg.plane_distance_threshold_m = 0.003F;
     cfg.integration_resolution_m = 0.005F;
@@ -88,8 +88,8 @@ vm::MeasurementConfig make_config() {
     return cfg;
 }
 
-vm::FoodVolumeMeasurer make_measurer() {
-    vm::FoodVolumeMeasurer measurer;
+FoodVolumeMeasurer make_measurer() {
+    FoodVolumeMeasurer measurer;
     measurer.set_config(make_config());
     return measurer;
 }
@@ -99,39 +99,39 @@ vm::FoodVolumeMeasurer make_measurer() {
 
 
 TEST(VolumeTypes, LengthUnitScale) {
-    EXPECT_DOUBLE_EQ(vm::length_unit_to_meter_scale(vm::LengthUnit::kMeter), 1.0);
-    EXPECT_DOUBLE_EQ(vm::length_unit_to_meter_scale(vm::LengthUnit::kMillimeter), 0.001);
+    EXPECT_DOUBLE_EQ(length_unit_to_meter_scale(LengthUnit::kMeter), 1.0);
+    EXPECT_DOUBLE_EQ(length_unit_to_meter_scale(LengthUnit::kMillimeter), 0.001);
 }
 
 
 
 TEST(VolumeTypes, FiniteCheck) {
-    const vm::Point3f ok{1.0F, 2.0F, 3.0F};
-    EXPECT_TRUE(vm::is_finite(ok));
-    const vm::Point3f bad{1.0F, std::numeric_limits<float>::quiet_NaN(), 3.0F};
-    EXPECT_FALSE(vm::is_finite(bad));
+    const Point3f ok{1.0F, 2.0F, 3.0F};
+    EXPECT_TRUE(is_finite(ok));
+    const Point3f bad{1.0F, std::numeric_limits<float>::quiet_NaN(), 3.0F};
+    EXPECT_FALSE(is_finite(bad));
 }
 
 
 
 TEST(VolumeTypes, StatusToStringAllValues) {
-    for (int i = 0; i <= static_cast<int>(vm::MeasurementStatus::kUnsupportedPlatform); ++i) {
-        EXPECT_NE(vm::status_to_string(static_cast<vm::MeasurementStatus>(i)), nullptr);
+    for (int i = 0; i <= static_cast<int>(MeasurementStatus::kUnsupportedPlatform); ++i) {
+        EXPECT_NE(status_to_string(static_cast<MeasurementStatus>(i)), nullptr);
     }
     // Out-of-range enum values fall through to the switch default branches.
-    EXPECT_STREQ(vm::status_to_string(static_cast<vm::MeasurementStatus>(999)), "unknown");
-    EXPECT_DOUBLE_EQ(vm::length_unit_to_meter_scale(static_cast<vm::LengthUnit>(999)), 1.0);
+    EXPECT_STREQ(status_to_string(static_cast<MeasurementStatus>(999)), "unknown");
+    EXPECT_DOUBLE_EQ(length_unit_to_meter_scale(static_cast<LengthUnit>(999)), 1.0);
 }
 
 
 
 TEST(Logging, FileSinkWrites) {
     const std::string path = "unit_log_test.txt";
-    vm::log_set_level(vm::LogLevel::kInfo);
-    vm::log_set_console(false);
-    vm::log_set_file(path, vm::LogFileMode::kTruncate);
-    vm::log_info("unit log test message");
-    vm::log_close_file();
+    log_set_level(LogLevel::kInfo);
+    log_set_console(false);
+    log_set_file(path, LogFileMode::kTruncate);
+    log_info("unit log test message");
+    log_close_file();
 
     std::ifstream file(path);
     ASSERT_TRUE(file.is_open());
@@ -139,7 +139,7 @@ TEST(Logging, FileSinkWrites) {
     std::getline(file, line);
     EXPECT_NE(line.find("unit log test message"), std::string::npos);
     file.close();
-    vm::log_set_level(vm::LogLevel::kOff);
+    log_set_level(LogLevel::kOff);
     std::remove(path.c_str());
 }
 
@@ -147,12 +147,12 @@ TEST(Logging, FileSinkWrites) {
 
 TEST(Logging, LevelFiltersMessages) {
     const std::string path = "unit_log_test_filter.txt";
-    vm::log_set_level(vm::LogLevel::kWarning);
-    vm::log_set_console(false);
-    vm::log_set_file(path, vm::LogFileMode::kTruncate);
-    vm::log_info("this info message must be dropped");
-    vm::log_warning("this warning message must be kept");
-    vm::log_close_file();
+    log_set_level(LogLevel::kWarning);
+    log_set_console(false);
+    log_set_file(path, LogFileMode::kTruncate);
+    log_info("this info message must be dropped");
+    log_warning("this warning message must be kept");
+    log_close_file();
 
     std::ifstream file(path);
     ASSERT_TRUE(file.is_open());
@@ -160,7 +160,7 @@ TEST(Logging, LevelFiltersMessages) {
     file.close();
     EXPECT_EQ(content.find("this info message must be dropped"), std::string::npos);
     EXPECT_NE(content.find("this warning message must be kept"), std::string::npos);
-    vm::log_set_level(vm::LogLevel::kOff);
+    log_set_level(LogLevel::kOff);
     std::remove(path.c_str());
 }
 
@@ -170,7 +170,7 @@ TEST(Measurer, EmptyBaseline) {
     auto measurer = make_measurer();
     measurer.set_food(make_food());
     const auto est = measurer.run();
-    EXPECT_EQ(est.status, vm::MeasurementStatus::kEmptyBaseline);
+    EXPECT_EQ(est.status, MeasurementStatus::kEmptyBaseline);
 }
 
 
@@ -179,29 +179,29 @@ TEST(Measurer, EmptyFoodInput) {
     auto measurer = make_measurer();
     measurer.set_baseline({make_baseline()});
     const auto est = measurer.run();
-    EXPECT_EQ(est.status, vm::MeasurementStatus::kEmptyInput);
+    EXPECT_EQ(est.status, MeasurementStatus::kEmptyInput);
 }
 
 
 
 TEST(Measurer, NonFiniteFoodPointsSkipped) {
     // A non-finite depth return must be dropped, not fatal, as long as valid food remains.
-    vm::PointCloud cloud = make_food();
+    PointCloud cloud = make_food();
     cloud.points.push_back({0.0F, std::numeric_limits<float>::infinity(), 0.0F});
     auto measurer = make_measurer();
     const auto est = measurer.set_baseline({make_baseline()}).set_food(cloud).run();
-    EXPECT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    EXPECT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
 }
 
 
 
 TEST(Measurer, AllNonFiniteFoodInput) {
-    vm::PointCloud cloud;
+    PointCloud cloud;
     cloud.points.push_back({0.0F, std::numeric_limits<float>::infinity(), 0.0F});
     cloud.points.push_back({std::numeric_limits<float>::quiet_NaN(), 0.0F, 0.0F});
     auto measurer = make_measurer();
     const auto est = measurer.set_baseline({make_baseline()}).set_food(cloud).run();
-    EXPECT_EQ(est.status, vm::MeasurementStatus::kNonFiniteInput);
+    EXPECT_EQ(est.status, MeasurementStatus::kNonFiniteInput);
 }
 
 
@@ -209,7 +209,7 @@ TEST(Measurer, AllNonFiniteFoodInput) {
 TEST(Measurer, CuboidEndToEnd) {
     auto measurer = make_measurer();
     const auto est = measurer.set_baseline({make_baseline()}).set_food(make_food()).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
     EXPECT_GT(est.coverage_ratio, 0.8);
     EXPECT_EQ(est.baseline_frames, 1u);
@@ -224,7 +224,7 @@ TEST(Measurer, AddBaselineFrameAccumulates) {
     measurer.add_baseline_frame(make_baseline());
     measurer.set_food(make_food());
     const auto est = measurer.run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.baseline_frames, 2u);
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
 }
@@ -234,7 +234,7 @@ TEST(Measurer, AddBaselineFrameAccumulates) {
 TEST(Measurer, EmptyTrayNoFood) {
     auto measurer = make_measurer();
     const auto est = measurer.set_baseline({make_baseline()}).set_food(make_baseline()).run();
-    EXPECT_EQ(est.status, vm::MeasurementStatus::kInsufficientCoverage);
+    EXPECT_EQ(est.status, MeasurementStatus::kInsufficientCoverage);
 }
 
 
@@ -242,7 +242,7 @@ TEST(Measurer, EmptyTrayNoFood) {
 TEST(Measurer, MillimeterInput) {
     auto baseline = make_baseline();
     auto food = make_food();
-    for (auto* cloud : std::vector<vm::PointCloud*>{&baseline, &food}) {
+    for (auto* cloud : std::vector<PointCloud*>{&baseline, &food}) {
         for (auto& p : cloud->points) {
             p.x *= 1000.0F;
             p.y *= 1000.0F;
@@ -250,8 +250,8 @@ TEST(Measurer, MillimeterInput) {
         }
     }
     auto measurer = make_measurer();
-    const auto est = measurer.set_input_unit(vm::LengthUnit::kMillimeter).set_baseline({baseline}).set_food(food).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    const auto est = measurer.set_input_unit(LengthUnit::kMillimeter).set_baseline({baseline}).set_food(food).run();
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
 }
 
@@ -262,17 +262,17 @@ TEST(Measurer, TiltedTrayDetected) {
     const double s = std::sin(theta);
     const double c = std::cos(theta);
 
-    const auto mk = [&](double u, double v, double h) -> vm::Point3f {
+    const auto mk = [&](double u, double v, double h) -> Point3f {
         return {static_cast<float>(u * c - h * s), static_cast<float>(v), static_cast<float>(u * s + h * c)};
     };
 
-    vm::PointCloud baseline;
+    PointCloud baseline;
     for (double u = -0.15; u <= 0.15 + 1.0e-9; u += kCell) {
         for (double v = -0.15; v <= 0.15 + 1.0e-9; v += kCell) {
             baseline.points.push_back(mk(u, v, 0.0));
         }
     }
-    vm::PointCloud food = baseline;
+    PointCloud food = baseline;
     for (double u = 0.0025; u <= 0.0975 + 1.0e-9; u += kCell) {
         for (double v = 0.0025; v <= 0.0975 + 1.0e-9; v += kCell) {
             food.points.push_back(mk(u, v, kCuboidTop));
@@ -281,7 +281,7 @@ TEST(Measurer, TiltedTrayDetected) {
 
     auto measurer = make_measurer();
     const auto est = measurer.set_baseline({baseline}).set_food(food).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 25.0);
 }
 
@@ -289,7 +289,7 @@ TEST(Measurer, TiltedTrayDetected) {
 
 TEST(Measurer, RoiCropping) {
     // Food outside the axis-aligned ROI must not contribute to the measured volume.
-    vm::AxisAlignedRoi roi;
+    AxisAlignedRoi roi;
     roi.min_x = -0.15F;
     roi.max_x = 0.06F; // only the left half of the tray is measured
     roi.min_y = -0.15F;
@@ -299,7 +299,7 @@ TEST(Measurer, RoiCropping) {
 
     auto measurer = make_measurer();
     const auto est = measurer.set_roi(roi).set_baseline({make_baseline()}).set_food(make_food()).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     // The cuboid spans u = [0.0025, 0.0975]; the ROI keeps roughly half of it.
     EXPECT_NEAR(est.volume_cm3, 0.5 * kExpectedVolumeCm3, 35.0);
 }
@@ -311,7 +311,7 @@ TEST(Measurer, HeightCapApplied) {
     auto measurer = make_measurer();
     const auto est =
         measurer.set_height_range(0.0015, 0.01).set_baseline({make_baseline()}).set_food(make_food()).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.max_height_m, 0.01, 1.0e-9);
     // 0.1 m x 0.1 m footprint x 0.01 m cap = 100 cm^3.
     EXPECT_NEAR(est.volume_cm3, 100.0, 15.0);
@@ -321,7 +321,7 @@ TEST(Measurer, HeightCapApplied) {
 
 TEST(Measurer, SmallClusterRejected) {
     // A tiny separated cluster below the minimum candidate size must not be reported.
-    vm::PointCloud food = make_baseline(0.25);
+    PointCloud food = make_baseline(0.25);
     for (double x = 0.0025; x <= 0.0975 + 1.0e-9; x += kCell) {
         for (double y = 0.0025; y <= 0.0975 + 1.0e-9; y += kCell) {
             food.points.push_back({static_cast<float>(x), static_cast<float>(y), static_cast<float>(kCuboidTop)});
@@ -336,7 +336,7 @@ TEST(Measurer, SmallClusterRejected) {
 
     auto measurer = make_measurer();
     const auto est = measurer.set_baseline({make_baseline(0.25)}).set_food(food).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.component_count, 1u);
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 15.0);
 }
@@ -344,7 +344,7 @@ TEST(Measurer, SmallClusterRejected) {
 
 
 TEST(Measurer, MultiComponentVolume) {
-    vm::PointCloud food = make_baseline(0.25);
+    PointCloud food = make_baseline(0.25);
     // Two separated cuboids; the second starts far enough to form its own footprint cluster.
     for (double x = 0.0025; x <= 0.0975 + 1.0e-9; x += kCell) {
         for (double y = 0.0025; y <= 0.0975 + 1.0e-9; y += kCell) {
@@ -359,7 +359,7 @@ TEST(Measurer, MultiComponentVolume) {
 
     auto measurer = make_measurer();
     const auto est = measurer.set_baseline({make_baseline(0.25)}).set_food(food).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.component_count, 2u);
     EXPECT_NEAR(est.volume_cm3, 2.0 * kExpectedVolumeCm3, 20.0);
 
@@ -376,7 +376,7 @@ TEST(Measurer, MultiComponentVolume) {
 
 
 TEST(Measurer, ManualSelectionMode) {
-    vm::PointCloud food = make_baseline(0.25);
+    PointCloud food = make_baseline(0.25);
     for (double x = 0.0025; x <= 0.0975 + 1.0e-9; x += kCell) {
         for (double y = 0.0025; y <= 0.0975 + 1.0e-9; y += kCell) {
             food.points.push_back({static_cast<float>(x), static_cast<float>(y), static_cast<float>(kCuboidTop)});
@@ -390,18 +390,18 @@ TEST(Measurer, ManualSelectionMode) {
 
     // Manual mode with a label that does not exist finds no food.
     auto measurer = make_measurer();
-    const auto missing = measurer.set_selection_mode(vm::ComponentSelectionMode::kManual)
+    const auto missing = measurer.set_selection_mode(ComponentSelectionMode::kManual)
                              .set_selected_labels({42})
                              .set_baseline({make_baseline(0.25)})
                              .set_food(food)
                              .run();
-    EXPECT_EQ(missing.status, vm::MeasurementStatus::kFoodNotFound);
+    EXPECT_EQ(missing.status, MeasurementStatus::kFoodNotFound);
 
     // Manual mode with the first real label measures only that component.
     auto manual = make_measurer();
-    manual.set_selection_mode(vm::ComponentSelectionMode::kManual).set_selected_labels({0});
+    manual.set_selection_mode(ComponentSelectionMode::kManual).set_selected_labels({0});
     const auto est = manual.set_baseline({make_baseline(0.25)}).set_food(food).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.component_count, 1u);
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 25.0);
 }
@@ -413,7 +413,7 @@ TEST(Measurer, SmallHoleInterpolated) {
     const auto est = measurer.set_baseline({make_baseline()})
                          .set_food(make_food(0.0025, 0.0975, 0.0025, 0.0975, 0.0525, 0.0525))
                          .run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
     EXPECT_EQ(est.interpolated_cells, 1u);
     EXPECT_NEAR(est.interpolated_volume_cm3, kCuboidTop * kCell * kCell * 1.0e6, 0.05);
@@ -427,7 +427,7 @@ TEST(Measurer, QuadraticHoleCompletion) {
     // quadratic-surface (curve fill) path.
     const auto est =
         measurer.set_baseline({make_baseline()}).set_food(make_food_with_rect_hole(0.04, 0.06, 0.04, 0.06)).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.interpolated_cells, 16u);
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 10.0);
 }
@@ -439,7 +439,7 @@ TEST(Measurer, OversizedHoleLeftUnfilled) {
     // A 10x10-cell gap (25 cm^2) exceeds the 8 cm^2 curve-fill cap, so it must stay unfilled.
     const auto est =
         measurer.set_baseline({make_baseline()}).set_food(make_food_with_rect_hole(0.025, 0.075, 0.025, 0.075)).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.interpolated_cells, 0u);
     EXPECT_EQ(est.unfilled_hole_cells, 100u);
 }
@@ -450,7 +450,7 @@ TEST(Measurer, ReferenceVolumesReported) {
     // Reference volumes need a cloud with actual thickness that survives the
     // pipeline: a z=0 bottom layer would be removed with the background plane,
     // so the lower face sits at 0.005 m (above the RANSAC threshold).
-    vm::PointCloud food = make_baseline();
+    PointCloud food = make_baseline();
     for (double x = 0.0025; x <= 0.0975 + 1.0e-9; x += kCell) {
         for (double y = 0.0025; y <= 0.0975 + 1.0e-9; y += kCell) {
             food.points.push_back({static_cast<float>(x), static_cast<float>(y), 0.005F});
@@ -460,7 +460,7 @@ TEST(Measurer, ReferenceVolumesReported) {
 
     auto measurer = make_measurer();
     const auto est = measurer.set_baseline({make_baseline()}).set_food(food).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     // Reference volumes from the selected components are finite and positive.
     EXPECT_TRUE(std::isfinite(est.aabb_volume_m3));
     EXPECT_TRUE(std::isfinite(est.obb_volume_m3));
@@ -481,12 +481,12 @@ TEST(Measurer, LoadConfigFromJsonFile) {
         file << "{\"voxel_size_m\":0.005,\"cluster_min_points\":12,"
                 "\"input_unit\":\"millimeter\",\"selected_labels\":[1,2,3]}";
     }
-    vm::FoodVolumeMeasurer measurer;
+    FoodVolumeMeasurer measurer;
     ASSERT_TRUE(measurer.load_config_from_json(path));
-    const vm::MeasurementConfig& cfg = measurer.config();
+    const MeasurementConfig& cfg = measurer.config();
     EXPECT_DOUBLE_EQ(cfg.voxel_size_m, 0.005);
     EXPECT_EQ(cfg.cluster_min_points, 12);
-    EXPECT_EQ(cfg.input_unit, vm::LengthUnit::kMillimeter);
+    EXPECT_EQ(cfg.input_unit, LengthUnit::kMillimeter);
     ASSERT_EQ(cfg.selected_labels.size(), 3u);
     EXPECT_EQ(cfg.selected_labels[0], 1);
     EXPECT_EQ(cfg.selected_labels[2], 3);
@@ -501,7 +501,7 @@ TEST(Measurer, MissingConfigFieldsKeepDefaults) {
         std::ofstream file(path);
         file << "{\"voxel_size_m\":0.007}";
     }
-    vm::FoodVolumeMeasurer measurer;
+    FoodVolumeMeasurer measurer;
     const int default_iterations = measurer.config().plane_ransac_iterations;
     const double default_eps = measurer.config().cluster_eps_m;
     ASSERT_TRUE(measurer.load_config_from_json(path));
@@ -519,7 +519,7 @@ TEST(Measurer, InvalidConfigEnumFails) {
         std::ofstream file(path);
         file << "{\"input_unit\":\"parsec\"}";
     }
-    vm::FoodVolumeMeasurer measurer;
+    FoodVolumeMeasurer measurer;
     EXPECT_FALSE(measurer.load_config_from_json(path));
     std::remove(path.c_str());
 }
@@ -527,7 +527,7 @@ TEST(Measurer, InvalidConfigEnumFails) {
 
 
 TEST(Measurer, MissingConfigFileFails) {
-    vm::FoodVolumeMeasurer measurer;
+    FoodVolumeMeasurer measurer;
     EXPECT_FALSE(measurer.load_config_from_json("does_not_exist_config.json"));
 }
 
@@ -539,7 +539,7 @@ TEST(Measurer, SaveConfigRoundTrip) {
     measurer.set_voxel_size(0.0042).set_plane_distance_threshold(0.0025);
     ASSERT_TRUE(measurer.save_config_to_json(path));
 
-    vm::FoodVolumeMeasurer restored;
+    FoodVolumeMeasurer restored;
     ASSERT_TRUE(restored.load_config_from_json(path));
     EXPECT_DOUBLE_EQ(restored.config().voxel_size_m, 0.0042);
     EXPECT_DOUBLE_EQ(restored.config().plane_distance_threshold_m, 0.0025);
@@ -558,7 +558,7 @@ TEST(Measurer, SaveMiddleCloudWritesStageFiles) {
                          .set_baseline({make_baseline()})
                          .set_food(make_food())
                          .run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
 
     const char* const kExpected[] = {"0_input_food.pcd",       "1_downsampled.pcd",     "2_remaining.pcd",
                                      "3_baseline_surface.pcd", "4_food_components.pcd", "5_top_surface.pcd"};
@@ -578,7 +578,7 @@ TEST(Measurer, SaveMiddleCloudDisabledWritesNothing) {
 
     auto measurer = make_measurer();
     const auto est = measurer.set_middle_cloud_dir(dir).set_baseline({make_baseline()}).set_food(make_food()).run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_FALSE(std::filesystem::exists(dir));
 }
 
@@ -596,7 +596,7 @@ TEST(Measurer, SaveMiddleCloudWritesPerComponentFiles) {
                          .set_baseline({make_baseline(0.25)})
                          .set_food(make_two_cuboid_food())
                          .run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     ASSERT_EQ(est.component_count, 2u);
     ASSERT_EQ(est.selected_cluster_labels.size(), est.component_estimates.size());
 
@@ -620,15 +620,15 @@ TEST(Measurer, PrepareBaselineThenRunMatchesInlineBuild) {
     // A prepared baseline must give exactly the same measurement as the inline build.
     auto inline_measurer = make_measurer();
     const auto inline_est = inline_measurer.set_baseline({make_baseline()}).set_food(make_food()).run();
-    ASSERT_EQ(inline_est.status, vm::MeasurementStatus::kSuccess) << inline_est.message;
+    ASSERT_EQ(inline_est.status, MeasurementStatus::kSuccess) << inline_est.message;
 
     auto prepared = make_measurer();
     prepared.set_baseline({make_baseline()}).set_food(make_food());
-    ASSERT_EQ(prepared.prepare_baseline(), vm::MeasurementStatus::kSuccess);
+    ASSERT_EQ(prepared.prepare_baseline(), MeasurementStatus::kSuccess);
     EXPECT_TRUE(prepared.has_prepared_baseline());
 
     const auto est = prepared.run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_DOUBLE_EQ(est.volume_cm3, inline_est.volume_cm3);
     EXPECT_EQ(est.baseline_cell_count, inline_est.baseline_cell_count);
     EXPECT_EQ(est.component_count, inline_est.component_count);
@@ -640,17 +640,17 @@ TEST(Measurer, PrepareBaselineReusedAcrossFoodFrames) {
     // One prepared baseline should serve several food frames without being discarded.
     auto measurer = make_measurer();
     measurer.set_baseline({make_baseline()}).set_food(make_food());
-    ASSERT_EQ(measurer.prepare_baseline(), vm::MeasurementStatus::kSuccess);
+    ASSERT_EQ(measurer.prepare_baseline(), MeasurementStatus::kSuccess);
 
     const auto first = measurer.run();
-    ASSERT_EQ(first.status, vm::MeasurementStatus::kSuccess) << first.message;
+    ASSERT_EQ(first.status, MeasurementStatus::kSuccess) << first.message;
     EXPECT_TRUE(measurer.has_prepared_baseline());
 
     // Swapping the food frame keeps the cache: this is the repeated-measurement use case.
     measurer.set_food(make_food_with_rect_hole(0.04, 0.06, 0.04, 0.06));
     EXPECT_TRUE(measurer.has_prepared_baseline());
     const auto second = measurer.run();
-    ASSERT_EQ(second.status, vm::MeasurementStatus::kSuccess) << second.message;
+    ASSERT_EQ(second.status, MeasurementStatus::kSuccess) << second.message;
     EXPECT_EQ(second.baseline_cell_count, first.baseline_cell_count);
 }
 
@@ -659,17 +659,17 @@ TEST(Measurer, PrepareBaselineReusedAcrossFoodFrames) {
 TEST(Measurer, PrepareBaselineInvalidatedByBaselineInputs) {
     struct InvalidationCase {
         const char* name;
-        std::function<void(vm::FoodVolumeMeasurer&)> mutate;
+        std::function<void(FoodVolumeMeasurer&)> mutate;
     };
     const InvalidationCase cases[] = {
-        {"set_baseline", [](vm::FoodVolumeMeasurer& m) { m.set_baseline({make_baseline()}); }},
-        {"add_baseline_frame", [](vm::FoodVolumeMeasurer& m) { m.add_baseline_frame(make_baseline()); }},
-        {"set_input_unit", [](vm::FoodVolumeMeasurer& m) { m.set_input_unit(vm::LengthUnit::kMillimeter); }},
-        {"set_voxel_size", [](vm::FoodVolumeMeasurer& m) { m.set_voxel_size(0.003); }},
-        {"set_integration_resolution", [](vm::FoodVolumeMeasurer& m) { m.set_integration_resolution(0.004); }},
-        {"set_plane_distance_threshold", [](vm::FoodVolumeMeasurer& m) { m.set_plane_distance_threshold(0.004); }},
-        {"set_cluster_params", [](vm::FoodVolumeMeasurer& m) { m.set_cluster_params(0.012, 9); }},
-        {"set_config", [](vm::FoodVolumeMeasurer& m) { m.set_config(make_config()); }},
+        {"set_baseline", [](FoodVolumeMeasurer& m) { m.set_baseline({make_baseline()}); }},
+        {"add_baseline_frame", [](FoodVolumeMeasurer& m) { m.add_baseline_frame(make_baseline()); }},
+        {"set_input_unit", [](FoodVolumeMeasurer& m) { m.set_input_unit(LengthUnit::kMillimeter); }},
+        {"set_voxel_size", [](FoodVolumeMeasurer& m) { m.set_voxel_size(0.003); }},
+        {"set_integration_resolution", [](FoodVolumeMeasurer& m) { m.set_integration_resolution(0.004); }},
+        {"set_plane_distance_threshold", [](FoodVolumeMeasurer& m) { m.set_plane_distance_threshold(0.004); }},
+        {"set_cluster_params", [](FoodVolumeMeasurer& m) { m.set_cluster_params(0.012, 9); }},
+        {"set_config", [](FoodVolumeMeasurer& m) { m.set_config(make_config()); }},
     };
 
     for (const auto& test_case : cases) {
@@ -678,7 +678,7 @@ TEST(Measurer, PrepareBaselineInvalidatedByBaselineInputs) {
         auto measurer = make_measurer();
         measurer.set_baseline({make_baseline()}).set_food(make_food());
 
-        ASSERT_EQ(measurer.prepare_baseline(), vm::MeasurementStatus::kSuccess) << test_case.name;
+        ASSERT_EQ(measurer.prepare_baseline(), MeasurementStatus::kSuccess) << test_case.name;
         ASSERT_TRUE(measurer.has_prepared_baseline()) << test_case.name;
         test_case.mutate(measurer);
         EXPECT_FALSE(measurer.has_prepared_baseline()) << test_case.name;
@@ -691,17 +691,17 @@ TEST(Measurer, PrepareBaselineKeptByFoodOnlySetters) {
     // Parameters that only shape the food side must not throw the baseline cache away.
     auto measurer = make_measurer();
     measurer.set_baseline({make_baseline()}).set_food(make_food());
-    ASSERT_EQ(measurer.prepare_baseline(), vm::MeasurementStatus::kSuccess);
+    ASSERT_EQ(measurer.prepare_baseline(), MeasurementStatus::kSuccess);
 
     measurer.set_height_range(0.002, 0.05)
-        .set_selection_mode(vm::ComponentSelectionMode::kManual)
+        .set_selection_mode(ComponentSelectionMode::kManual)
         .set_selected_labels({0})
-        .set_roi(vm::AxisAlignedRoi{})
+        .set_roi(AxisAlignedRoi{})
         .clear_roi();
     EXPECT_TRUE(measurer.has_prepared_baseline());
 
     const auto est = measurer.run();
-    ASSERT_EQ(est.status, vm::MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
 }
 
 
@@ -711,12 +711,12 @@ TEST(Measurer, PrepareBaselineRejectsMissingInputs) {
 
     // No baseline frames yet.
     measurer.set_food(make_food());
-    EXPECT_EQ(measurer.prepare_baseline(), vm::MeasurementStatus::kEmptyBaseline);
+    EXPECT_EQ(measurer.prepare_baseline(), MeasurementStatus::kEmptyBaseline);
     EXPECT_FALSE(measurer.has_prepared_baseline());
 
     // Baseline present, but the food frame needed for orientation is missing.
     auto measurer2 = make_measurer();
     measurer2.set_baseline({make_baseline()});
-    EXPECT_EQ(measurer2.prepare_baseline(), vm::MeasurementStatus::kEmptyInput);
+    EXPECT_EQ(measurer2.prepare_baseline(), MeasurementStatus::kEmptyInput);
     EXPECT_FALSE(measurer2.has_prepared_baseline());
 }

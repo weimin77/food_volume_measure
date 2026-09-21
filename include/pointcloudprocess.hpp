@@ -3,12 +3,8 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-#include "volume_types.hpp"
+#include "types.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -206,7 +202,3 @@ double compute_obb_volume(const PointCloud& cloud);
  * @exporter
  */
 double compute_convex_hull_volume(const PointCloud& cloud);
-
-
-
-} // namespace vm

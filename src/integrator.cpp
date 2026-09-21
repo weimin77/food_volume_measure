@@ -8,17 +8,13 @@
 #include <set>
 #include <utility>
 #include <vector>
-#include "volume_integrator.hpp"
-#include "volume_internal.hpp"
-#include "volume_log.hpp"
+#include "integrator.hpp"
+#include "internal.hpp"
+#include "log.hpp"
 #ifndef __ARM_EABI__
 #include <Eigen/Dense>
 #endif
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -925,7 +921,3 @@ MeasurementStatus measure_component_volumes(const FoodComponents& components, co
     return MeasurementStatus::kSuccess;
 #endif // __ARM_EABI__
 }
-
-
-
-} // namespace vm

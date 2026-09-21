@@ -3,12 +3,8 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "volume_types.hpp"
+#include "types.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -256,7 +252,3 @@ class FoodVolumeMeasurer {
  * @exporter
  */
 PointCloud load_pcd(const std::string& path);
-
-
-
-} // namespace vm

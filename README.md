@@ -46,11 +46,11 @@ It implements the IM (baseline-plane height-difference integral) algorithm:
    Measured and interpolated cells are reported separately.
 
 ```cpp
-vm::FoodVolumeMeasurer measurer;          // defaults match the IM reference
+FoodVolumeMeasurer measurer;          // defaults match the IM reference
 measurer.set_baseline({empty_oven_frame}) // one or more empty-oven frames
     .set_food(food_frame)                 // the food frame
-    .set_input_unit(vm::LengthUnit::kMillimeter); // optional: inputs in mm
-vm::VolumeEstimate est = measurer.run();
+    .set_input_unit(LengthUnit::kMillimeter); // optional: inputs in mm
+VolumeEstimate est = measurer.run();
 // est.volume_cm3, est.raw_volume_cm3, est.interpolated_volume_cm3, est.component_count, ...
 ```
 
@@ -67,7 +67,7 @@ vm::VolumeEstimate est = measurer.run();
 advanced hole-completion guards):
 
 ```cpp
-vm::FoodVolumeMeasurer measurer;
+FoodVolumeMeasurer measurer;
 measurer.set_voxel_size(0.003)                       // downsampling voxel edge (m)
     .set_integration_resolution(0.003)               // raster cell edge (m)
     .set_height_range(0.0015, 0.05)                  // accepted food height (m); max <= 0 disables the cap
@@ -81,7 +81,7 @@ Implementation-only details (plane-local frames, grid keys, ROI bounds, height m
 candidates, baseline rasters) stay private to `src/` and are never part of the installed
 headers.
 
-`include/volume_pointcloudprocess.hpp` additionally exposes the fine-grained point-cloud
+`include/pointcloudprocess.hpp` additionally exposes the fine-grained point-cloud
 operators the pipeline is built from — unit scaling, axis-aligned cropping, RANSAC plane
 fitting and orientation, voxel downsampling, DBSCAN labelling, background-plane removal, and
 the AABB / OBB / convex-hull reference volumes — so they can be reused and tested directly.

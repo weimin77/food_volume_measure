@@ -1,11 +1,7 @@
 // Conan::ImportStart
 #include <cmath>
-#include "volume_types.hpp"
+#include "types.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -78,7 +74,3 @@ const char* status_to_string(MeasurementStatus status) {
  * @attacher
  */
 bool is_finite(const Point3f& p) { return std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z); }
-
-
-
-} // namespace vm

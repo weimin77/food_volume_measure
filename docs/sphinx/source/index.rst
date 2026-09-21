@@ -17,7 +17,7 @@ _`Main Features`
 - Open3D-equivalent voxel downsampling and DBSCAN clustering
 - Component-aware conservative hole completion
 - Reference volumes (AABB / OBB / convex hull)
-- PCD loading via ``vm::load_pcd``
+- PCD loading via ``load_pcd``
 - Host-only point-cloud processing (PCL); bare-metal stubs report an unsupported status
 
 _`Quick Start`
@@ -25,14 +25,14 @@ _`Quick Start`
 
 .. code-block:: cpp
 
-   #include "volume_measurement.hpp"
+   #include "measurement.hpp"
 
    int main() {
-       vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
-       vm::PointCloud food = vm::load_pcd("food.pcd");
-       vm::VolumeEstimate est =
-           vm::FoodVolumeMeasurer().set_baseline({baseline}).set_food(food).run();
-       return est.status == vm::MeasurementStatus::kSuccess ? 0 : 1;
+       PointCloud baseline = load_pcd("empty_oven.pcd");
+       PointCloud food = load_pcd("food.pcd");
+       VolumeEstimate est =
+           FoodVolumeMeasurer().set_baseline({baseline}).set_food(food).run();
+       return est.status == MeasurementStatus::kSuccess ? 0 : 1;
    }
 
 _`Project Structure`
@@ -41,8 +41,8 @@ _`Project Structure`
 ::
 
    food_volume_measure/
-   ├── include/         # Public headers (volume_*.hpp)
-   ├── src/             # Implementation (volume_*.cpp)
+   ├── include/         # Public headers (*.hpp)
+   ├── src/             # Implementation (*.cpp)
    ├── test_package/    # Consumer demo and unit/stress tests
    ├── benchmark/       # Cross-platform benchmark scaffolding
    ├── CMakeLists.txt   # CMake build configuration

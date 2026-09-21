@@ -2,13 +2,9 @@
 #include <fstream>
 #include <string>
 #include <nlohmann/json.hpp>
-#include "volume_config.hpp"
-#include "volume_log.hpp"
+#include "config.hpp"
+#include "log.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -227,7 +223,3 @@ bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path) 
     file << root.dump(2);
     return true;
 }
-
-
-
-} // namespace vm

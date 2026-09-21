@@ -6,10 +6,6 @@
 
 
 
-namespace vm {
-
-
-
 /**
  * @brief [en] Logging severity levels.
  * @brief [zh] 日志严重级别。
@@ -155,7 +151,3 @@ void log_warning(const std::string& message);
  * @exporter
  */
 void log_error(const std::string& message);
-
-
-
-} // namespace vm

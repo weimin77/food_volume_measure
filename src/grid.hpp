@@ -5,12 +5,8 @@
 #include <map>
 #include <utility>
 #include <vector>
-#include "volume_types.hpp"
+#include "types.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -191,7 +187,3 @@ bool inside_roi(double u, double v, const PlaneRoi& roi);
 
  */
 bool lookup_baseline_height(const BaselineData& baseline, CellKey key, int fill_radius_cells, double& out_height);
-
-
-
-} // namespace vm

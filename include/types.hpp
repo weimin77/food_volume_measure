@@ -9,10 +9,6 @@
 
 
 
-namespace vm {
-
-
-
 /**
  * @brief [en] Default parameter values shared by the IM volume pipeline.
  * @brief [zh] IM 体积流水线共享的默认参数值。
@@ -319,7 +315,3 @@ const char* status_to_string(MeasurementStatus status);
  * @exporter
  */
 bool is_finite(const Point3f& p);
-
-
-
-} // namespace vm

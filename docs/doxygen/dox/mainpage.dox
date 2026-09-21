@@ -14,31 +14,31 @@
  *     - Open3D-equivalent voxel downsampling and DBSCAN clustering
  *     - Component-aware conservative hole completion
  *     - Reference volumes (AABB / OBB / convex hull)
- *     - PCD loading via vm::load_pcd
+ *     - PCD loading via load_pcd
  * @section features_sec [zh] 特性
  *     - 基于 RANSAC 平面拟合的空炉基线模型
  *     - 与 Open3D 等价的体素降采样与 DBSCAN 聚类
  *     - 组件感知的保守补洞
  *     - 参考体积（AABB / OBB / 凸包）
- *     - 通过 vm::load_pcd 载入 PCD
+ *     - 通过 load_pcd 载入 PCD
  *
  * @section pipeline_sec [en] Pipeline
- *     - vm::FoodVolumeMeasurer::set_baseline / set_food: provide the empty-oven baseline and the food frame
- *     - vm::FoodVolumeMeasurer::run: preprocess, remove the background plane, build the baseline
+ *     - FoodVolumeMeasurer::set_baseline / set_food: provide the empty-oven baseline and the food frame
+ *     - FoodVolumeMeasurer::run: preprocess, remove the background plane, build the baseline
  *       height map, extract food components, and integrate with conservative hole completion
  * @section pipeline_sec [zh] 流水线
- *     - vm::FoodVolumeMeasurer::set_baseline / set_food：提供空炉基线与食材帧
- *     - vm::FoodVolumeMeasurer::run：预处理、移除背景平面、构建基线高度图、提取食材块、含保守补洞的积分
+ *     - FoodVolumeMeasurer::set_baseline / set_food：提供空炉基线与食材帧
+ *     - FoodVolumeMeasurer::run：预处理、移除背景平面、构建基线高度图、提取食材块、含保守补洞的积分
  *
  * @section usage_sec usage
  *     include headers in code:
  *     @code{.cpp}
- *     #include "volume_measurement.hpp"
+ *     #include "measurement.hpp"
  *
- *     vm::PointCloud baseline = vm::load_pcd("empty_oven.pcd");
- *     vm::PointCloud food = vm::load_pcd("food.pcd");
- *     vm::FoodVolumeMeasurer measurer;
- *     vm::VolumeEstimate est = measurer.set_baseline({baseline}).set_food(food).run();
+ *     PointCloud baseline = load_pcd("empty_oven.pcd");
+ *     PointCloud food = load_pcd("food.pcd");
+ *     FoodVolumeMeasurer measurer;
+ *     VolumeEstimate est = measurer.set_baseline({baseline}).set_food(food).run();
  *     @endcode
  *
  * @author Chen Zhang <chen2.zhang@szhittech.com>

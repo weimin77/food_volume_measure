@@ -9,7 +9,7 @@
  * @include demo.cxx
  *
  * @par Description:
- * - First, call vm::load_pcd() to load the baseline and food point clouds.
+ * - First, call load_pcd() to load the baseline and food point clouds.
  * - Then, call FoodVolumeMeasurer::run() to run the end-to-end pipeline.
  * - Finally, read the volume from the returned VolumeEstimate.
  *

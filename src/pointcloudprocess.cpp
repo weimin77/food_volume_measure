@@ -8,9 +8,9 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "volume_pointcloudprocess.hpp"
-#include "volume_internal.hpp"
-#include "volume_log.hpp"
+#include "pointcloudprocess.hpp"
+#include "internal.hpp"
+#include "log.hpp"
 #ifndef __ARM_EABI__
 #include <Eigen/Dense>
 #include <pcl/ModelCoefficients.h>
@@ -32,10 +32,6 @@
 #include <pcl/surface/convex_hull.h>
 #endif
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -649,7 +645,3 @@ double compute_convex_hull_volume(const PointCloud& cloud) {
     return volume;
 #endif // __ARM_EABI__
 }
-
-
-
-} // namespace vm

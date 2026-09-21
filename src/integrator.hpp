@@ -2,15 +2,11 @@
 #pragma once
 #include <cstddef>
 #include <vector>
-#include "volume_baseline.hpp"
-#include "volume_component.hpp"
-#include "volume_grid.hpp"
-#include "volume_types.hpp"
+#include "baseline.hpp"
+#include "component.hpp"
+#include "grid.hpp"
+#include "types.hpp"
 // Conan::ImportEnd
-
-
-
-namespace vm {
 
 
 
@@ -119,7 +115,3 @@ MeasurementStatus complete_holes(HeightGrid& grid, const BaselineModel& baseline
 
  */
 ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid);
-
-
-
-} // namespace vm
