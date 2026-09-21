@@ -123,7 +123,6 @@ enum class MeasurementStatus : std::uint8_t {
     kEmptyBaseline = 4,
     kNonFiniteBaseline = 5,
     kPlaneNotFound = 6,
-    kPlaneLowQuality = 7,
     kBaselineNoCells = 8,
     kFoodNotFound = 9,
     kInsufficientCoverage = 10,
@@ -229,7 +228,6 @@ struct VolumeEstimate {
     double volume_cm3 = std::numeric_limits<double>::quiet_NaN();
     double raw_volume_cm3 = std::numeric_limits<double>::quiet_NaN();
     double interpolated_volume_cm3 = std::numeric_limits<double>::quiet_NaN();
-    double uncertainty_cm3 = std::numeric_limits<double>::quiet_NaN();
 
     std::size_t input_points = 0;
     std::size_t downsampled_points = 0;
@@ -308,8 +306,6 @@ inline const char* status_to_string(MeasurementStatus status) {
         return "non-finite baseline";
     case MeasurementStatus::kPlaneNotFound:
         return "baseline plane not found";
-    case MeasurementStatus::kPlaneLowQuality:
-        return "baseline plane low quality";
     case MeasurementStatus::kBaselineNoCells:
         return "no valid baseline cells";
     case MeasurementStatus::kFoodNotFound:

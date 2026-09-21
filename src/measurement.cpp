@@ -586,7 +586,6 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
     est.volume_cm3 = component_volume.volume_cm3;
     est.raw_volume_cm3 = component_volume.raw_volume_cm3;
     est.interpolated_volume_cm3 = component_volume.interpolated_volume_cm3;
-    est.uncertainty_cm3 = std::numeric_limits<double>::quiet_NaN();
     est.input_points = pre.input_points;
     est.downsampled_points = pre.retained_points;
     est.cluster_count = components.cluster_count;
