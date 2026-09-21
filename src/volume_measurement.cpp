@@ -10,6 +10,7 @@
 #include "volume_component.hpp"
 #include "volume_config.hpp"
 #include "volume_integrator.hpp"
+#include "volume_internal.hpp"
 #include "volume_log.hpp"
 #include "volume_pointcloudprocess.hpp"
 // Conan::ImportEnd

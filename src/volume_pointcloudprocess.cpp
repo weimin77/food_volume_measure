@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 #include "volume_pointcloudprocess.hpp"
+#include "volume_internal.hpp"
 #include "volume_log.hpp"
 #ifndef __ARM_EABI__
 #include <Eigen/Dense>
@@ -31,7 +32,6 @@
 #include <pcl/surface/convex_hull.h>
 #endif
 // Conan::ImportEnd
-
 
 
 

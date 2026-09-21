@@ -83,6 +83,21 @@ struct PointCloud {
 
 
 /**
+ * @brief [en] A plane in Hessian form: dot(n, p) = d, with unit normal n.
+ *        Points on the food side satisfy dot(n, p) > d.
+ * @brief [zh] Hessian 形式的平面：dot(n,p)=d，法向量 n 为单位向量，食材一侧满足 dot(n,p)>d。
+ * @exporter
+ */
+struct Plane {
+    float nx = 0.0F;
+    float ny = 0.0F;
+    float nz = 1.0F;
+    float d = 0.0F;
+};
+
+
+
+/**
  * @brief [en] Axis-aligned region of interest bounds.
  * @brief [zh] 轴对齐的感兴趣区域边界。
  * @exporter

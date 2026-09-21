@@ -3,11 +3,8 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-#include "volume_grid.hpp"
 #include "volume_types.hpp"
 // Conan::ImportEnd
-
-#include "volume_grid.hpp"
 
 
 
@@ -16,30 +13,9 @@ namespace vm {
 
 
 /**
- * @brief [en] PCD loading implementation shared by the public `vm::load_pcd`.
- * @brief [zh] 公开 `vm::load_pcd` 共用的 PCD 载入实现。
- */
-PointCloud load_pcd_impl(const std::string& path);
-
-
-
-/**
- * @brief [en] PCD writing implementation backing the intermediate-cloud dump.
- * @brief [zh] 中间点云落盘所用的 PCD 写出实现。
- * @param path [en] Output PCD path.
- * @param path [zh] 输出 PCD 路径。
- * @param cloud [en] Cloud to write, in metres.
- * @param cloud [zh] 待写出的点云（米）。
- * @return [en] True when the file was written.
- * @return [zh] 文件成功写出时为真。
- */
-bool save_pcd_impl(const std::string& path, const PointCloud& cloud);
-
-
-
-/**
  * @brief [en] Output of the point-cloud preprocessing stage.
  * @brief [zh] 点云预处理阶段的输出。
+ * @exporter
  */
 struct PreprocessResult {
     PointCloud cloud;
@@ -60,6 +36,7 @@ struct PreprocessResult {
  * @param out [zh] 以米为单位的处理后点云以及点数统计。
  * @return [en] kSuccess, or an input/config error status.
  * @return [zh] kSuccess，或输入/配置错误状态。
+ * @exporter
  */
 MeasurementStatus preprocess_cloud(const PointCloud& input, const MeasurementConfig& cfg, PreprocessResult& out);
 
@@ -74,6 +51,7 @@ MeasurementStatus preprocess_cloud(const PointCloud& input, const MeasurementCon
  * @param unit [zh] 输入长度单位。
  * @return [en] Scaled cloud in metres.
  * @return [zh] 以米为单位的缩放后点云。
+ * @exporter
  */
 PointCloud scale_to_meters(const PointCloud& cloud, LengthUnit unit);
 
@@ -88,6 +66,7 @@ PointCloud scale_to_meters(const PointCloud& cloud, LengthUnit unit);
  * @param roi [zh] 与 `cloud` 同单位的轴对齐边界。
  * @return [en] Cropped cloud.
  * @return [zh] 裁剪后的点云。
+ * @exporter
  */
 PointCloud crop_axis_aligned(const PointCloud& cloud, const AxisAlignedRoi& roi);
 
@@ -106,6 +85,7 @@ PointCloud crop_axis_aligned(const PointCloud& cloud, const AxisAlignedRoi& roi)
  * @param remaining [zh] 距离不低于阈值的点。
  * @param inlier_indices [en] Indices of points whose distance is below the threshold.
  * @param inlier_indices [zh] 距离低于阈值的点的索引。
+ * @exporter
  */
 void split_plane_inliers(const PointCloud& cloud, const Plane& plane, double distance_threshold_m,
                          PointCloud& remaining, std::vector<std::size_t>& inlier_indices);
@@ -121,6 +101,7 @@ void split_plane_inliers(const PointCloud& cloud, const Plane& plane, double dis
  * @param points [zh] 用于确定朝向的点。
  * @return [en] The oriented plane.
  * @return [zh] 定向后的平面。
+ * @exporter
  */
 Plane orient_plane(const Plane& plane, const PointCloud& points);
 
@@ -135,6 +116,7 @@ Plane orient_plane(const Plane& plane, const PointCloud& points);
  * @param voxel_size [zh] 体素边长（点云单位）。
  * @return [en] Downsampled point cloud (one centroid per occupied voxel).
  * @return [zh] 降采样后的点云（每个被占用体素一个质心）。
+ * @exporter
  */
 PointCloud voxel_downsample(const PointCloud& cloud, double voxel_size);
 
@@ -151,6 +133,7 @@ PointCloud voxel_downsample(const PointCloud& cloud, double voxel_size);
  * @param min_points [zh] 构成簇所需的最小邻域点数（含自身）。
  * @return [en] Per-point cluster label in input order; -1 marks noise.
  * @return [zh] 按输入顺序返回的逐点簇标签；-1 表示噪声。
+ * @exporter
  */
 std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, int min_points);
 
@@ -171,6 +154,7 @@ std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, i
  * @param inlier_indices [zh] 指向 `cloud_m` 的内点索引。
  * @return [en] kSuccess or kPlaneNotFound.
  * @return [zh] kSuccess 或 kPlaneNotFound。
+ * @exporter
  */
 MeasurementStatus fit_plane_ransac(const PointCloud& cloud_m, double distance_threshold_m, int iterations,
                                    Plane& out_plane, std::vector<std::size_t>& inlier_indices);
@@ -180,6 +164,7 @@ MeasurementStatus fit_plane_ransac(const PointCloud& cloud_m, double distance_th
 /**
  * @brief [en] Removes the dominant background plane(s) from a preprocessed food cloud.
  * @brief [zh] 从预处理食物点云中移除主背景平面（及可选的次级平面）。
+ * @exporter
  */
 MeasurementStatus remove_dominant_plane(const PointCloud& cloud_m, const MeasurementConfig& cfg, PointCloud& remaining);
 
@@ -192,6 +177,7 @@ MeasurementStatus remove_dominant_plane(const PointCloud& cloud_m, const Measure
  * @param cloud [zh] 以米为单位的点。
  * @return [en] AABB volume, or NaN when the cloud is empty.
  * @return [zh] AABB 体积；点云为空时为 NaN。
+ * @exporter
  */
 double compute_aabb_volume(const PointCloud& cloud);
 
@@ -204,6 +190,7 @@ double compute_aabb_volume(const PointCloud& cloud);
  * @param cloud [zh] 以米为单位的点。
  * @return [en] OBB volume, or NaN when the cloud is empty.
  * @return [zh] OBB 体积；点云为空时为 NaN。
+ * @exporter
  */
 double compute_obb_volume(const PointCloud& cloud);
 
@@ -216,6 +203,7 @@ double compute_obb_volume(const PointCloud& cloud);
  * @param cloud [zh] 以米为单位的点。
  * @return [en] Convex-hull volume, or NaN when it cannot be computed.
  * @return [zh] 凸包体积；无法计算时为 NaN。
+ * @exporter
  */
 double compute_convex_hull_volume(const PointCloud& cloud);
 
