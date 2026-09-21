@@ -1,5 +1,6 @@
 // Conan::ImportStart
 #pragma once
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -275,7 +276,10 @@ struct VolumeEstimate {
  * @return [zh] 把 `unit` 坐标换算成米的因子。
  * @exporter
  */
-double length_unit_to_meter_scale(LengthUnit unit);
+inline double length_unit_to_meter_scale(LengthUnit unit) {
+    // Any unit other than millimetres is treated as metres, including an out-of-range value.
+    return unit == LengthUnit::kMillimeter ? 1.0e-3 : 1.0;
+}
 
 
 
@@ -288,7 +292,35 @@ double length_unit_to_meter_scale(LengthUnit unit);
  * @return [zh] 静态描述字符串。
  * @exporter
  */
-const char* status_to_string(MeasurementStatus status);
+inline const char* status_to_string(MeasurementStatus status) {
+    switch (status) {
+    case MeasurementStatus::kSuccess:
+        return "success";
+    case MeasurementStatus::kEmptyInput:
+        return "empty input";
+    case MeasurementStatus::kNonFiniteInput:
+        return "non-finite input";
+    case MeasurementStatus::kInvalidConfig:
+        return "invalid configuration";
+    case MeasurementStatus::kEmptyBaseline:
+        return "empty baseline";
+    case MeasurementStatus::kNonFiniteBaseline:
+        return "non-finite baseline";
+    case MeasurementStatus::kPlaneNotFound:
+        return "baseline plane not found";
+    case MeasurementStatus::kPlaneLowQuality:
+        return "baseline plane low quality";
+    case MeasurementStatus::kBaselineNoCells:
+        return "no valid baseline cells";
+    case MeasurementStatus::kFoodNotFound:
+        return "food component not found";
+    case MeasurementStatus::kInsufficientCoverage:
+        return "insufficient grid coverage";
+    case MeasurementStatus::kUnsupportedPlatform:
+        return "unsupported platform";
+    }
+    return "unknown";
+}
 
 
 
@@ -301,4 +333,4 @@ const char* status_to_string(MeasurementStatus status);
  * @return [zh] 所有坐标都有限时为真。
  * @exporter
  */
-bool is_finite(const Point3f& p);
+inline bool is_finite(const Point3f& p) { return std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z); }

@@ -195,3 +195,25 @@ bool inside_roi(double u, double v, const PlaneRoi& roi);
 
  */
 bool lookup_baseline_height(const BaselineData& baseline, CellKey key, int fill_radius_cells, double& out_height);
+
+
+
+// PCD I/O backends, shared by the public `load_pcd` wrapper and the intermediate-cloud debug
+// dump. They are PCL-backed and therefore unavailable on bare metal; the definitions live in
+// pointcloudprocess.cpp and the only caller is measurement.cpp.
+// 公开 `load_pcd` 与中间点云落盘共用的 PCD I/O 后端。依赖 PCL，故裸机不可用；
+// 定义在 pointcloudprocess.cpp，唯一调用方是 measurement.cpp。
+
+/**
+ * @brief [en] Loads a PCD file into the library's point model.
+ * @brief [zh] 将 PCD 文件载入到库的点模型。
+ */
+PointCloud load_pcd_impl(const std::string& path);
+
+
+
+/**
+ * @brief [en] Writes a cloud to a binary PCD file.
+ * @brief [zh] 将点云写出为二进制 PCD 文件。
+ */
+bool save_pcd_impl(const std::string& path, const PointCloud& cloud);

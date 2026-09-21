@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 #include "component.hpp"
-#include "internal.hpp"
+#include "grid.hpp"
 #include "log.hpp"
 #include "pointcloudprocess.hpp"
 // Conan::ImportEnd

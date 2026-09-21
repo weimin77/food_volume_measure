@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 #include "pointcloudprocess.hpp"
-#include "internal.hpp"
+#include "grid.hpp"
 #include "log.hpp"
 #ifndef __ARM_EABI__
 #include <Eigen/Dense>

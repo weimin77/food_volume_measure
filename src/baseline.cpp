@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 #include "baseline.hpp"
-#include "internal.hpp"
+#include "grid.hpp"
 #include "log.hpp"
 #include "pointcloudprocess.hpp"
 // Conan::ImportEnd

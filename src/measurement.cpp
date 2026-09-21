@@ -10,7 +10,7 @@
 #include "component.hpp"
 #include "config.hpp"
 #include "integrator.hpp"
-#include "internal.hpp"
+#include "grid.hpp"
 #include "log.hpp"
 #include "pointcloudprocess.hpp"
 // Conan::ImportEnd
