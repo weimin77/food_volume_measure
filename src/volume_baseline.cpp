@@ -148,8 +148,10 @@ bool build_plane_roi(BaselineData& baseline, double border_margin_m) {
 
     const double u_min = baseline.bbox_u_min_m + border_margin_m;
     const double u_max = baseline.bbox_u_max_m - border_margin_m;
-    const double v_min = baseline.bbox_v_min_m + border_margin_m;
-    const double v_max = baseline.bbox_v_max_m - border_margin_m;
+    //const double v_min = baseline.bbox_v_min_m + border_margin_m;
+    //const double v_max = baseline.bbox_v_max_m - border_margin_m;
+    const double v_min = baseline.bbox_v_min_m;
+    const double v_max = baseline.bbox_v_max_m;
     if (u_min >= u_max || v_min >= v_max) {
         return false;
     }
