@@ -20,7 +20,7 @@ MeasurementStatus build_valid_difference_points(const PointCloud& food_m, const 
                                                 PointCloud& dense_out) {
     dense_out = PointCloud{};
 
-    if (cfg.baseline_fill_radius_cells < 0 || !(cfg.min_height_m >= 0.0F)) {
+    if (volume_defaults::kBaselineFillRadiusCells < 0 || !(cfg.min_height_m >= 0.0F)) {
         return MeasurementStatus::kInvalidConfig;
     }
 
@@ -42,7 +42,7 @@ MeasurementStatus build_valid_difference_points(const PointCloud& food_m, const 
         }
 
         double baseline_height = 0.0;
-        if (!lookup_baseline_height(baseline, key, cfg.baseline_fill_radius_cells, baseline_height)) {
+        if (!lookup_baseline_height(baseline, key, volume_defaults::kBaselineFillRadiusCells, baseline_height)) {
             continue;
         }
 
@@ -89,8 +89,8 @@ MeasurementStatus extract_food_components(const PointCloud& food_m, const Baseli
     if (food_m.points.empty()) {
         return MeasurementStatus::kInsufficientCoverage;
     }
-    if (!(cfg.foreground_cluster_eps_m > 0.0F) || cfg.cluster_min_points <= 0 || cfg.baseline_fill_radius_cells < 0 ||
-        !(cfg.min_height_m >= 0.0F)) {
+    if (!(cfg.foreground_cluster_eps_m > 0.0F) || cfg.cluster_min_points <= 0 ||
+        volume_defaults::kBaselineFillRadiusCells < 0 || !(cfg.min_height_m >= 0.0F)) {
         return MeasurementStatus::kInvalidConfig;
     }
 

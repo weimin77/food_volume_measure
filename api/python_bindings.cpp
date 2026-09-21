@@ -118,8 +118,6 @@ void bind_structures(py::module& m) {
         .def_readwrite("roi", &MeasurementConfig::roi)
         .def_readwrite("voxel_size_m", &MeasurementConfig::voxel_size_m)
         .def_readwrite("plane_distance_threshold_m", &MeasurementConfig::plane_distance_threshold_m)
-        .def_readwrite("plane_ransac_iterations", &MeasurementConfig::plane_ransac_iterations)
-        .def_readwrite("baseline_max_surface_height_m", &MeasurementConfig::baseline_max_surface_height_m)
         .def_readwrite("remove_secondary_plane", &MeasurementConfig::remove_secondary_plane)
         .def_readwrite("secondary_plane_distance_threshold_m", &MeasurementConfig::secondary_plane_distance_threshold_m)
         .def_readwrite("cluster_eps_m", &MeasurementConfig::cluster_eps_m)
@@ -131,19 +129,9 @@ void bind_structures(py::module& m) {
         .def_readwrite("roi_border_margin_m", &MeasurementConfig::roi_border_margin_m)
         .def_readwrite("min_height_m", &MeasurementConfig::min_height_m)
         .def_readwrite("max_height_m", &MeasurementConfig::max_height_m)
-        .def_readwrite("baseline_fill_radius_cells", &MeasurementConfig::baseline_fill_radius_cells)
         .def_readwrite("hole_fill_max_cells", &MeasurementConfig::hole_fill_max_cells)
-        .def_readwrite("hole_fill_neighbor_radius_cells", &MeasurementConfig::hole_fill_neighbor_radius_cells)
-        .def_readwrite("hole_fill_max_neighbor_height_delta_m",
-                       &MeasurementConfig::hole_fill_max_neighbor_height_delta_m)
         .def_readwrite("curve_fill_max_hole_area_cm2", &MeasurementConfig::curve_fill_max_hole_area_cm2)
-        .def_readwrite("curve_fill_max_component_area_ratio", &MeasurementConfig::curve_fill_max_component_area_ratio)
         .def_readwrite("curve_fill_max_imputed_ratio", &MeasurementConfig::curve_fill_max_imputed_ratio)
-        .def_readwrite("curve_fill_rim_radius_cells", &MeasurementConfig::curve_fill_rim_radius_cells)
-        .def_readwrite("curve_fill_min_rim_samples", &MeasurementConfig::curve_fill_min_rim_samples)
-        .def_readwrite("curve_fill_min_rim_coverage", &MeasurementConfig::curve_fill_min_rim_coverage)
-        .def_readwrite("curve_fill_max_fit_rmse_m", &MeasurementConfig::curve_fill_max_fit_rmse_m)
-        .def_readwrite("curve_fill_max_prediction_rise_m", &MeasurementConfig::curve_fill_max_prediction_rise_m)
         .def_readwrite("save_middle_cloud", &MeasurementConfig::save_middle_cloud)
         .def_readwrite("middle_cloud_dir", &MeasurementConfig::middle_cloud_dir);
 

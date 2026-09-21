@@ -482,7 +482,7 @@ MeasurementStatus build_height_grid(const std::map<CellKey, double>& surface_by_
                                     const MeasurementConfig& cfg, HeightGrid& out) {
     out = HeightGrid{};
 
-    if (!(baseline.cell_size_m > 0.0) || !(cfg.min_height_m >= 0.0F) || cfg.baseline_fill_radius_cells < 0) {
+    if (!(baseline.cell_size_m > 0.0) || !(cfg.min_height_m >= 0.0F)) {
         return MeasurementStatus::kInvalidConfig;
     }
 
@@ -500,7 +500,7 @@ MeasurementStatus build_height_grid(const std::map<CellKey, double>& surface_by_
         const double food_height = entry.second;
 
         double baseline_height = 0.0;
-        if (!lookup_baseline_height(baseline, key, cfg.baseline_fill_radius_cells, baseline_height)) {
+        if (!lookup_baseline_height(baseline, key, volume_defaults::kBaselineFillRadiusCells, baseline_height)) {
             ++out.missing_baseline_cells;
             const auto missing_label = label_by_cell.find(key);
             if (missing_label != label_by_cell.end()) {
@@ -569,14 +569,10 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
                                                  const MeasurementConfig& cfg, HoleFillStats& stats) {
     stats = HoleFillStats{};
 
-    if (cfg.hole_fill_max_cells < 0 || cfg.hole_fill_neighbor_radius_cells < 1 ||
-        !(cfg.hole_fill_max_neighbor_height_delta_m > 0.0F) || cfg.baseline_fill_radius_cells < 0 ||
-        !(cfg.curve_fill_max_hole_area_cm2 >= 0.0F) || !(cfg.curve_fill_max_component_area_ratio > 0.0F) ||
-        cfg.curve_fill_max_component_area_ratio > 1.0F || !(cfg.curve_fill_max_imputed_ratio > 0.0F) ||
-        cfg.curve_fill_max_imputed_ratio > 1.0F || cfg.curve_fill_rim_radius_cells < 1 ||
-        cfg.curve_fill_min_rim_samples < 6 || !(cfg.curve_fill_min_rim_coverage > 0.0F) ||
-        cfg.curve_fill_min_rim_coverage > 1.0F || !(cfg.curve_fill_max_fit_rmse_m > 0.0F) ||
-        !(cfg.curve_fill_max_prediction_rise_m > 0.0F)) {
+    // Only the knobs that are still configurable need checking; the retired ones are
+    // compile-time constants in volume_defaults and are already known to be usable.
+    if (cfg.hole_fill_max_cells < 0 || !(cfg.curve_fill_max_hole_area_cm2 >= 0.0F) ||
+        !(cfg.curve_fill_max_imputed_ratio > 0.0F) || cfg.curve_fill_max_imputed_ratio > 1.0F) {
         return MeasurementStatus::kInvalidConfig;
     }
 
@@ -636,9 +632,10 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
             bool completion_kind_small = false;
             if (cfg.hole_fill_max_cells > 0 && hole.size() <= static_cast<std::size_t>(cfg.hole_fill_max_cells)) {
                 completion_kind_small = true;
-                if (interpolate_small_hole(
-                        hole, height_by_cell, label_by_cell, component_label, cfg.hole_fill_neighbor_radius_cells,
-                        cfg.hole_fill_max_neighbor_height_delta_m, baseline, cfg.baseline_fill_radius_cells, local)) {
+                if (interpolate_small_hole(hole, height_by_cell, label_by_cell, component_label,
+                                           volume_defaults::kHoleFillNeighborRadiusCells,
+                                           volume_defaults::kHoleFillMaxNeighborDeltaM, baseline,
+                                           volume_defaults::kBaselineFillRadiusCells, local)) {
                     // Small interpolation succeeded.
                 } else {
                     local.clear();
@@ -652,22 +649,24 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
                 const double component_area_m2 = static_cast<double>(component_cells.size()) * cell_area;
                 if (!(cfg.curve_fill_max_hole_area_cm2 > 0.0) || hole_area_cm2 > cfg.curve_fill_max_hole_area_cm2 ||
                     static_cast<double>(hole.size()) * cell_area >
-                        component_area_m2 * cfg.curve_fill_max_component_area_ratio) {
+                        component_area_m2 * volume_defaults::kCurveFillMaxComponentAreaRatio) {
                     mark_unfilled(hole);
                     continue;
                 }
                 std::vector<double> predictions;
-                if (!fit_quadratic_hole(hole, height_by_cell, label_by_cell, component_label, grid.cell_size_m,
-                                        cfg.curve_fill_rim_radius_cells, cfg.curve_fill_min_rim_samples,
-                                        cfg.curve_fill_min_rim_coverage, cfg.curve_fill_max_fit_rmse_m,
-                                        cfg.curve_fill_max_prediction_rise_m, cfg.min_height_m, has_max_height,
-                                        cfg.max_height_m, predictions)) {
+                if (!fit_quadratic_hole(
+                        hole, height_by_cell, label_by_cell, component_label, grid.cell_size_m,
+                        volume_defaults::kCurveFillRimRadiusCells, volume_defaults::kCurveFillMinRimSamples,
+                        volume_defaults::kCurveFillMinRimCoverage, volume_defaults::kCurveFillMaxFitRmseM,
+                        volume_defaults::kCurveFillMaxPredictionRiseM, cfg.min_height_m, has_max_height,
+                        cfg.max_height_m, predictions)) {
                     mark_unfilled(hole);
                     continue;
                 }
                 for (std::size_t idx = 0; idx < hole.size(); ++idx) {
                     double baseline_height = 0.0;
-                    if (!lookup_baseline_height(baseline, hole[idx], cfg.baseline_fill_radius_cells, baseline_height)) {
+                    if (!lookup_baseline_height(baseline, hole[idx], volume_defaults::kBaselineFillRadiusCells,
+                                                baseline_height)) {
                         local.clear();
                         break;
                     }
@@ -955,7 +954,7 @@ MeasurementStatus measure_component_volume(const FoodComponents& components, con
         return MeasurementStatus::kInvalidConfig;
     }
     const BaselineData& data = *baseline.data;
-    if (!(data.cell_size_m > 0.0) || !(cfg.min_height_m >= 0.0F) || cfg.baseline_fill_radius_cells < 0) {
+    if (!(data.cell_size_m > 0.0) || !(cfg.min_height_m >= 0.0F)) {
         return MeasurementStatus::kInvalidConfig;
     }
 

@@ -81,7 +81,6 @@ MeasurementConfig make_config() {
     cfg.integration_resolution_m = 0.005F;
     cfg.roi_border_margin_m = 0.02F;
     cfg.min_height_m = 0.0015F;
-    cfg.baseline_fill_radius_cells = 2;
     cfg.cluster_min_points = 8;
     cfg.foreground_cluster_eps_m = 0.010F;
     cfg.cluster_eps_m = 0.02F;
@@ -502,12 +501,12 @@ TEST(Measurer, MissingConfigFieldsKeepDefaults) {
         file << "{\"voxel_size_m\":0.007}";
     }
     FoodVolumeMeasurer measurer;
-    const int default_iterations = measurer.config().plane_ransac_iterations;
     const double default_eps = measurer.config().cluster_eps_m;
+    const double default_resolution = measurer.config().integration_resolution_m;
     ASSERT_TRUE(measurer.load_config_from_json(path));
     EXPECT_DOUBLE_EQ(measurer.config().voxel_size_m, 0.007);
-    EXPECT_EQ(measurer.config().plane_ransac_iterations, default_iterations);
     EXPECT_DOUBLE_EQ(measurer.config().cluster_eps_m, default_eps);
+    EXPECT_DOUBLE_EQ(measurer.config().integration_resolution_m, default_resolution);
     std::remove(path.c_str());
 }
 

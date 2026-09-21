@@ -158,8 +158,6 @@ struct MeasurementConfig {
 
     // Baseline plane fitting.
     double plane_distance_threshold_m = volume_defaults::kPlaneDistanceM;
-    int plane_ransac_iterations = volume_defaults::kPlaneRansacIterations;
-    double baseline_max_surface_height_m = volume_defaults::kBaselineMaxSurfaceHeightM;
 
     // Optional second dominant background plane removal.
     bool remove_secondary_plane = false;
@@ -180,23 +178,12 @@ struct MeasurementConfig {
     double min_height_m = volume_defaults::kMinHeightM;
     double max_height_m = -1.0; // negative disables the cap
 
-    // Baseline lookup.
-    int baseline_fill_radius_cells = volume_defaults::kBaselineFillRadiusCells;
-
     // Small-hole interpolation.
     int hole_fill_max_cells = volume_defaults::kHoleFillMaxCells;
-    int hole_fill_neighbor_radius_cells = volume_defaults::kHoleFillNeighborRadiusCells;
-    double hole_fill_max_neighbor_height_delta_m = volume_defaults::kHoleFillMaxNeighborDeltaM;
 
     // Quadratic-surface hole completion.
     double curve_fill_max_hole_area_cm2 = volume_defaults::kCurveFillMaxHoleAreaCm2;
-    double curve_fill_max_component_area_ratio = volume_defaults::kCurveFillMaxComponentAreaRatio;
     double curve_fill_max_imputed_ratio = volume_defaults::kCurveFillMaxImputedRatio;
-    int curve_fill_rim_radius_cells = volume_defaults::kCurveFillRimRadiusCells;
-    int curve_fill_min_rim_samples = volume_defaults::kCurveFillMinRimSamples;
-    double curve_fill_min_rim_coverage = volume_defaults::kCurveFillMinRimCoverage;
-    double curve_fill_max_fit_rmse_m = volume_defaults::kCurveFillMaxFitRmseM;
-    double curve_fill_max_prediction_rise_m = volume_defaults::kCurveFillMaxPredictionRiseM;
 
     // Optional per-stage point-cloud dump for debugging and visualisation.
     bool save_middle_cloud = false;

@@ -182,8 +182,8 @@ MeasurementStatus build_baseline_model(const std::vector<PointCloud>& baseline_f
         return MeasurementStatus::kEmptyBaseline;
     }
     if (!(cfg.integration_resolution_m > 0.0F) || !(cfg.voxel_size_m > 0.0F) ||
-        !(cfg.plane_distance_threshold_m > 0.0F) || cfg.plane_ransac_iterations <= 0 ||
-        !(cfg.baseline_max_surface_height_m > 0.0F)) {
+        !(cfg.plane_distance_threshold_m > 0.0F) || volume_defaults::kPlaneRansacIterations <= 0 ||
+        !(volume_defaults::kBaselineMaxSurfaceHeightM > 0.0F)) {
         return MeasurementStatus::kInvalidConfig;
     }
     for (const auto& frame : baseline_frames) {
@@ -208,8 +208,8 @@ MeasurementStatus build_baseline_model(const std::vector<PointCloud>& baseline_f
 
     Plane plane{};
     std::vector<std::size_t> inliers;
-    MeasurementStatus st =
-        fit_plane_ransac(first_m, cfg.plane_distance_threshold_m, cfg.plane_ransac_iterations, plane, inliers);
+    MeasurementStatus st = fit_plane_ransac(first_m, cfg.plane_distance_threshold_m,
+                                            volume_defaults::kPlaneRansacIterations, plane, inliers);
     if (st != MeasurementStatus::kSuccess) {
         return st;
     }
@@ -236,7 +236,8 @@ MeasurementStatus build_baseline_model(const std::vector<PointCloud>& baseline_f
         build_plane_frame(plane, Point3f{static_cast<float>(ox), static_cast<float>(oy), static_cast<float>(oz)});
     data->cell_size_m = cfg.integration_resolution_m;
 
-    st = rasterize_baseline(frames_m, data->frame, data->cell_size_m, cfg.baseline_max_surface_height_m, *data);
+    st = rasterize_baseline(frames_m, data->frame, data->cell_size_m, volume_defaults::kBaselineMaxSurfaceHeightM,
+                            *data);
     if (st != MeasurementStatus::kSuccess) {
         return st;
     }

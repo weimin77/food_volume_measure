@@ -139,8 +139,6 @@ bool load_config_from_json(const std::string& path, MeasurementConfig& out) {
     read_if_present(root, "use_roi", out.use_roi);
     read_if_present(root, "voxel_size_m", out.voxel_size_m);
     read_if_present(root, "plane_distance_threshold_m", out.plane_distance_threshold_m);
-    read_if_present(root, "plane_ransac_iterations", out.plane_ransac_iterations);
-    read_if_present(root, "baseline_max_surface_height_m", out.baseline_max_surface_height_m);
     read_if_present(root, "remove_secondary_plane", out.remove_secondary_plane);
     read_if_present(root, "secondary_plane_distance_threshold_m", out.secondary_plane_distance_threshold_m);
     read_if_present(root, "cluster_eps_m", out.cluster_eps_m);
@@ -150,18 +148,9 @@ bool load_config_from_json(const std::string& path, MeasurementConfig& out) {
     read_if_present(root, "roi_border_margin_m", out.roi_border_margin_m);
     read_if_present(root, "min_height_m", out.min_height_m);
     read_if_present(root, "max_height_m", out.max_height_m);
-    read_if_present(root, "baseline_fill_radius_cells", out.baseline_fill_radius_cells);
     read_if_present(root, "hole_fill_max_cells", out.hole_fill_max_cells);
-    read_if_present(root, "hole_fill_neighbor_radius_cells", out.hole_fill_neighbor_radius_cells);
-    read_if_present(root, "hole_fill_max_neighbor_height_delta_m", out.hole_fill_max_neighbor_height_delta_m);
     read_if_present(root, "curve_fill_max_hole_area_cm2", out.curve_fill_max_hole_area_cm2);
-    read_if_present(root, "curve_fill_max_component_area_ratio", out.curve_fill_max_component_area_ratio);
     read_if_present(root, "curve_fill_max_imputed_ratio", out.curve_fill_max_imputed_ratio);
-    read_if_present(root, "curve_fill_rim_radius_cells", out.curve_fill_rim_radius_cells);
-    read_if_present(root, "curve_fill_min_rim_samples", out.curve_fill_min_rim_samples);
-    read_if_present(root, "curve_fill_min_rim_coverage", out.curve_fill_min_rim_coverage);
-    read_if_present(root, "curve_fill_max_fit_rmse_m", out.curve_fill_max_fit_rmse_m);
-    read_if_present(root, "curve_fill_max_prediction_rise_m", out.curve_fill_max_prediction_rise_m);
     read_if_present(root, "save_middle_cloud", out.save_middle_cloud);
     read_if_present(root, "middle_cloud_dir", out.middle_cloud_dir);
 
@@ -187,8 +176,6 @@ bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path) 
                        {"max_y", cfg.roi.max_y}, {"min_z", cfg.roi.min_z}, {"max_z", cfg.roi.max_z}};
     root["voxel_size_m"] = cfg.voxel_size_m;
     root["plane_distance_threshold_m"] = cfg.plane_distance_threshold_m;
-    root["plane_ransac_iterations"] = cfg.plane_ransac_iterations;
-    root["baseline_max_surface_height_m"] = cfg.baseline_max_surface_height_m;
     root["remove_secondary_plane"] = cfg.remove_secondary_plane;
     root["secondary_plane_distance_threshold_m"] = cfg.secondary_plane_distance_threshold_m;
     root["cluster_eps_m"] = cfg.cluster_eps_m;
@@ -200,18 +187,9 @@ bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path) 
     root["roi_border_margin_m"] = cfg.roi_border_margin_m;
     root["min_height_m"] = cfg.min_height_m;
     root["max_height_m"] = cfg.max_height_m;
-    root["baseline_fill_radius_cells"] = cfg.baseline_fill_radius_cells;
     root["hole_fill_max_cells"] = cfg.hole_fill_max_cells;
-    root["hole_fill_neighbor_radius_cells"] = cfg.hole_fill_neighbor_radius_cells;
-    root["hole_fill_max_neighbor_height_delta_m"] = cfg.hole_fill_max_neighbor_height_delta_m;
     root["curve_fill_max_hole_area_cm2"] = cfg.curve_fill_max_hole_area_cm2;
-    root["curve_fill_max_component_area_ratio"] = cfg.curve_fill_max_component_area_ratio;
     root["curve_fill_max_imputed_ratio"] = cfg.curve_fill_max_imputed_ratio;
-    root["curve_fill_rim_radius_cells"] = cfg.curve_fill_rim_radius_cells;
-    root["curve_fill_min_rim_samples"] = cfg.curve_fill_min_rim_samples;
-    root["curve_fill_min_rim_coverage"] = cfg.curve_fill_min_rim_coverage;
-    root["curve_fill_max_fit_rmse_m"] = cfg.curve_fill_max_fit_rmse_m;
-    root["curve_fill_max_prediction_rise_m"] = cfg.curve_fill_max_prediction_rise_m;
     root["save_middle_cloud"] = cfg.save_middle_cloud;
     root["middle_cloud_dir"] = cfg.middle_cloud_dir;
 
