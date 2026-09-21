@@ -10,8 +10,6 @@
 #include "volume_pointcloudprocess.hpp"
 // Conan::ImportEnd
 
-#include "volume_profiler.hpp"
-
 
 
 namespace vm {
@@ -80,7 +78,6 @@ MeasurementStatus build_valid_difference_points(const PointCloud& food_m, const 
  */
 MeasurementStatus extract_food_components(const PointCloud& food_m, const BaselineModel& baseline,
                                           const MeasurementConfig& cfg, FoodComponents& out) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)food_m;
     (void)baseline;

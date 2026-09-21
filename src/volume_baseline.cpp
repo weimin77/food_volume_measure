@@ -12,8 +12,6 @@
 #include "volume_pointcloudprocess.hpp"
 // Conan::ImportEnd
 
-#include "volume_profiler.hpp"
-
 
 
 namespace vm {
@@ -174,7 +172,6 @@ bool build_plane_roi(BaselineData& baseline, double border_margin_m) {
 MeasurementStatus build_baseline_model(const std::vector<PointCloud>& baseline_frames,
                                        const PointCloud& orientation_points, const MeasurementConfig& cfg,
                                        BaselineModel& out) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)baseline_frames;
     (void)orientation_points;

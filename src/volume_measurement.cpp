@@ -14,7 +14,6 @@
 #include "volume_pointcloudprocess.hpp"
 // Conan::ImportEnd
 
-#include "volume_profiler.hpp"
 
 #ifndef __ARM_EABI__
 #include <algorithm>
@@ -157,7 +156,6 @@ void dump_middle_clouds(const MeasurementConfig& cfg, const PointCloud& raw_food
 
 // Chooses orientation points from the largest 3D DBSCAN component, or empty when none qualifies.
 PointCloud select_largest_cluster(const PointCloud& cloud_m, const MeasurementConfig& cfg) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud_m;
     (void)cfg;
@@ -456,7 +454,6 @@ bool FoodVolumeMeasurer::save_config_to_json(const std::string& path) const {
  * @attacher
  */
 MeasurementStatus FoodVolumeMeasurer::prepare_baseline() {
-    VM_PROFILE_FUNC();
     prepared_baseline_.reset();
 #ifdef __ARM_EABI__
     return MeasurementStatus::kUnsupportedPlatform;
@@ -521,7 +518,6 @@ void FoodVolumeMeasurer::invalidate_prepared_baseline() { prepared_baseline_.res
 
 
 VolumeEstimate FoodVolumeMeasurer::run() const {
-    VM_PROFILE_FUNC();
     const MeasurementConfig& cfg = cfg_;
 #ifdef __ARM_EABI__
     (void)cfg;

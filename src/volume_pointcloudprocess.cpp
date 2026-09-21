@@ -32,7 +32,6 @@
 #endif
 // Conan::ImportEnd
 
-#include "volume_profiler.hpp"
 
 
 
@@ -57,7 +56,6 @@ double signed_height(const Plane& plane, const Point3f& p) {
  * @attacher
  */
 PointCloud load_pcd_impl(const std::string& path) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)path;
     return PointCloud{};
@@ -117,7 +115,6 @@ bool save_pcd_impl(const std::string& path, const PointCloud& cloud) {
 
 
 PointCloud voxel_downsample(const PointCloud& cloud, double voxel_size) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud;
     (void)voxel_size;
@@ -287,7 +284,6 @@ Plane orient_plane(const Plane& plane, const PointCloud& points) {
  * @attacher
  */
 MeasurementStatus preprocess_cloud(const PointCloud& input, const MeasurementConfig& cfg, PreprocessResult& out) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)input;
     (void)cfg;
@@ -345,7 +341,6 @@ MeasurementStatus preprocess_cloud(const PointCloud& input, const MeasurementCon
  * @attacher
  */
 std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, int min_points) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)points;
     (void)eps;
@@ -425,7 +420,6 @@ std::vector<int> dbscan_labels(const std::vector<Point3f>& points, double eps, i
  */
 MeasurementStatus fit_plane_ransac(const PointCloud& cloud_m, double distance_threshold_m, int iterations,
                                    Plane& out_plane, std::vector<std::size_t>& inlier_indices) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud_m;
     (void)distance_threshold_m;
@@ -487,7 +481,6 @@ MeasurementStatus fit_plane_ransac(const PointCloud& cloud_m, double distance_th
  */
 MeasurementStatus remove_dominant_plane(const PointCloud& cloud_m, const MeasurementConfig& cfg,
                                         PointCloud& remaining) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud_m;
     (void)cfg;
@@ -537,7 +530,6 @@ MeasurementStatus remove_dominant_plane(const PointCloud& cloud_m, const Measure
  * @attacher
  */
 double compute_aabb_volume(const PointCloud& cloud) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud;
     return std::numeric_limits<double>::quiet_NaN();
@@ -569,7 +561,6 @@ double compute_aabb_volume(const PointCloud& cloud) {
  * @attacher
  */
 double compute_obb_volume(const PointCloud& cloud) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud;
     return std::numeric_limits<double>::quiet_NaN();
@@ -606,7 +597,6 @@ double compute_obb_volume(const PointCloud& cloud) {
  * @attacher
  */
 double compute_convex_hull_volume(const PointCloud& cloud) {
-    VM_PROFILE_FUNC();
 #ifdef __ARM_EABI__
     (void)cloud;
     return std::numeric_limits<double>::quiet_NaN();
