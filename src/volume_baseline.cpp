@@ -234,13 +234,7 @@ MeasurementStatus build_baseline_model(const std::vector<PointCloud>& baseline_f
 
     // Orient the normal toward the food side when orientation points are available.
     plane = orient_plane(plane, orientation_points);
-    if (plane.nz > 0)
-    {
-        plane.nx = -plane.nx;
-        plane.ny = -plane.ny;
-        plane.nz = -plane.nz;
-        plane.d = -plane.d;
-    }
+
     data->plane = plane;
     data->frame =
         build_plane_frame(plane, Point3f{static_cast<float>(ox), static_cast<float>(oy), static_cast<float>(oz)});

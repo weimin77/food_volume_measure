@@ -552,11 +552,10 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
         log_debug("run: reusing the prepared baseline model");
     } else {
         // Orientation points: largest DBSCAN component, or all remaining when none qualifies.
-        //PointCloud orientation = select_largest_cluster(remaining, cfg);
-        //if (orientation.points.empty()) {
-        //    orientation = remaining;
-        //}
-        PointCloud orientation = remaining;
+        PointCloud orientation = select_largest_cluster(remaining, cfg);
+        if (orientation.points.empty()) {
+            orientation = remaining;
+        }
         st = build_baseline_model(baseline_frames_, orientation, cfg, baseline);
         if (st != MeasurementStatus::kSuccess) {
             return failure(st, status_to_string(st));
