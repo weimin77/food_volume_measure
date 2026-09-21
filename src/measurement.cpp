@@ -566,9 +566,11 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
         return failure(st, status_to_string(st));
     }
 
-    // 6. Measure the component volume.
+    // 6. Measure the component volume. The per-component breakdown is derived from the
+    // same rasterisation pass, so this runs the integration exactly once.
     ComponentVolumeEstimate component_volume{};
-    st = measure_component_volume(components, baseline, cfg, component_volume);
+    std::vector<ComponentVolumeEstimate> per_component;
+    st = measure_component_volume(components, baseline, cfg, component_volume, &per_component);
     if (st != MeasurementStatus::kSuccess) {
         return failure(st, status_to_string(st));
     }
@@ -597,11 +599,9 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
     est.baseline_cell_count = baseline.cell_count;
     est.component_count = components.labels.size();
 
-    // Per-component breakdown (best-effort): the merged total above stays authoritative.
-    std::vector<ComponentVolumeEstimate> per_component;
-    if (measure_component_volumes(components, baseline, cfg, per_component) == MeasurementStatus::kSuccess) {
-        est.component_estimates = std::move(per_component);
-    }
+    // Per-component breakdown, aligned with `selected_cluster_labels`. The merged total above
+    // stays authoritative; the breakdown is a split of the very same grid.
+    est.component_estimates = std::move(per_component);
 
     est.top_surface_points = component_volume.top_surface_points;
     est.measured_cells = component_volume.measured_cells;

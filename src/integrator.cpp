@@ -502,6 +502,10 @@ MeasurementStatus build_height_grid(const std::map<CellKey, double>& surface_by_
         double baseline_height = 0.0;
         if (!lookup_baseline_height(baseline, key, cfg.baseline_fill_radius_cells, baseline_height)) {
             ++out.missing_baseline_cells;
+            const auto missing_label = label_by_cell.find(key);
+            if (missing_label != label_by_cell.end()) {
+                ++out.missing_baseline_by_label[missing_label->second];
+            }
             continue;
         }
 
@@ -612,12 +616,19 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
         const std::size_t component_measured = component_cells.size();
         std::size_t component_added = 0;
 
+        // Records a hole as unfilled and attributes its cells to this component, so the
+        // per-component breakdown can report unfilled cells without a second pipeline pass.
+        const auto mark_unfilled = [&](const std::vector<CellKey>& hole) {
+            unfilled.insert(hole.begin(), hole.end());
+            stats.unfilled_by_label[component_label] += hole.size();
+        };
+
         const auto holes = find_enclosed_holes(component_cells, blocked_cells);
         for (const auto& hole : holes) {
             stats.candidate_hole_count += 1;
 
             if (hole_boundary_component_labels(hole, label_by_cell) != std::set<int>{component_label}) {
-                unfilled.insert(hole.begin(), hole.end());
+                mark_unfilled(hole);
                 continue;
             }
 
@@ -642,7 +653,7 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
                 if (!(cfg.curve_fill_max_hole_area_cm2 > 0.0) || hole_area_cm2 > cfg.curve_fill_max_hole_area_cm2 ||
                     static_cast<double>(hole.size()) * cell_area >
                         component_area_m2 * cfg.curve_fill_max_component_area_ratio) {
-                    unfilled.insert(hole.begin(), hole.end());
+                    mark_unfilled(hole);
                     continue;
                 }
                 std::vector<double> predictions;
@@ -651,7 +662,7 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
                                         cfg.curve_fill_min_rim_coverage, cfg.curve_fill_max_fit_rmse_m,
                                         cfg.curve_fill_max_prediction_rise_m, cfg.min_height_m, has_max_height,
                                         cfg.max_height_m, predictions)) {
-                    unfilled.insert(hole.begin(), hole.end());
+                    mark_unfilled(hole);
                     continue;
                 }
                 for (std::size_t idx = 0; idx < hole.size(); ++idx) {
@@ -663,7 +674,7 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
                     local.push_back(SmallAddition{hole[idx], baseline_height, predictions[idx]});
                 }
                 if (local.empty()) {
-                    unfilled.insert(hole.begin(), hole.end());
+                    mark_unfilled(hole);
                     continue;
                 }
                 stats.curve_filled_hole_count += 1;
@@ -674,7 +685,7 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
             const std::size_t projected_total = component_measured + projected_inferred;
             if (projected_total == 0 || static_cast<double>(projected_inferred) / static_cast<double>(projected_total) >
                                             cfg.curve_fill_max_imputed_ratio) {
-                unfilled.insert(hole.begin(), hole.end());
+                mark_unfilled(hole);
                 continue;
             }
 
@@ -711,6 +722,90 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
     grid.component_labels.insert(grid.component_labels.end(), addition_labels.begin(), addition_labels.end());
     recompute_grid_stats(grid);
     return MeasurementStatus::kSuccess;
+}
+
+// Derives one estimate per selected component from a single completed height grid. Every grid cell
+// already carries its component label, so the per-component breakdown costs one pass over the grid
+// instead of a second full rasterisation / hole-completion run per component.
+void split_grid_by_component(const std::vector<int>& labels, const HeightGrid& grid, const SurfaceMap& surface,
+                             const HoleFillStats& stats, std::vector<ComponentVolumeEstimate>& out) {
+    const double cell_area = grid.cell_size_m * grid.cell_size_m;
+
+    for (const int label : labels) {
+        ComponentVolumeEstimate est;
+
+        double raw_m = 0.0;
+        double interpolated_m = 0.0;
+        double sum_h = 0.0;
+        double max_h = 0.0;
+        std::size_t measured = 0;
+        std::size_t interpolated = 0;
+        std::int64_t min_i = 0;
+        std::int64_t max_i = 0;
+        std::int64_t min_j = 0;
+        std::int64_t max_j = 0;
+        bool first = true;
+
+        for (std::size_t idx = 0; idx < grid.cells.size(); ++idx) {
+            if (grid.component_labels[idx] != label) {
+                continue;
+            }
+            const double h = grid.heights_m[idx];
+            sum_h += h;
+            max_h = std::max(max_h, h);
+            if (grid.is_interpolated[idx] != 0) {
+                interpolated_m += h;
+                ++interpolated;
+            } else {
+                raw_m += h;
+                ++measured;
+            }
+
+            if (first) {
+                min_i = grid.cells[idx].first;
+                max_i = grid.cells[idx].first;
+                min_j = grid.cells[idx].second;
+                max_j = grid.cells[idx].second;
+                first = false;
+            } else {
+                min_i = std::min(min_i, grid.cells[idx].first);
+                max_i = std::max(max_i, grid.cells[idx].first);
+                min_j = std::min(min_j, grid.cells[idx].second);
+                max_j = std::max(max_j, grid.cells[idx].second);
+            }
+        }
+
+        // Cells of this component's top surface, i.e. before the height filter dropped any.
+        std::size_t top_surface_points = 0;
+        for (const int surface_label : surface.labels) {
+            if (surface_label == label) {
+                ++top_surface_points;
+            }
+        }
+
+        const std::size_t occupied = measured + interpolated;
+        const std::size_t bbox = first ? 0 : static_cast<std::size_t>((max_i - min_i + 1) * (max_j - min_j + 1));
+
+        est.raw_volume_cm3 = raw_m * cell_area * kM3ToCm3;
+        est.interpolated_volume_cm3 = interpolated_m * cell_area * kM3ToCm3;
+        est.volume_cm3 = est.raw_volume_cm3 + est.interpolated_volume_cm3;
+        est.top_surface_points = top_surface_points;
+        est.measured_cells = measured;
+        est.interpolated_cells = interpolated;
+        est.occupied_cells = occupied;
+        est.bbox_cell_count = bbox;
+        est.footprint_area_m2 = static_cast<double>(occupied) * cell_area;
+        est.coverage_ratio = bbox > 0 ? static_cast<double>(occupied) / static_cast<double>(bbox) : 0.0;
+        est.mean_height_m = occupied > 0 ? sum_h / static_cast<double>(occupied) : 0.0;
+        est.max_height_m = max_h;
+
+        const auto missing = grid.missing_baseline_by_label.find(label);
+        est.missing_baseline_cells = missing != grid.missing_baseline_by_label.end() ? missing->second : 0;
+        const auto unfilled = stats.unfilled_by_label.find(label);
+        est.unfilled_hole_cells = unfilled != stats.unfilled_by_label.end() ? unfilled->second : 0;
+
+        out.push_back(est);
+    }
 }
 
 } // namespace
@@ -838,15 +933,20 @@ ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid) {
  * @attacher
  */
 MeasurementStatus measure_component_volume(const FoodComponents& components, const BaselineModel& baseline,
-                                           const MeasurementConfig& cfg, ComponentVolumeEstimate& out) {
+                                           const MeasurementConfig& cfg, ComponentVolumeEstimate& out,
+                                           std::vector<ComponentVolumeEstimate>* per_component) {
 #ifdef __ARM_EABI__
     (void)components;
     (void)baseline;
     (void)cfg;
     (void)out;
+    (void)per_component;
     return MeasurementStatus::kUnsupportedPlatform;
 #else
     out = ComponentVolumeEstimate{};
+    if (per_component != nullptr) {
+        per_component->clear();
+    }
 
     if (components.labels.empty() || components.labels.size() != components.clouds.size()) {
         return MeasurementStatus::kInvalidConfig;
@@ -881,42 +981,9 @@ MeasurementStatus measure_component_volume(const FoodComponents& components, con
     out.unfilled_hole_cells = hole_stats.unfilled_hole_cells;
     log_info("integrate: measured=" + std::to_string(out.measured_cells) + " interpolated=" +
              std::to_string(out.interpolated_cells) + " volume_cm3=" + std::to_string(out.volume_cm3));
-    return MeasurementStatus::kSuccess;
-#endif // __ARM_EABI__
-}
 
-
-
-MeasurementStatus measure_component_volumes(const FoodComponents& components, const BaselineModel& baseline,
-                                            const MeasurementConfig& cfg, std::vector<ComponentVolumeEstimate>& out) {
-#ifdef __ARM_EABI__
-    (void)components;
-    (void)baseline;
-    (void)cfg;
-    (void)out;
-    return MeasurementStatus::kUnsupportedPlatform;
-#else
-    out.clear();
-
-    if (components.labels.empty() || components.labels.size() != components.clouds.size()) {
-        return MeasurementStatus::kInvalidConfig;
-    }
-
-    out.reserve(components.labels.size());
-    for (std::size_t i = 0; i < components.labels.size(); ++i) {
-        // Integrate each component in isolation so its volume, cells, and hole-fill
-        // diagnostics are reported separately rather than merged into one total.
-        FoodComponents single;
-        single.cluster_count = components.cluster_count;
-        single.labels = {components.labels[i]};
-        single.clouds = {components.clouds[i]};
-
-        ComponentVolumeEstimate estimate{};
-        const MeasurementStatus status = measure_component_volume(single, baseline, cfg, estimate);
-        if (status != MeasurementStatus::kSuccess) {
-            return status;
-        }
-        out.push_back(estimate);
+    if (per_component != nullptr) {
+        split_grid_by_component(components.labels, grid, surface, hole_stats, *per_component);
     }
     return MeasurementStatus::kSuccess;
 #endif // __ARM_EABI__

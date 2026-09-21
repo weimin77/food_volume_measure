@@ -19,34 +19,20 @@
  * @param baseline [zh] 空炉基线模型。
  * @param cfg [en] Measurement configuration.
  * @param cfg [zh] 测量配置。
- * @param out [en] Integrated volume and diagnostics.
- * @param out [zh] 积分体积与诊断信息。
+ * @param out [en] Integrated volume and diagnostics, merged over all selected components.
+ * @param out [zh] 合并所有选中连通块后的积分体积与诊断信息。
+ * @param per_component [en] When non-null, receives one estimate per selected component, in the
+ *     same order as `components.labels`. Derived from the same rasterisation pass, so requesting
+ *     it costs no extra integration work.
+ * @param per_component [zh] 非空时按 `components.labels` 顺序逐连通块写入一条估计；
+ *     与合并结果共用同一遍栅格化，因此不产生额外积分开销。
  * @return [en] kSuccess, kInvalidConfig, kInsufficientCoverage, or kFoodNotFound.
  * @return [zh] kSuccess、kInvalidConfig、kInsufficientCoverage 或 kFoodNotFound。
 
  */
 MeasurementStatus measure_component_volume(const FoodComponents& components, const BaselineModel& baseline,
-                                           const MeasurementConfig& cfg, ComponentVolumeEstimate& out);
-
-
-
-/**
- * @brief [en] Measures the volume of each selected component independently.
- * @brief [zh] 独立测量每个选中连通块的体积。
- * @param components [en] Selected food components produced by `extract_food_components`.
- * @param components [zh] 由 `extract_food_components` 产生的选中食材块。
- * @param baseline [en] Empty-oven baseline model.
- * @param baseline [zh] 空炉基线模型。
- * @param cfg [en] Measurement configuration.
- * @param cfg [zh] 测量配置。
- * @param out [en] One integration result per component, in the same order as `components.labels`.
- * @param out [zh] 每个连通块各一条积分结果，顺序与 `components.labels` 一致。
- * @return [en] kSuccess, or the first per-component failure status.
- * @return [zh] kSuccess，或首个失败连通块的状态。
-
- */
-MeasurementStatus measure_component_volumes(const FoodComponents& components, const BaselineModel& baseline,
-                                            const MeasurementConfig& cfg, std::vector<ComponentVolumeEstimate>& out);
+                                           const MeasurementConfig& cfg, ComponentVolumeEstimate& out,
+                                           std::vector<ComponentVolumeEstimate>* per_component = nullptr);
 
 
 

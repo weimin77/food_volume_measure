@@ -96,6 +96,10 @@ struct HeightGrid {
     std::size_t bbox_cells = 0;
     std::size_t missing_baseline_cells = 0;
 
+    /// [en] Cells dropped for a missing baseline entry, attributed to their component label.
+    /// [zh] 因基线缺失而被丢弃的格子，按连通块标签归因。
+    std::map<int, std::size_t> missing_baseline_by_label;
+
     double raw_volume_m3 = 0.0;
     double interpolated_volume_m3 = 0.0;
     double volume_m3 = 0.0;
@@ -120,6 +124,10 @@ struct HoleFillStats {
     std::size_t curve_filled_hole_count = 0;
     std::size_t unfilled_hole_cells = 0;
     double max_component_inferred_ratio = 0.0;
+
+    /// [en] Cells left unfilled, attributed to their component label.
+    /// [zh] 未能补全的格子，按连通块标签归因。
+    std::map<int, std::size_t> unfilled_by_label;
 };
 
 
