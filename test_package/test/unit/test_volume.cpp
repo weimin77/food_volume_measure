@@ -5,6 +5,7 @@
 #include <fstream>
 #include <functional>
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <limits>
 #include <sstream>
@@ -161,6 +162,114 @@ TEST(Logging, LevelFiltersMessages) {
     EXPECT_NE(content.find("this warning message must be kept"), std::string::npos);
     log_set_level(LogLevel::kOff);
     std::remove(path.c_str());
+}
+
+
+
+TEST(Logging, GetterRoundTrips) {
+    // The getters must report back exactly what the setters stored.
+    log_set_level(LogLevel::kDebug);
+    EXPECT_EQ(log_get_level(), LogLevel::kDebug);
+    log_set_level(LogLevel::kError);
+    EXPECT_EQ(log_get_level(), LogLevel::kError);
+
+    log_set_console(true);
+    EXPECT_TRUE(log_get_console());
+    log_set_console(false);
+    EXPECT_FALSE(log_get_console());
+
+    log_set_level(LogLevel::kOff);
+}
+
+
+
+TEST(Logging, TraceAndDebugLevelsReachTheFile) {
+    // Trace and debug sit below the default info level, so they need their own threshold.
+    const std::string path = "unit_log_test_levels.txt";
+    log_set_console(false);
+    log_set_level(LogLevel::kTrace);
+    log_set_file(path, LogFileMode::kTruncate);
+    log_trace("trace message");
+    log_debug("debug message");
+    log_close_file();
+
+    std::ifstream file(path);
+    ASSERT_TRUE(file.is_open());
+    const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    EXPECT_NE(content.find("[TRACE] trace message"), std::string::npos);
+    EXPECT_NE(content.find("[DEBUG] debug message"), std::string::npos);
+    log_set_level(LogLevel::kOff);
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Logging, UnknownLevelFallsBackToOffTag) {
+    // A level outside the enum must still produce a line rather than an empty tag.
+    const std::string path = "unit_log_test_unknown_level.txt";
+    log_set_console(false);
+    log_set_level(LogLevel::kTrace);
+    log_set_file(path, LogFileMode::kTruncate);
+    log_write(static_cast<LogLevel>(99), "out of range level");
+    log_close_file();
+
+    std::ifstream file(path);
+    ASSERT_TRUE(file.is_open());
+    const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    EXPECT_NE(content.find("[OFF] out of range level"), std::string::npos);
+    log_set_level(LogLevel::kOff);
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Logging, EmptyPathClosesTheFile) {
+    // An empty path is documented as "close the current file"; nothing is written afterwards.
+    const std::string path = "unit_log_test_empty_path.txt";
+    log_set_console(false);
+    log_set_level(LogLevel::kInfo);
+    log_set_file(path, LogFileMode::kTruncate);
+    log_info("written before closing");
+    log_set_file("");
+    log_info("written after closing");
+    log_close_file();
+
+    std::ifstream file(path);
+    ASSERT_TRUE(file.is_open());
+    const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    EXPECT_NE(content.find("written before closing"), std::string::npos);
+    EXPECT_EQ(content.find("written after closing"), std::string::npos);
+    log_set_level(LogLevel::kOff);
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Logging, ConsoleRoutingSplitsStdoutAndStderr) {
+    // Ordinary levels go to stdout; warnings and errors go to stderr.
+    std::ostringstream captured_out;
+    std::ostringstream captured_err;
+    std::streambuf* const old_out = std::cout.rdbuf(captured_out.rdbuf());
+    std::streambuf* const old_err = std::cerr.rdbuf(captured_err.rdbuf());
+
+    log_set_level(LogLevel::kInfo);
+    log_set_console(true);
+    log_info("info goes to stdout");
+    log_warning("warning goes to stderr");
+    log_error("error goes to stderr");
+
+    std::cout.rdbuf(old_out);
+    std::cerr.rdbuf(old_err);
+    log_set_console(false);
+    log_set_level(LogLevel::kOff);
+
+    EXPECT_NE(captured_out.str().find("[INFO] info goes to stdout"), std::string::npos);
+    EXPECT_EQ(captured_out.str().find("warning goes to stderr"), std::string::npos);
+    EXPECT_NE(captured_err.str().find("[WARN] warning goes to stderr"), std::string::npos);
+    EXPECT_NE(captured_err.str().find("[ERROR] error goes to stderr"), std::string::npos);
 }
 
 
