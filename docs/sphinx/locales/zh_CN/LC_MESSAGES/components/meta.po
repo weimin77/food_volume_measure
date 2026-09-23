@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-22 17:52+0800\n"
+"POT-Creation-Date: 2026-09-23 09:43+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -20,30 +20,30 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../source/components/meta.rst:2 220d4f5b20bb41e09c6fe5e65fd5ef7d
+#: ../../source/components/meta.rst:2 f7bdfb14b2494264b56ca80c66acf51e
 msgid "_`Metadata Configuration`"
 msgstr "元数据配置"
 
-#: ../../source/components/meta.rst:5 9ff071ce05c544408b17a79fc200a286
+#: ../../source/components/meta.rst:5 86a77d9091e443cd853e4675c0041ae6
 msgid "_`Project-level Settings`"
 msgstr "项目级设置"
 
-#: ../../source/components/meta.rst:7 04252c20e3f24897a044c752f4bbd130
+#: ../../source/components/meta.rst:7 27c1d41e75334ca4abdc709bba17ea32
 msgid ""
-"The metadata.json file is the single source of truth for "
-"food_volume_measure. It carries the package identity together with every "
-"build, dependency and documentation switch, so the CMake configuration, "
-"the Conan recipe and the documentation pipeline all read the same values "
-"instead of duplicating them."
+"metadata.json is the one place that defines food_volume_measure. It holds"
+" the package identity plus every build, dependency and documentation "
+"setting, so the CMake configuration, the Conan recipe and the "
+"documentation pipeline all read the same values instead of repeating "
+"them."
 msgstr ""
-"metadata.json 文件是 food_volume_measure 的唯一事实来源。它承载包标识以及所有构建、依赖与文档开关，因此 "
-"CMake 配置、Conan 配方与文档流水线读取的都是同一份取值，无需重复定义。"
+"metadata.json 是 food_volume_measure 唯一的配置来源。包标识和构建、依赖、文档的全部设置都放在这里，CMake "
+"配置、Conan 配方和文档流水线读的都是同一份值，不用各处重复。"
 
-#: ../../source/components/meta.rst:10 ae8ff0fd1dd44cf6b17f014c0a29597c
+#: ../../source/components/meta.rst:12 e61a4589cbc144c4b6dbd50b1e97ddfb
 msgid "_`File Structure`"
 msgstr "文件结构"
 
-#: ../../source/components/meta.rst:12 cb3c48a387ca494fb6887d214bd88cba
+#: ../../source/components/meta.rst:14 7cf5c7d5528f460a8e7f5f166edc5e6b
 msgid ""
 "The JSON file is organized in sections: the package identity (name, "
 "target, version, team, license, description, authors, maintainers, "
@@ -55,40 +55,40 @@ msgid ""
 "and doc_doxygen_suffix), and the automation switches (trigger_tests, "
 "saving_tests_log, enable_python_bindings and workflow_triggers)."
 msgstr ""
-"该 JSON "
+"这个 JSON "
 "文件按块组织：包标识（name、target、version、team、license、description、authors、maintainers、topics、url"
-" 与 "
+" 和 "
 "homepage）、构建配置（cmake_version、build_cppstd、build_cstd、build_type、activate_code_coverage、is_shared、is_header、generate_modules_inplace、std_modules"
-" 与 user_modules）、dependencies "
+" 和 user_modules）、dependencies "
 "对象、baremetal_white_list、graphviz_bin、文档设置（doc_languages、doc_versions、doc_doxygen_folders"
-" 与 "
+" 和 "
 "doc_doxygen_suffix），以及自动化开关（trigger_tests、saving_tests_log、enable_python_bindings"
-" 与 workflow_triggers）。"
+" 和 workflow_triggers）。"
 
-#: ../../source/components/meta.rst:15 d1ebd8dd76d84ca396d7d9c1b664b69b
+#: ../../source/components/meta.rst:23 fa97541fdf134269aa67d241c7d932d9
 msgid "_`Key Settings`"
 msgstr "关键设置"
 
-#: ../../source/components/meta.rst:17 ddc777c480c4468e8e3d8502c72c3e10
+#: ../../source/components/meta.rst:25 2d3a0d4a041f4cd49ca66b8251b1a9da
 msgid ""
-"The build configuration fixes the toolchain expectation and the language "
+"The build configuration sets the expected toolchain and the language "
 "standards used for the library targets. The dependencies object is split "
-"into four buckets - common, c, cpp and infra - and every entry maps a "
-"Conan package name to the CMake targets that should be linked into the "
+"into four buckets (common, c, cpp and infra), and each entry maps a Conan"
+" package name to the CMake targets that should be linked into the "
 "matching library. baremetal_white_list names the packages that survive a "
 "bare-metal cross build. The documentation settings decide which languages"
 " and versions are generated and which folders and file suffixes Doxygen "
 "scans."
 msgstr ""
-"构建配置确定工具链预期以及库目标所使用的语言标准。dependencies 对象分为四个分桶——common、c、cpp 与 "
-"infra——每个条目把 Conan 包名映射到应链接进对应库的 CMake 目标。baremetal_white_list "
-"列出在裸机交叉构建中保留的包。文档设置决定生成哪些语言与版本，以及 Doxygen 扫描哪些目录与文件后缀。"
+"构建配置确定期望的工具链和库目标使用的语言标准。dependencies 分成四个分桶（common、c、cpp、infra），每一项把一个 "
+"Conan 包名映射到应该链接进对应库的 CMake 目标。baremetal_white_list "
+"列出裸机交叉构建时保留的包。文档设置决定生成哪些语言和版本，以及 Doxygen 扫描哪些目录和文件后缀。"
 
-#: ../../source/components/meta.rst:20 ea5c3e15ade54442b3747310e54a33c6
+#: ../../source/components/meta.rst:33 816385389ea643c7821d7bda1ea4dfdb
 msgid "_`Example Configuration`"
-msgstr "示例配置"
+msgstr "配置示例"
 
-#: ../../source/components/meta.rst:22 1fafb199e4e84490853504de48a1db39
-msgid "The settings currently used by this library are:"
-msgstr "本库当前使用的设置如下："
+#: ../../source/components/meta.rst:35 9d873b266a444e9aad7033f454898fc4
+msgid "This library currently uses these settings:"
+msgstr "本库当前使用的配置："
 

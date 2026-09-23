@@ -1,16 +1,15 @@
-# A Modern C/CPP Library Build System
+# food_volume_measure
 
-This project is a C/C++ library built using Conan 2, featuring modern C and C++ standard support and module 
-capabilities.
+Built with Conan 2 and CMake. Targets C++17, with optional C++20/23 features such as modules.
 
 ## Badges
 
-![License](https://img.shields.io/github/license/CubicZebra/fcpp?color=blue&label=license)
-![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/CubicZebra/fcpp?label=code%20quality&logo=codefactor)
+![License](https://img.shields.io/github/license/HeT-FTI/food_volume_measure?color=blue&label=license)
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/HeT-FTI/food_volume_measure?label=code%20quality&logo=codefactor)
 ![C++](https://img.shields.io/badge/C%2B%2B-17%2F20%2F23-blue?logo=c%2B%2B&logoColor=white)
 ![Modules](https://img.shields.io/badge/modules-C%2B%2B23%20experimental-purple?logo=c%2B%2B&logoColor=white)
-![CI](https://github.com/CubicZebra/fcpp/actions/workflows/ci-build-test.yml/badge.svg)
-![CI](https://github.com/CubicZebra/fcpp/actions/workflows/docs-build.yml/badge.svg)
+![CI](https://github.com/HeT-FTI/food_volume_measure/actions/workflows/ci-build-test.yml/badge.svg)
+![CI](https://github.com/HeT-FTI/food_volume_measure/actions/workflows/docs-build.yml/badge.svg)
 ![CMake](https://img.shields.io/badge/cmake-3.28%2B-orange?logo=cmake)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python)
 ![Doxygen](https://img.shields.io/badge/docs-Doxygen-green?logo=doxygen&logoColor=white)
@@ -19,27 +18,27 @@ capabilities.
 ## Project Overview
 
 - **Language**: C/C++
-- **Library Build System**: Python with Conan 2.0
-- **File Build System**: Doxygen, Graphviz, Sphinx
-- **Module Support**: Optionally activated, when C++ standard ≥ 23
-- **Metadata-Driven**: `metadata.json` is the single source of truth (build, deps, docs, CI)
+- **Build**: Conan 2 + CMake
+- **Docs**: Doxygen, Graphviz, Sphinx
+- **Modules**: optional, enabled from C++23 up
+- **Metadata-Driven**: `metadata.json` holds the build, dependency, docs and CI settings
 - **Skills & Agent**: library-level `het-*` skills + routing agent (`.github/skills/`)
-- **Component Structure**:
-    - pairwise header and source assumption
-    - suffix distinguishment, (.h, .c) for C part, and (.hpp, .cpp) for C++ part
-    - documenting system uses .dox for pure docstring, .cxx for examples codes
+- **Layout**:
+    - headers and sources are named in pairs
+    - the suffix tells the languages apart: (.h, .c) for C, (.hpp, .cpp) for C++
+    - docs use .dox for doc-only pages and .cxx for example code
 
 ## Library: IM Food Volume Measurement
 
 `food_volume_measure` measures food volume in cubic centimetres from a fixed oven-tray depth camera.
-It implements the IM (baseline-plane height-difference integral) algorithm:
+The IM (baseline-plane height-difference integral) pipeline is:
 
 1. Build an empty-oven **baseline height map**: fit the tray plane from the first empty frame,
    project every empty frame into the same local `(u, v)` frame, and take the per-cell median height.
 2. Remove the dominant background plane(s) from the food frame, then filter food points by their
    baseline-relative height difference.
 3. Cluster the surviving points in **baseline-plane (u, v) coordinates** to separate multiple food items.
-4. Rasterize one top surface point per cell and integrate
+4. Keep one top-surface point per cell and integrate
    `volume = Σ (food_top − baseline_height) × cell_size²`.
 5. Conservatively complete enclosed depth holes **inside a single component** with inverse-distance
    interpolation (small, smooth holes) or a guarded quadratic surface fit (larger specular holes).
@@ -62,9 +61,8 @@ VolumeEstimate est = measurer.run();
 
 ### Configuring the measurement
 
-`FoodVolumeMeasurer` exposes chainable setters for the common parameters, a full
-`MeasurementConfig` override via `set_config`, and JSON load/save for every field (including the
-advanced hole-completion guards):
+`FoodVolumeMeasurer` has chainable setters for the common parameters, `set_config` for a full
+`MeasurementConfig`, and JSON load/save for every field (including the hole-completion guards):
 
 ```cpp
 FoodVolumeMeasurer measurer;
@@ -84,19 +82,19 @@ headers.
 `include/pointcloudprocess.hpp` additionally exposes the fine-grained point-cloud
 operators the pipeline is built from — unit scaling, axis-aligned cropping, RANSAC plane
 fitting and orientation, voxel downsampling, DBSCAN labelling, background-plane removal, and
-the AABB / OBB / convex-hull reference volumes — so they can be reused and tested directly.
+the AABB / OBB / convex-hull reference volumes — so they can be reused and tested on their own.
 
 ## Features
 
-- Conan-based modern dependency management
+- Dependency management with Conan
 - Supports C++ standards 17, 20, and 23
 - Automatic module file generation (`.ixx`/`.cppm`) from headers/sources
-- Cross-platform compatibility (Windows, Linux, macOS)
+- Builds on Windows, Linux and macOS
 - Dual C and C++ interfaces with separate linkage targets
 - Doxygen annotation support for object exporting (`@exporter`, `@attacher`)
-- Automation documenting system via Doxygen and Sphinx
-- Importation, derivation and call relationship illustration through Graphviz
-- `metadata.json` as the single source of truth (build / deps / docs / CI)
+- Automated docs via Doxygen and Sphinx
+- Import, derivation and call graphs via Graphviz
+- `metadata.json` as the one place holding build / deps / docs / CI settings
 - Library-level VS Code skills + routing agent (`.github/skills/`, `/het-*` slash commands)
 - Metadata + gitmoji driven CI/CD orchestration (GitHub Actions)
 - Cross-compilation & on-board benchmark framework (`benchmark/`)
@@ -104,14 +102,14 @@ the AABB / OBB / convex-hull reference volumes — so they can be reused and tes
 
 ## Agentic Coding Workspace
 
-The template reserves `/workspace/` (declared in `.gitignore`) for agent-generated work products produced
+This repository reserves `/workspace/` (declared in `.gitignore`) for agent-generated work products produced
 during Agentic Coding sessions — e.g., implementation plans, test contracts, audit reports, and other
 intermediate artifacts. Keep such working files under `/workspace/` so they never pollute the tracked
 source tree.
 
 ## Skills & Agent (VS Code)
 
-The template ships a library-level skills system under `.github/skills/` — **15 `het-*` skills plus one
+This repository ships a library-level skills system under `.github/skills/` — **15 `het-*` skills plus one
 routing agent**, all invocable from Copilot Chat by typing `/`:
 
 | Family | Skills | Audience |
@@ -128,7 +126,7 @@ composite tasks (e.g. *"add a module, test it, and commit"*). See `.github/skill
 
 - Python 3.10+ (Conan tooling)
 - Conan 2.0+
-- Compatible C/C++ compiler:
+- A C/C++ compiler:
     - GCC
     - Clang
     - MSVC
@@ -167,20 +165,21 @@ as a **soft rule** the emoji also triggers from anywhere in the message:
 > (commit-lint & schema gates always run on push/PR; build/tests/security shift-left on PRs).
 > `release` and `docs` require both the gitmoji and the switch (`build_type` must match too).
 
-## Crash Course of Build
+## Build Cheat Sheet
 
 ### 1. Build then test your library
 
 inplace build and test
 
 ```bash
-conan create . -s build_type=Debug --build=missing
+conan create . -s build_type=Debug --build=missing -c tools.build:jobs=4
 ```
 
 cross-build to host device (assume toolchain and profile are ready):
 
 ```bash
-conan create . -pr:b=default -pr:h=arm_profile -s build_type=Debug --build=missing -tf=""
+conan create . -pr:b=default -pr:h=arm_profile -s build_type=Debug --build=missing \
+    -c tools.build:jobs=4 -tf=""
 ```
 
 ### 2. Build documentations
@@ -241,7 +240,7 @@ CONTAINER_ENGINE=podman bash .github/misc/run-megalinter.sh   # Podman users
 project-root/
 ├── conanfile.py              # Conan recipe
 ├── CMakeLists.txt            # CMake build framework
-├── metadata.json             # Project metadata configuration (single source of truth)
+├── metadata.json             # Package identity and all build/deps/docs switches
 ├── conandata.yml             # Dependency specifications, Conan plugin support
 ├── package.json              # Node-side tooling deps (commitlint / semantic-release / ajv)
 ├── CHANGELOG.md              # Auto-generated by semantic-release (init tag required)

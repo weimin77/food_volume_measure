@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-22 17:52+0800\n"
+"POT-Creation-Date: 2026-09-23 09:43+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -20,103 +20,103 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../source/components/conan.rst:2 6b0f0e9b3e8649289c6bbb58c86be626
+#: ../../source/components/conan.rst:2 28a3dd41bfd842e590c82d243ad7dd05
 msgid "_`Conanfile Configuration`"
-msgstr "Conanfile 配置"
+msgstr "conanfile 配置"
 
-#: ../../source/components/conan.rst:5 523ca66d6d2d47a4984c668953a8e583
+#: ../../source/components/conan.rst:5 b41c47dd837447c78e55b900f88eefa5
 msgid "_`Usage`"
-msgstr "用法"
+msgstr "用途"
 
-#: ../../source/components/conan.rst:7 277de585066c44f99920a26b70004372
+#: ../../source/components/conan.rst:7 ee6ee3e0db6b4ce0aed9a7e806929bcf
 msgid ""
-"The conanfile.py is the Conan recipe of food_volume_measure. It declares "
-"the requirements, prepares the build files, and defines the package that "
+"conanfile.py is the Conan recipe of food_volume_measure. It declares the "
+"requirements, prepares the build files, and defines the package that "
 "conan create exports."
 msgstr ""
 "conanfile.py 是 food_volume_measure 的 Conan 配方。它声明依赖、准备构建文件，并定义 conan "
 "create 导出的包。"
 
-#: ../../source/components/conan.rst:10 727ada7d5db14c3297d9c7bca37e8fd8
+#: ../../source/components/conan.rst:11 8e71a8317bf944b7b59d582f39c8e3c4
 msgid "_`Main Features`"
 msgstr "主要特性"
 
-#: ../../source/components/conan.rst:12 721fc80f78bf4d8c90ccb75de1363af1
-msgid "Package metadata and requirement loading"
-msgstr "加载包元数据与依赖项"
+#: ../../source/components/conan.rst:13 719228a8c5b4415da87c7159b92d2a93
+msgid "Loads the package metadata and the requirement list"
+msgstr "读入包元数据和依赖列表"
 
-#: ../../source/components/conan.rst:13 35d9eb5a12e249de9ecdc9a8e5eccc54
+#: ../../source/components/conan.rst:14 06a2f22d4f14482090345c10aa12e935
 msgid "Dependency selection for regular, bare-metal and test builds"
-msgstr "针对常规、裸机与测试构建筛选依赖"
+msgstr "按常规、裸机和测试构建分别筛选依赖"
 
-#: ../../source/components/conan.rst:14 875552b325a344d79478e4b491b19975
-msgid "CMake toolchain generation with dependency wiring"
+#: ../../source/components/conan.rst:15 5e35b5e932cd425cb302d92d4cb101b0
+msgid "Generates the CMake toolchain and wires in the dependencies"
 msgstr "生成 CMake toolchain 并接入依赖"
 
-#: ../../source/components/conan.rst:15 491226de67cc42a29975b21e10c20145
+#: ../../source/components/conan.rst:16 6ec759014ed74f4e940239cbed1ffadb
 msgid "Optional C++ module generation"
 msgstr "可选的 C++ 模块生成"
 
-#: ../../source/components/conan.rst:16 0bdbeb511ea14001a73adf3511574a8e
+#: ../../source/components/conan.rst:17 3f2f5b0ce2884e3c89618b9385301487
 msgid "C header compatibility for C consumers"
-msgstr "面向 C 使用者的 C 头文件兼容处理"
+msgstr "让 C 代码也能使用 C 头文件"
 
-#: ../../source/components/conan.rst:17 314dfe984c0d43b086ee686f06688717
-msgid "Binary ABI validation before packaging"
-msgstr "打包前的二进制 ABI 校验"
+#: ../../source/components/conan.rst:18 0bd3e12ee05d45f092f3558ad079044a
+msgid "Checks the built archives for ABI mismatches before packaging"
+msgstr "打包前检查产物有没有 ABI 不匹配"
 
-#: ../../source/components/conan.rst:20 4fb3360493cf4bf39ebc9ef7c93d3848
+#: ../../source/components/conan.rst:21 bbe358260245409abae5929f6d1a896f
 msgid "_`Core Functionality`"
-msgstr "核心功能"
+msgstr "实现要点"
 
-#: ../../source/components/conan.rst:22 7c0af3b3029d434f9140c38866a80c78
+#: ../../source/components/conan.rst:23 a1db235ebe074c9498a2a80c68f2ad6a
 msgid ""
-"The PackageRecipe class initializes the package from metadata.json and "
-"takes the requirement list from conandata.yml. gtest is dropped from the "
-"runtime requirements because only the tests need it, and pybind11 is "
-"required only while enable_python_bindings is on. During a bare-metal "
-"cross build only the packages named in baremetal_white_list are kept."
+"PackageRecipe reads the package metadata from metadata.json and the "
+"requirement list from conandata.yml. gtest is left out of the runtime "
+"requirements because only the tests need it, and pybind11 is pulled in "
+"only while enable_python_bindings is on. In a bare-metal cross build, "
+"only the packages listed in baremetal_white_list are kept."
 msgstr ""
-"PackageRecipe 类从 metadata.json 初始化包，并从 conandata.yml 取得依赖列表。gtest "
-"会从运行时依赖中移除，因为只有测试需要它；pybind11 仅在 enable_python_bindings 打开时才需要。裸机交叉构建时只保留"
-" baremetal_white_list 中列出的包。"
+"PackageRecipe 从 metadata.json 读入包元数据，依赖列表取自 conandata.yml。gtest "
+"只在跑测试时用得到，所以不进运行时依赖；pybind11 只在 enable_python_bindings 打开时才引入。裸机交叉构建只保留 "
+"baremetal_white_list 里列出的包。"
 
-#: ../../source/components/conan.rst:24 bf61dadb9f3a4244b82474ce80d9fc82
+#: ../../source/components/conan.rst:28 3e8eae6562d64c689da18003ba21d6ac
 msgid ""
 "generate() writes the CMake toolchain and the dependency files. The four "
-"dependency buckets of metadata.json - common, c, cpp and infra - are "
-"merged and serialized into the C_DEPS and CPP_DEPS variables as "
-"Pkg@Targets pairs, which is exactly the form CMakeLists.txt expects. A "
-"bare-metal build keeps only the whitelisted entries and switches "
+"dependency buckets of metadata.json (common, c, cpp and infra) are merged"
+" and written into the C_DEPS and CPP_DEPS variables as Pkg@Targets "
+"entries, which is the form CMakeLists.txt expects. A bare-metal build "
+"keeps only the whitelisted entries and switches "
 "CMAKE_TRY_COMPILE_TARGET_TYPE to STATIC_LIBRARY. The module preprocessing"
-" step turns the exported .hpp and .cpp files into C++ module units from "
-"their export and attach markers, and C headers are rewritten with extern "
-"\"C\" guards so that C consumers can include them."
+" step reads the export and attach markers and turns the exported .hpp and"
+" .cpp files into C++ module units; C headers get extern \"C\" guards so C"
+" code can include them."
 msgstr ""
-"generate() 写出 CMake toolchain 与依赖文件。metadata.json 的四个依赖分桶——common、c、cpp 与"
-" infra——被合并并序列化为 C_DEPS 与 CPP_DEPS 变量中的 Pkg@Targets 对，这正是 CMakeLists.txt "
-"所期望的形式。裸机构建只保留白名单条目，并把 CMAKE_TRY_COMPILE_TARGET_TYPE 切换为 "
-"STATIC_LIBRARY。模块预处理步骤根据 export 与 attach 标记把导出的 .hpp 与 .cpp 文件转换为 C++ "
-"模块单元，同时把 C 头文件重写为带 extern \"C\" 保护的形式，以便 C 使用者可以包含它们。"
+"generate() 写出 CMake toolchain 和依赖文件。metadata.json "
+"的四个依赖分桶（common、c、cpp、infra）合并后，以 Pkg@Targets 的形式写进 C_DEPS 和 CPP_DEPS "
+"变量，正是 CMakeLists.txt 需要的格式。裸机构建只保留白名单里的项，并把 CMAKE_TRY_COMPILE_TARGET_TYPE"
+" 改成 STATIC_LIBRARY。模块预处理会读取 export 和 attach 标记，把需要导出的 .hpp 和 .cpp 转成 C++ "
+"模块单元；C 头文件则加上 extern \"C\" 保护，让 C 代码也能包含。"
 
-#: ../../source/components/conan.rst:26 c26ad2eb6d874fe5923116761ab98e24
+#: ../../source/components/conan.rst:36 59de3616d2394986925722c5a89a21bd
 msgid ""
 "build() runs the CMake flow, and _validate_built_archives inspects the "
-"produced archives with ar and readelf to detect an ABI mismatch. Because "
-"the float ABI and FPU settings arrive as compiler flags rather than as "
-"Conan settings, package_id also hashes tools.build:cflags and "
-"tools.build:cxxflags; without that, two MCUs sharing an architecture "
-"string but not an ABI would reuse the same cached binary and fail at link"
-" time."
+"resulting archives with ar and readelf to catch an ABI mismatch. The "
+"float ABI and FPU settings come in as compiler flags rather than Conan "
+"settings, so package_id also hashes tools.build:cflags and "
+"tools.build:cxxflags. Without that, two MCUs with the same architecture "
+"string but different ABIs would share one cached binary and only fail at "
+"link time."
 msgstr ""
-"build() 运行 CMake 流程，_validate_built_archives 则用 ar 与 readelf 检查产出的归档文件以发现"
-" ABI 不匹配。由于 float ABI 与 FPU 设置是以编译选项而非 Conan settings 的形式传入，package_id "
-"也会对 tools.build:cflags 与 tools.build:cxxflags 取哈希；否则两个架构字符串相同但 ABI 不同的 "
-"MCU 会复用同一份缓存二进制，并在链接期失败。"
+"build() 跑 CMake 流程，_validate_built_archives 用 ar 和 readelf 检查生成的静态库，发现 "
+"ABI 不匹配。float ABI 和 FPU 设置是以编译选项而不是 Conan settings 传入的，所以 package_id 也会把 "
+"tools.build:cflags 和 tools.build:cxxflags 纳入哈希。否则 arch 字符串相同但 ABI 不同的两颗 "
+"MCU 会共用同一份缓存二进制，直到链接时才报错。"
 
-#: ../../source/components/conan.rst:28 fa04520d00da41aaa6fdc19530f31777
+#: ../../source/components/conan.rst:42 f752ccfaf981432a9f45f0c7f6c54f53
 msgid ""
-"package() and package_info() then define what is exported and how "
-"consumers link against it."
-msgstr "package() 与 package_info() 随后定义导出内容以及使用者如何链接。"
+"package() and package_info() then say what is exported and how consumers "
+"link against it."
+msgstr "最后 package() 和 package_info() 说明导出什么，以及使用者该怎么链接。"
 

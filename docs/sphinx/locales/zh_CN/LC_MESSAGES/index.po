@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-22 17:54+0800\n"
+"POT-Creation-Date: 2026-09-23 09:47+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -20,174 +20,172 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../source/index.rst:99
+#: ../../source/index.rst:100
 msgid "CMakeList"
-msgstr "CMake 构建列表"
+msgstr "CMakeLists 配置"
 
-#: ../../source/index.rst:99
+#: ../../source/index.rst:100
 msgid "Conanfile"
-msgstr "Conan 依赖配置"
+msgstr "conanfile 配置"
 
-#: ../../source/index.rst:99
+#: ../../source/index.rst:100
 msgid "Metadata"
 msgstr "元数据"
 
-#: ../../source/index.rst:99
+#: ../../source/index.rst:100
 msgid "User concern contents"
-msgstr "用户关注内容"
+msgstr "用户关心的内容"
 
-#: ../../source/index.rst:2 08da060654274612a79e4aba69156ed0
+#: ../../source/index.rst:2 30f1c4f540864cad989e02aff4ae9714
 msgid "_`food_volume_measure Documentation`"
 msgstr "food_volume_measure 文档"
 
-#: ../../source/index.rst:5 e763fc00ebdf4a09880f9a18784af580
+#: ../../source/index.rst:5 a7c382ae20684d0c9b14e427a96ec41b
 msgid "_`Introduction`"
 msgstr "简介"
 
-#: ../../source/index.rst:7 a5394c657a79418da41faab3859b132c
+#: ../../source/index.rst:7 f3b2dec6fcd94032b27caa1fac057a0d
 msgid ""
-"food_volume_measure is a C++17 library for point-cloud food volume "
-"measurement on oven trays. It implements the IM (baseline-plane height-"
-"difference integral) method: an empty-oven baseline is discretized into a"
-" local-plane height map, the food cloud is voxel-downsampled and "
-"clustered in the baseline plane, and per-cell height differences are "
-"integrated into a volume in cubic centimeters."
+"food_volume_measure is a C++17 library that measures food volume on oven "
+"trays from point clouds. It follows the IM method (baseline-plane height-"
+"difference integral): the empty oven becomes a height map on a fitted "
+"plane, the food cloud is voxel-downsampled and clustered in that plane, "
+"and the per-cell height differences are integrated into a volume in cubic"
+" centimeters."
 msgstr ""
-"food_volume_measure 是一个用于烤盘食材体积测量的 C++17 点云库。它实现了 "
-"IM（基准面高度差积分）方法：先将空炉基线离散为局部平面上的高度图，再对食物点云进行体素降采样并在基准面内聚类，最后将逐格高度差积分得到以立方厘米为单位的体积。"
+"food_volume_measure 是一个 C++17 库，用来从点云测量烤盘上的食材体积。它采用 IM "
+"方法（基准面高度差积分）：先把空烤盘变成拟合平面上的高度图，再把食材点云做体素降采样并在该平面内聚类，最后把逐格高度差积分成体积，单位为立方厘米。"
 
-#: ../../source/index.rst:14 93882504e96c46ca9ed31c747f17c159
+#: ../../source/index.rst:14 b4ceb661d58147fcb0637e10a6c8d30d
 msgid "_`Algorithm Steps`"
 msgstr "算法步骤"
 
-#: ../../source/index.rst:16 6562407d2bd544dca7000141f39094e8
+#: ../../source/index.rst:16 896fed3161d1422cbcd606fd92112b5d
 msgid ""
-"Measurement runs through six stages. The figures below show the rendered "
-"output of each stage for a real oven-tray scan."
-msgstr "整个测量流程分为六个阶段，下图展示了对一次真实烤盘扫描在各阶段的渲染输出。"
+"The measurement runs in six stages. Each figure below is the output of "
+"one stage for a real oven-tray scan."
+msgstr "测量分六个阶段，下面每张图就是一次真实烤盘扫描在对应阶段的输出。"
 
-#: ../../source/index.rst:22 6183263e87a346bc947055b10f1522b9
-msgid "原始输入点云"
+#: ../../source/index.rst:23 846a3a400f984950ada70fb21e888634
+msgid "Original input cloud"
 msgstr ""
 
-#: ../../source/index.rst:22 ed7b9080e2414bee865da516147b1501
+#: ../../source/index.rst:23 2cd4cb13c378447b8a0299bd6dde33d2
 msgid ""
-"**Step 1 - Raw input cloud.** The food frame as captured by the tray-"
-"mounted depth camera; non-finite returns are dropped and coordinates are "
-"converted to metres."
-msgstr "**步骤 1 - 原始输入点云。** 由烤盘上方深度相机采集的食材帧；非有限返回值被剔除，坐标统一换算为米。"
+"**Step 1 - Raw input cloud.** The frame from the depth camera above the "
+"tray. Invalid points are dropped and coordinates are converted to metres."
+msgstr "**步骤 1 - 原始输入点云。** 烤盘上方深度相机拍到的帧。无效点会被丢掉，坐标统一换算成米。"
 
-#: ../../source/index.rst:28 bc4a0c372ac34487b684351b408addc9
-msgid "体素降采样后的点云"
+#: ../../source/index.rst:29 aaed53dc557e4310b5ab913059aff83d
+msgid "Voxel-downsampled cloud"
 msgstr ""
 
-#: ../../source/index.rst:28 44308380a89046d0a849beb9f2b651e7
+#: ../../source/index.rst:29 9c05fba7d38a491b934dabc9101bdfa8
 msgid ""
-"**Step 2 - Voxel downsampling.** Every occupied voxel keeps the centroid "
-"of its points, which suppresses sensor noise and removes the dependency "
-"on the raw point density."
-msgstr "**步骤 2 - 体素降采样。** 每个被占据的体素保留其点云质心，用于抑制传感器噪声，并使后续阶段不再依赖原始点密度。"
+"**Step 2 - Voxel downsampling.** Every occupied voxel is replaced by its "
+"centroid. This smooths out sensor noise and makes the later stages "
+"independent of the raw point density."
+msgstr "**步骤 2 - 体素降采样。** 每个非空体素用内部点的质心代替。这样能压掉传感器噪声，也让后续步骤不再受原始点密度影响。"
 
-#: ../../source/index.rst:34 db02e318c49d49f2a02967f5e95a5ce0
-msgid "空炉基准面"
+#: ../../source/index.rst:35 c77a8436b7d54e179f2370170c696d1a
+#, fuzzy
+msgid "Empty-oven baseline surface"
+msgstr "用 RANSAC 拟合平面的空炉基线模型"
+
+#: ../../source/index.rst:35 1e7902508a7e4348b74c60a0a9c6b15d
+msgid ""
+"**Step 3 - Empty-oven baseline.** A RANSAC plane fit and per-cell median "
+"heights turn the empty tray into the reference surface that food heights "
+"are measured against."
+msgstr "**步骤 3 - 空炉基线。** 用 RANSAC 拟合平面，再取每格的中值高度，把空烤盘变成测量食材高度所依据的参考面。"
+
+#: ../../source/index.rst:41 7f9448ac560f49818a3ebe6bb1c94580
+msgid "Cloud after background-plane removal"
 msgstr ""
 
-#: ../../source/index.rst:34 02e39a09aaf84ac080deac390696db4e
+#: ../../source/index.rst:41 b7a489ced49e43839ded85abf32c6d4f
 msgid ""
-"**Step 3 - Empty-oven baseline.** A RANSAC plane fit plus per-cell median"
-" heights turn the empty tray into the reference surface against which "
-"food heights are measured."
-msgstr "**步骤 3 - 空炉基线。** 通过 RANSAC 平面拟合与逐格中值高度，把空烤盘构建成用于测量食材高度的参考曲面。"
+"**Step 4 - Background-plane removal.** The dominant tray plane is "
+"removed, leaving mostly food points."
+msgstr "**步骤 4 - 背景平面去除。** 去掉食材帧里占主导的烤盘平面，剩下的基本就是食材点。"
 
-#: ../../source/index.rst:40 7ad6908f0cc94705a1fd59dd88a6ca84
-msgid "去除背景平面后的点云"
+#: ../../source/index.rst:47 f2a2d2da83b14836b4572d89ebfcfc03
+msgid "Segmented food components"
 msgstr ""
 
-#: ../../source/index.rst:40 a8188b88e2ab4d8c9c68f945e5d1b528
-msgid ""
-"**Step 4 - Background-plane removal.** The dominant tray plane is removed"
-" from the food frame, so that chiefly food points remain."
-msgstr "**步骤 4 - 背景平面去除。** 从食材帧中移除占主导的烤盘平面，使剩余点主要是食材本身。"
-
-#: ../../source/index.rst:46 e95dd0b920bb45849976a68e66a78b01
-msgid "分割出的食材组件"
-msgstr ""
-
-#: ../../source/index.rst:46 3488dd629f13444b9a93bafa2c35628b
+#: ../../source/index.rst:47 1f349611021c42d0baec62239279af0c
 msgid ""
 "**Step 5 - Component segmentation.** The remaining points are projected "
-"onto the baseline plane and clustered with DBSCAN, which separates "
-"distinct food items into individual components."
-msgstr "**步骤 5 - 组件分割。** 将剩余点投影到基准面上并用 DBSCAN 聚类，从而把不同食材分割为独立组件。"
+"onto the baseline plane and clustered with DBSCAN, which splits different"
+" food items into separate components."
+msgstr "**步骤 5 - 组件分割。** 把剩余点投影到基准面上做 DBSCAN 聚类，不同食材就被分到各自的连通域。"
 
-#: ../../source/index.rst:52 2c789b39eeb94512a12275b025986936
-msgid "用于高度积分的顶面"
+#: ../../source/index.rst:53 e64e307c56624b8ca48a745a5db3955f
+msgid "Top surface used for the height integral"
 msgstr ""
 
-#: ../../source/index.rst:52 67c0341279ac452eae7649d0d6ec3490
+#: ../../source/index.rst:53 c1289d8890f34e25ae0a665a5adcf4d4
 msgid ""
-"**Step 6 - Height integral.** One top-surface point per raster cell is "
-"kept and its baseline-relative height is integrated over the cell area; "
-"enclosed holes are completed conservatively."
-msgstr "**步骤 6 - 高度积分。** 每个栅格保留一个顶面点，将其相对基准面的高度沿栅格面积积分得到体积；封闭空洞以保守方式补全。"
+"**Step 6 - Height integral.** Each raster cell keeps one top-surface "
+"point. Its height above the baseline is integrated over the cell area, "
+"and enclosed holes are filled conservatively."
+msgstr "**步骤 6 - 高度积分。** 每个栅格留一个顶面点，把它高出基准面的部分按栅格面积积分；封闭的空洞做保守补全。"
 
-#: ../../source/index.rst:55 aa731a58e5304f0eaf0e8d451832df15
+#: ../../source/index.rst:56 90fe93f614374110a6c9798697641732
 msgid "_`Main Features`"
 msgstr "主要特性"
 
-#: ../../source/index.rst:57 437acde100c34eb1b3689cf8151a0a86
+#: ../../source/index.rst:58 529f22a99c27444b8bfcee283c8afec4
 msgid "Empty-oven baseline model with RANSAC plane fitting"
-msgstr "基于 RANSAC 平面拟合的空炉基线模型"
+msgstr "用 RANSAC 拟合平面的空炉基线模型"
 
-#: ../../source/index.rst:58 fa54341681e145a3848153dfd65f8ab2
-msgid "Open3D-equivalent voxel downsampling and DBSCAN clustering"
-msgstr "与 Open3D 等价的体素降采样与 DBSCAN 聚类"
+#: ../../source/index.rst:59 96ddd98be72545ed9249648227063e4a
+msgid "Voxel downsampling and DBSCAN clustering, matching Open3D"
+msgstr "与 Open3D 结果一致的体素降采样和 DBSCAN 聚类"
 
-#: ../../source/index.rst:59 4df1db0428454611b9ec6577e07daaca
-msgid "Component-aware conservative hole completion"
-msgstr "组件感知的保守补洞"
+#: ../../source/index.rst:60 e9f2a733a87d40e4bafcae3e38fbdcb5
+msgid "Conservative hole completion, kept inside a single component"
+msgstr "保守补洞，只在单个连通域内部进行"
 
-#: ../../source/index.rst:60 eb2ca79687fe414c9cea21b7a41231ed
+#: ../../source/index.rst:61 6a206a495be740da9a9e69aecdfc7bea
 msgid "Reference volumes (AABB / OBB / convex hull)"
 msgstr "参考体积（AABB / OBB / 凸包）"
 
-#: ../../source/index.rst:61 54e4d0db83254256a4cb76d86dd70707
+#: ../../source/index.rst:62 cee425888f704313bda9ebbd1cb851c9
 msgid "PCD loading via ``load_pcd``"
-msgstr "通过 ``load_pcd`` 载入 PCD"
+msgstr "用 ``load_pcd`` 读取 PCD"
 
-#: ../../source/index.rst:62 1974f908e7064ac9a2eb3d36b7438cd1
+#: ../../source/index.rst:63 75826a4b9e5a41699297a77d9dbbee43
 msgid ""
-"Host-side point-cloud processing; bare-metal stubs report an unsupported "
-"status"
-msgstr "仅宿主机侧点云处理；裸机桩返回不支持状态"
+"Point-cloud processing runs on the host only; bare-metal stubs report "
+"\"unsupported\""
+msgstr "点云处理只在宿主机上运行，裸机上的桩函数返回“不支持”"
 
-#: ../../source/index.rst:65 d1355988415a4f54a50b2cc17fccec59
+#: ../../source/index.rst:66 6b66612b968b43d6a625ca4f050ca707
 msgid "_`Quick Start`"
 msgstr "快速开始"
 
-#: ../../source/index.rst:80 2d692fbbdc1c4ae8a11defee4e35d412
+#: ../../source/index.rst:81 eba9bd1f239b4b3e9ae448e89eb2ad80
 msgid "_`Project Structure`"
 msgstr "项目结构"
 
-#: ../../source/index.rst:95 59ec8be66f41482095a14d8b7edd99e1
+#: ../../source/index.rst:96 33c5ae68b07c4565ac6d35a611645736
 msgid "_`Detailed Settings`"
 msgstr "详细设置"
 
-#: ../../source/index.rst:97 523d37db38344556b59d09e949ed7032
-msgid ""
-"For detailed settings in project-level meta, conan recipe, or cmake file,"
-" see:"
-msgstr "有关项目级元数据、Conan 配方或 CMake 文件中的详细设置，请参阅："
+#: ../../source/index.rst:98 7ff9be4cdf66470c84605b2955f39a00
+msgid "Details on the project metadata, the Conan recipe and the CMake file:"
+msgstr "项目元数据、Conan 配方和 CMake 文件的详细说明："
 
-#: ../../source/index.rst:108 a1b885002f824280906dafdd83563a87
+#: ../../source/index.rst:109 2cdfb6677c6742928e7f0c5e76a64a57
 msgid "_`License`"
 msgstr "许可证"
 
-#: ../../source/index.rst:110 d7fb3c1da1554896ba92b1481f60f9c4
+#: ../../source/index.rst:111 48b879f336824e4681c7cdfd823ac521
 msgid ""
 "This project is licensed under the Apache-2.0 License. See the LICENSE "
 "file for details."
-msgstr "本项目采用 Apache-2.0 许可证授权。详情请参阅 LICENSE 文件。"
+msgstr "本项目基于 Apache-2.0 许可证发布，详见 LICENSE 文件。"
 
 #~ msgid "Original input cloud"
 #~ msgstr "原始输入点云"
@@ -196,14 +194,32 @@ msgstr "本项目采用 Apache-2.0 许可证授权。详情请参阅 LICENSE 文
 #~ msgstr "体素降采样后的点云"
 
 #~ msgid "Empty-oven baseline surface"
-#~ msgstr "空炉基准面"
+#~ msgstr "空烤盘基准面"
 
 #~ msgid "Cloud after background-plane removal"
-#~ msgstr "去除背景平面后的点云"
+#~ msgstr "去掉背景平面后的点云"
 
 #~ msgid "Segmented food components"
-#~ msgstr "分割出的食材组件"
+#~ msgstr "分割出的食材连通域"
 
 #~ msgid "Top surface used for the height integral"
 #~ msgstr "用于高度积分的顶面"
+
+#~ msgid "原始输入点云"
+#~ msgstr ""
+
+#~ msgid "体素降采样后的点云"
+#~ msgstr ""
+
+#~ msgid "空烤盘基准面"
+#~ msgstr ""
+
+#~ msgid "去掉背景平面后的点云"
+#~ msgstr ""
+
+#~ msgid "分割出的食材连通域"
+#~ msgstr ""
+
+#~ msgid "用于高度积分的顶面"
+#~ msgstr ""
 

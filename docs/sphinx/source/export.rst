@@ -1,17 +1,15 @@
 _`food_volume_measure usage demonstration`
 ==========================================
 
-Brief overview: the library :code:`food_volume_measure` measures food volume on
-oven trays from a fixed depth camera, using the IM (baseline-plane
-height-difference integral) method.
+:code:`food_volume_measure` measures food volume on oven trays from a fixed depth camera, using
+the IM method (baseline-plane height-difference integral).
 
 _`Theory`
 ---------
 
-An empty-oven baseline is first discretized into a height map on a RANSAC-fitted
-base plane. The food point cloud is voxel-downsampled and clustered in the base
-plane, and every grid cell keeps only the highest food surface point. The volume
-is the per-cell height difference between the food surface and the empty-oven
+The empty-oven baseline is first turned into a height map on a RANSAC-fitted plane. The food
+cloud is voxel-downsampled and clustered in that plane, and each grid cell keeps only its
+highest food point. The volume is the per-cell height difference between food surface and
 baseline, integrated over the cell area:
 
 .. math::
@@ -19,18 +17,18 @@ baseline, integrated over the cell area:
 
    V = \sum_{(u,v)} \left( h_{\text{food}}(u,v) - h_{\text{baseline}}(u,v) \right) \cdot \Delta s^2
 
-where :math:`\Delta s` is the integration resolution. Missing depth caused by
-reflections is completed conservatively inside single foreground components;
-completed cells are counted separately from measured cells.
+where :math:`\Delta s` is the integration resolution. Depth lost to reflections is filled in
+conservatively inside a single foreground component. Filled cells and measured cells are counted
+separately.
 
 _`Usage demonstration`
 ----------------------
 
-The end-to-end :code:`FoodVolumeMeasurer` class composes the whole pipeline. Set the
-empty-oven baseline and the food frame, optionally tune parameters through chainable setters or a
-JSON config, then call :code:`run`. It returns a :code:`VolumeEstimate` with the integrated
-volume (cm³), point counts, footprint area and coverage, mean/max height, per-component
-breakdowns, and reference volumes (AABB, OBB, convex hull).
+:code:`FoodVolumeMeasurer` wraps the whole pipeline. Set the empty-oven baseline and the food
+frame, tune parameters with the chainable setters or a JSON file, then call :code:`run`. It
+returns a :code:`VolumeEstimate` with the integrated volume (cm³), point counts, footprint area
+and coverage, mean and max height, a per-component breakdown, and reference volumes (AABB, OBB,
+convex hull).
 
 .. code-block:: cpp
    :caption: IM measurement demo
@@ -54,8 +52,8 @@ breakdowns, and reference volumes (AABB, OBB, convex hull).
 _`Parameter configuration`
 --------------------------
 
-Common parameters are exposed as chainable setters; every field (including the advanced
-hole-completion guards) can also be loaded from or saved to JSON:
+The common parameters have chainable setters. Every field, including the hole-completion guards,
+can also be loaded from or written to JSON:
 
 .. code-block:: cpp
    :caption: chainable parameter setters
