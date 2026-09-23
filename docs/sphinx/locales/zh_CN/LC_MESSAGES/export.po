@@ -1,14 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2025, fcpp-innovation
-# This file is distributed under the same license as the fcpp package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# Copyright (C) 2026, HeT-FTI
+# This file is distributed under the same license as the food_volume_measure
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: fcpp 1.0\n"
+"Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-07 10:20+0800\n"
+"POT-Creation-Date: 2026-09-22 17:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -17,24 +18,24 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: ../../source/export.rst:2 e04d780ac85246308b2b1fac3c843a77
+#: ../../source/export.rst:2 7c4accd395364e759d2731be2b321b9a
 msgid "_`food_volume_measure usage demonstration`"
 msgstr "food_volume_measure 使用演示"
 
-#: ../../source/export.rst:4 ad259679c05b48abafc4371510adde92
+#: ../../source/export.rst:4 fbbb4abc532141fc99fd9f6a734efc11
 msgid ""
 "Brief overview: the library :code:`food_volume_measure` measures food "
-"volume on oven trays from a fixed depth camera, using the PCD-IM "
-"(baseline-plane height-difference integral) method."
-msgstr "简要概述：:code:`food_volume_measure` 库使用固定深度相机，通过 PCD-IM（基准面高度差积分）方法测量烤盘上的食材体积。"
+"volume on oven trays from a fixed depth camera, using the IM (baseline-"
+"plane height-difference integral) method."
+msgstr "简要概述：:code:`food_volume_measure` 库使用固定深度相机，通过 IM（基准面高度差积分）方法测量烤盘上的食材体积。"
 
-#: ../../source/export.rst:9 ca52e3b291ee474796f4ac1968fca903
+#: ../../source/export.rst:9 4dde5c10128f46a294026446c53e0b64
 msgid "_`Theory`"
 msgstr "原理"
 
-#: ../../source/export.rst:11 4f2fbda47c444a93ac7a4e61e252e4a0
+#: ../../source/export.rst:11 0c48edf13a6c442d922deaad1cf61776
 msgid ""
 "An empty-oven baseline is first discretized into a height map on a "
 "RANSAC-fitted base plane. The food point cloud is voxel-downsampled and "
@@ -43,16 +44,16 @@ msgid ""
 "the food surface and the empty-oven baseline, integrated over the cell "
 "area:"
 msgstr ""
-"首先将空炉基线离散为 RANSAC 拟合基准面上的高度图。食物点云经体素降采样后在基准面内聚类，"
-"每个网格单元只保留最高的食物表面点。体积即食物表面与空炉基线之间的逐格高度差按单元面积积分："
+"首先将空炉基线离散为 RANSAC "
+"拟合基准面上的高度图。食物点云经体素降采样后在基准面内聚类，每个网格单元只保留最高的食物表面点。体积即食物表面与空炉基线之间的逐格高度差按单元面积积分："
 
-#: ../../source/export.rst:17 c640e65485c1425c9a6b72b989b8cb9a
+#: ../../source/export.rst:17 c4c87cd8d0944d9485ee39c8024d5e61
 msgid ""
 "V = \\sum_{(u,v)} \\left( h_{\\text{food}}(u,v) - "
 "h_{\\text{baseline}}(u,v) \\right) \\cdot \\Delta s^2"
 msgstr ""
 
-#: ../../source/export.rst:22 e65a5aa0559447218bba500e3e6cc5d4
+#: ../../source/export.rst:22 02f1e17fc66c4dd384e4baf1eac98234
 msgid ""
 "where :math:`\\Delta s` is the integration resolution. Missing depth "
 "caused by reflections is completed conservatively inside single "
@@ -60,76 +61,40 @@ msgid ""
 "measured cells."
 msgstr "其中 :math:`\\Delta s` 为积分分辨率。反光导致的缺失深度仅在单一前景组件内部保守补全；补全单元与实测单元分开统计。"
 
-#: ../../source/export.rst:27 f45a840194e4417cadfec8286d907252
+#: ../../source/export.rst:27 eebcbcce21f44ef8983fa30f4b0b82bb
 msgid "_`Usage demonstration`"
 msgstr "使用演示"
 
-#: ../../source/export.rst:29 50b4c7733e474676a89f6702346bf579
+#: ../../source/export.rst:29 202d2c870a654335b94e3a614eaac738
 msgid ""
 "The end-to-end :code:`FoodVolumeMeasurer` class composes the whole "
-"pipeline. Set the empty-oven baseline and the food frame, optionally "
-"tune parameters through chainable setters or a JSON config, then call "
+"pipeline. Set the empty-oven baseline and the food frame, optionally tune"
+" parameters through chainable setters or a JSON config, then call "
 ":code:`run`. It returns a :code:`VolumeEstimate` with the integrated "
-"volume (cm³), point counts, footprint area and coverage, mean/max "
-"height, per-component breakdowns, and reference volumes (AABB, OBB, "
-"convex hull)."
+"volume (cm³), point counts, footprint area and coverage, mean/max height,"
+" per-component breakdowns, and reference volumes (AABB, OBB, convex "
+"hull)."
 msgstr ""
-"端到端的 :code:`FoodVolumeMeasurer` 类组合了整条流水线。设置空炉基线与食材帧，"
-"可选地通过链式 setter 或 JSON 配置调节参数，然后调用 :code:`run`。"
-"它返回一个 :code:`VolumeEstimate`，包含积分体积（cm³）、点数、足迹面积与覆盖率、"
-"平均/最大高度、逐组件明细以及参考体积（AABB、OBB、凸包）。"
+"端到端的 :code:`FoodVolumeMeasurer` 类组合了整条流水线。设置空炉基线与食材帧，可选地通过链式 setter 或 "
+"JSON 配置调节参数，然后调用 :code:`run`。它返回一个 "
+":code:`VolumeEstimate`，包含积分体积（cm³）、点数、足迹面积与覆盖率、平均/最大高度、逐组件明细以及参考体积（AABB、OBB、凸包）。"
 
-#: ../../source/export.rst:34 402cd4a73ac647a78037b498e31f4aa7
-msgid "PCD-IM measurement demo"
-msgstr "PCD-IM 测量演示"
+#: ../../source/export.rst:35 9ab4c4fbfa6a40809c42eb080f190272
+msgid "IM measurement demo"
+msgstr "IM 测量演示"
 
-#: ../../source/export.rst:55 1336f357f7f14609ae8b0656677a7a19
+#: ../../source/export.rst:55 a0e8b9875b0640088a26295e6f0056e4
 msgid "_`Parameter configuration`"
 msgstr "参数配置"
 
-#: ../../source/export.rst:57 d4cd138e56ba4d369fe19eae10f283cb
+#: ../../source/export.rst:57 9ed16e483343411bb326ace99bc48b76
 msgid ""
 "Common parameters are exposed as chainable setters; every field "
 "(including the advanced hole-completion guards) can also be loaded from "
 "or saved to JSON:"
-msgstr ""
-"常用参数以链式 setter 暴露；每个字段（包括高级补洞护栏）也可以从 JSON 载入或保存为 JSON："
+msgstr "常用参数以链式 setter 暴露；每个字段（包括高级补洞护栏）也可以从 JSON 载入或保存为 JSON："
 
-#: ../../source/export.rst:59 828cf2d7621349629a7cc020e1e8d83f
+#: ../../source/export.rst:60 b8977571b21c4ce1b40a357013d3a0ff
 msgid "chainable parameter setters"
 msgstr "链式参数 setter"
-
-#~ msgid "_`Atomic pipeline stages`"
-#~ msgstr "原子流水线阶段"
-
-#~ msgid "The pipeline can also be driven stage by stage:"
-#~ msgstr "流水线也可以逐阶段调用："
-
-#~ msgid ""
-#~ ":code:`load_pcd` — load a PCD file into the PCL-free "
-#~ ":code:`PointCloud` model"
-#~ msgstr ":code:`load_pcd` — 将 PCD 文件载入与 PCL 无关的 :code:`PointCloud` 模型"
-
-#~ msgid ""
-#~ ":code:`preprocess_cloud` / :code:`voxel_downsample` — unit "
-#~ "normalization and voxel downsampling"
-#~ msgstr ":code:`preprocess_cloud` / :code:`voxel_downsample` — 单位归一化与体素降采样"
-
-#~ msgid ""
-#~ ":code:`remove_dominant_plane` — remove the dominant background "
-#~ "plane(s)"
-#~ msgstr ":code:`remove_dominant_plane` — 移除主背景平面"
-
-#~ msgid ":code:`build_baseline_model` — empty-oven baseline height map"
-#~ msgstr ":code:`build_baseline_model` — 空炉基线高度图"
-
-#~ msgid ""
-#~ ":code:`extract_food_components` — foreground clustering and component"
-#~ selection"
-#~ msgstr ":code:`extract_food_components` — 前景聚类与组件选择"
-
-#~ msgid ""
-#~ ":code:`measure_component_volume` — height-difference integration with"
-#~ hole completion"
-#~ msgstr ":code:`measure_component_volume` — 高度差积分与补洞"
 

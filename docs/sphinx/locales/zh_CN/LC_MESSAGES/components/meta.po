@@ -1,14 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2025, fcpp-innovation
-# This file is distributed under the same license as the fcpp package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# Copyright (C) 2026, HeT-FTI
+# This file is distributed under the same license as the food_volume_measure
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: fcpp 1.0\n"
+"Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-05 18:05+0800\n"
+"POT-Creation-Date: 2026-09-22 17:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -17,60 +18,77 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: ../../source/components/meta.rst:2 e038fd36b2844c2f837dc9332b04cfc8
+#: ../../source/components/meta.rst:2 220d4f5b20bb41e09c6fe5e65fd5ef7d
 msgid "_`Metadata Configuration`"
 msgstr "元数据配置"
 
-#: ../../source/components/meta.rst:5 8ffc98a6547145b083c06687b0fd93dd
+#: ../../source/components/meta.rst:5 9ff071ce05c544408b17a79fc200a286
 msgid "_`Project-level Settings`"
 msgstr "项目级设置"
 
-#: ../../source/components/meta.rst:7 7cc351e81aa641889931f4d341b1294f
+#: ../../source/components/meta.rst:7 04252c20e3f24897a044c752f4bbd130
 msgid ""
-"The metadata.json file contains the metadata configuration for the fcpp "
-"project, including basic project information, build configuration, and "
-"dependency definitions."
+"The metadata.json file is the single source of truth for "
+"food_volume_measure. It carries the package identity together with every "
+"build, dependency and documentation switch, so the CMake configuration, "
+"the Conan recipe and the documentation pipeline all read the same values "
+"instead of duplicating them."
 msgstr ""
-"metadata.json 文件包含 fcpp 项目的元数据配置，包括基本项目信息、构建配置和"
-"依赖定义。"
+"metadata.json 文件是 food_volume_measure 的唯一事实来源。它承载包标识以及所有构建、依赖与文档开关，因此 "
+"CMake 配置、Conan 配方与文档流水线读取的都是同一份取值，无需重复定义。"
 
-#: ../../source/components/meta.rst:11 2a63b984d8be4c0595f65d0af4bd364a
+#: ../../source/components/meta.rst:10 ae8ff0fd1dd44cf6b17f014c0a29597c
 msgid "_`File Structure`"
 msgstr "文件结构"
 
-#: ../../source/components/meta.rst:13 c129fc51da494d4f9b97452c658ce102
+#: ../../source/components/meta.rst:12 cb3c48a387ca494fb6887d214bd88cba
 msgid ""
-"The JSON file includes sections for basic project information (name, "
-"version, license, description), authors and maintainers, build "
-"configuration (CMake version, C/C++ standards), module settings, "
-"dependency definitions, and documentation configuration."
+"The JSON file is organized in sections: the package identity (name, "
+"target, version, team, license, description, authors, maintainers, "
+"topics, url and homepage), the build configuration (cmake_version, "
+"build_cppstd, build_cstd, build_type, activate_code_coverage, is_shared, "
+"is_header, generate_modules_inplace, std_modules and user_modules), the "
+"dependencies object, baremetal_white_list, graphviz_bin, the "
+"documentation settings (doc_languages, doc_versions, doc_doxygen_folders "
+"and doc_doxygen_suffix), and the automation switches (trigger_tests, "
+"saving_tests_log, enable_python_bindings and workflow_triggers)."
 msgstr ""
-"该 JSON 文件包含基本项目信息（名称、版本、许可证、描述）、作者和维护者、"
-"构建配置（CMake 版本、C/C++ 标准）、模块设置、依赖定义以及文档配置等部分。"
+"该 JSON "
+"文件按块组织：包标识（name、target、version、team、license、description、authors、maintainers、topics、url"
+" 与 "
+"homepage）、构建配置（cmake_version、build_cppstd、build_cstd、build_type、activate_code_coverage、is_shared、is_header、generate_modules_inplace、std_modules"
+" 与 user_modules）、dependencies "
+"对象、baremetal_white_list、graphviz_bin、文档设置（doc_languages、doc_versions、doc_doxygen_folders"
+" 与 "
+"doc_doxygen_suffix），以及自动化开关（trigger_tests、saving_tests_log、enable_python_bindings"
+" 与 workflow_triggers）。"
 
-#: ../../source/components/meta.rst:18 1642bd1c563b4f07864db733210c174f
+#: ../../source/components/meta.rst:15 d1ebd8dd76d84ca396d7d9c1b664b69b
 msgid "_`Key Settings`"
 msgstr "关键设置"
 
-#: ../../source/components/meta.rst:20 8f6171353602444d8058ca571a7c82c6
+#: ../../source/components/meta.rst:17 ddc777c480c4468e8e3d8502c72c3e10
 msgid ""
-"Basic project information defines the package identity. Build "
-"configuration specifies tool versions and language standards. Module "
-"settings control standard and user module usage. Dependencies are "
-"categorized into common, C-specific, and C++-specific requirements. "
-"Documentation settings configure Doxygen generation."
+"The build configuration fixes the toolchain expectation and the language "
+"standards used for the library targets. The dependencies object is split "
+"into four buckets - common, c, cpp and infra - and every entry maps a "
+"Conan package name to the CMake targets that should be linked into the "
+"matching library. baremetal_white_list names the packages that survive a "
+"bare-metal cross build. The documentation settings decide which languages"
+" and versions are generated and which folders and file suffixes Doxygen "
+"scans."
 msgstr ""
-"基本项目信息定义了包的身份标识。构建配置指定了工具版本和语言标准。模块"
-"设置控制标准和用户模块的使用。依赖项被归类为通用、C 专用和 C++ 专用需求。"
-"文档设置用于配置 Doxygen 生成。"
+"构建配置确定工具链预期以及库目标所使用的语言标准。dependencies 对象分为四个分桶——common、c、cpp 与 "
+"infra——每个条目把 Conan 包名映射到应链接进对应库的 CMake 目标。baremetal_white_list "
+"列出在裸机交叉构建中保留的包。文档设置决定生成哪些语言与版本，以及 Doxygen 扫描哪些目录与文件后缀。"
 
-#: ../../source/components/meta.rst:24 a1dc0c323d4643299ad758742d74cdc4
-msgid ""
-"Example configuration demonstrates how to set up a project with C++20 "
-"support, module generation, and common dependencies like Boost and "
-"OpenCV."
-msgstr ""
-"示例配置展示了如何设置一个支持 C++20、模块生成以及包含 Boost 和 OpenCV "
-"等通用依赖的项目。"
+#: ../../source/components/meta.rst:20 ea5c3e15ade54442b3747310e54a33c6
+msgid "_`Example Configuration`"
+msgstr "示例配置"
+
+#: ../../source/components/meta.rst:22 1fafb199e4e84490853504de48a1db39
+msgid "The settings currently used by this library are:"
+msgstr "本库当前使用的设置如下："
+

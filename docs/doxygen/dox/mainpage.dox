@@ -1,7 +1,7 @@
 /*!
  * @mainpage food_volume_measure
  *
- * Point-cloud food volume measurement for oven trays (PCL-based).
+ * Point-cloud food volume measurement for oven trays.
  *
  * @section intro_sec [en] Overview
  *     Measures food volume in cubic centimeters from an empty-oven baseline and a food point
@@ -11,13 +11,13 @@
  *
  * @section features_sec [en] Features
  *     - Empty-oven baseline model with RANSAC plane fitting
- *     - Open3D-equivalent voxel downsampling and DBSCAN clustering
+ *     - Voxel downsampling and DBSCAN clustering
  *     - Component-aware conservative hole completion
  *     - Reference volumes (AABB / OBB / convex hull)
  *     - PCD loading via load_pcd
  * @section features_sec [zh] 特性
  *     - 基于 RANSAC 平面拟合的空炉基线模型
- *     - 与 Open3D 等价的体素降采样与 DBSCAN 聚类
+ *     - 体素降采样与 DBSCAN 聚类
  *     - 组件感知的保守补洞
  *     - 参考体积（AABB / OBB / 凸包）
  *     - 通过 load_pcd 载入 PCD
@@ -30,6 +30,36 @@
  *     - FoodVolumeMeasurer::set_baseline / set_food：提供空炉基线与食材帧
  *     - FoodVolumeMeasurer::run：预处理、移除背景平面、构建基线高度图、提取食材块、含保守补洞的积分
  *
+ * @section algo_sec [en] Algorithm Steps
+ *     The measurement runs through six stages; the figures below show the rendered stage output of a real oven-tray scan.
+ *
+ *     Stage 1 - Raw input cloud: the food frame as captured by the tray-mounted depth camera.
+ *     \image html 1_origin_cloud.png
+ *     Stage 2 - Voxel downsampling: every occupied voxel keeps the centroid of its points, which suppresses sensor noise.
+ *     \image html 2_downsample_cloud.png
+ *     Stage 3 - Empty-oven baseline: a RANSAC plane fit plus per-cell median heights turn the empty tray into the reference surface.
+ *     \image html 3_baseline_plane.png
+ *     Stage 4 - Background-plane removal: the dominant tray plane is removed from the food frame.
+ *     \image html 4_remove_bottom_plane.png
+ *     Stage 5 - Component segmentation: the remaining points are projected onto the baseline plane and clustered with DBSCAN.
+ *     \image html 5_segment_food_component.png
+ *     Stage 6 - Height integral: one top-surface point per raster cell is kept and its baseline-relative height is integrated over the cell area; enclosed holes are completed conservatively.
+ *     \image html 6_height_integral.png
+ * @section algo_sec [zh] 算法步骤
+ *     整个测量流程分为六个阶段，下图展示了对一次真实烤盘扫描在各阶段的渲染输出。
+ *
+ *     阶段 1 - 原始输入点云：由烤盘上方深度相机采集的食材帧。
+ *     \image html 1_origin_cloud.png
+ *     阶段 2 - 体素降采样：每个被占据的体素保留其点云质心，用于抑制传感器噪声。
+ *     \image html 2_downsample_cloud.png
+ *     阶段 3 - 空炉基线：通过 RANSAC 平面拟合与逐格中值高度，把空烤盘构建成参考曲面。
+ *     \image html 3_baseline_plane.png
+ *     阶段 4 - 背景平面去除：从食材帧中移除占主导的烤盘平面。
+ *     \image html 4_remove_bottom_plane.png
+ *     阶段 5 - 组件分割：将剩余点投影到基准面上并用 DBSCAN 聚类。
+ *     \image html 5_segment_food_component.png
+ *     阶段 6 - 高度积分：每个栅格保留一个顶面点，将其相对基准面的高度沿栅格面积积分；封闭空洞以保守方式补全。
+ *     \image html 6_height_integral.png
  * @section usage_sec usage
  *     include headers in code:
  *     @code{.cpp}

@@ -1,14 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2025, fcpp-innovation
-# This file is distributed under the same license as the fcpp package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# Copyright (C) 2026, HeT-FTI
+# This file is distributed under the same license as the food_volume_measure
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: fcpp 1.0\n"
+"Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-05 18:05+0800\n"
+"POT-Creation-Date: 2026-09-22 17:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -17,68 +18,115 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: ../../source/components/cmake.rst:2 0f2f88334d474438abcaea436309360e
+#: ../../source/components/cmake.rst:2 f2c5431906e640e5adf470cb6004f1eb
 msgid "_`CMakeLists Configuration`"
 msgstr "CMakeLists 配置"
 
-#: ../../source/components/cmake.rst:5 ceba46b86fcf4061832adae5fc47c058
+#: ../../source/components/cmake.rst:5 b85a07349e904f498fc78c8e99948d5d
 msgid "_`Overview`"
 msgstr "概述"
 
-#: ../../source/components/cmake.rst:7 8030be2063544f3cb1073430fe6c4682
+#: ../../source/components/cmake.rst:7 c7adfa234b5c4261a9d1aab25a78d472
 msgid ""
-"The CMakeLists.txt file is the core build configuration file for the fcpp"
-" project, responsible for project building, dependency management, and "
-"module compilation."
+"The CMakeLists.txt file is the build entry point of food_volume_measure. "
+"It reads the package identity and every build switch from metadata.json, "
+"collects the sources from include and src, and creates the library "
+"targets together with their installation rules."
 msgstr ""
-"CMakeLists.txt 文件是 fcpp 项目的核心构建配置文件，负责项目构建、依赖管理"
-"和模块编译。"
+"CMakeLists.txt 文件是 food_volume_measure 的构建入口。它从 metadata.json "
+"读取包标识与各项构建开关，从 include 与 src 收集源文件，并创建库目标及其安装规则。"
 
-#: ../../source/components/cmake.rst:11 6791213670d74d20a4728e2e3df4edb8
+#: ../../source/components/cmake.rst:10 d18cd4652caf4059b8ca24b01c0adc52
 msgid "_`Key Features`"
 msgstr "主要特性"
 
-#: ../../source/components/cmake.rst:13 45f6cead086b451c9fbf000ba0ab9de0
-msgid "Project initialization and metadata parsing"
-msgstr "项目初始化与元数据解析"
+#: ../../source/components/cmake.rst:12 ed64ce1d90dc42f59f010e562650070b
+msgid "Package identity and build switches parsed from metadata.json"
+msgstr "从 metadata.json 解析包标识与构建开关"
 
-#: ../../source/components/cmake.rst:14 d9f7075aa55e44fa95ce702b811c539d
-msgid "Automatic source file collection and target creation"
-msgstr "自动源文件收集与目标创建"
+#: ../../source/components/cmake.rst:13 2eeaf81ef6f5446a86df252c3d49f7f0
+msgid "Automatic source collection and target creation"
+msgstr "自动收集源文件并创建目标"
 
-#: ../../source/components/cmake.rst:15 b491c35c9d8b42abada16c8f23ea4b7c
-msgid "Dependency management and linking"
-msgstr "依赖管理与链接"
+#: ../../source/components/cmake.rst:14 e755aed46abb4153a2f96d80b68ceade
+msgid ""
+"Dependency wiring through the C_DEPS / CPP_DEPS lists prepared by the "
+"Conan recipe"
+msgstr "通过 Conan 配方准备好的 C_DEPS / CPP_DEPS 列表接入依赖"
 
-#: ../../source/components/cmake.rst:16 184ed263fae14d13b5f8ff4de328970d
-msgid "C++ module support configuration"
-msgstr "C++ 模块支持配置"
+#: ../../source/components/cmake.rst:15 df4c2554c9174fbd899759a4e213930b
+msgid "Optional C++ module support (C++23 and above)"
+msgstr "可选的 C++ 模块支持（C++23 及以上）"
 
-#: ../../source/components/cmake.rst:17 625d47eeb177437ba9cd98c286bd2e47
-msgid "Installation rule definition"
-msgstr "安装规则定义"
+#: ../../source/components/cmake.rst:16 4558d7c80ce1488b9f4a38d61aacf8d2
+msgid "Optional Python bindings module"
+msgstr "可选的 Python 绑定模块"
 
-#: ../../source/components/cmake.rst:20 2e53ae7d99e24dbba13db1de83640ff2
+#: ../../source/components/cmake.rst:17 3fadf09c63844986bc2a9c2947c4ec70
+msgid "Installation rules for libraries, headers and the CMake package export"
+msgstr "库、头文件与 CMake 包导出的安装规则"
+
+#: ../../source/components/cmake.rst:20 2fc08dd2da7b4533b95893841a2c0608
 msgid "_`Main Configurations`"
 msgstr "主要配置项"
 
-#: ../../source/components/cmake.rst:22 c60ee7edd0fa42a4950c9727b40d9eac
+#: ../../source/components/cmake.rst:22 5e84c94a14b344638858910e298da51a
 msgid ""
-"The CMake configuration automatically reads project information from "
-"metadata.json, collects source files from include and src directories, "
-"creates separate static libraries for C and C++ components, and "
-"configures module support for C++23 and above."
+"Build switches are read from metadata.json rather than being hard-coded: "
+"project name, namespace and version, the C and C++ standards, shared or "
+"static, header-only mode, the pre-compiled standard modules list, code "
+"coverage and the Python bindings switch."
 msgstr ""
-"CMake 配置会自动从 metadata.json 读取项目信息，从 include 和 src 目录收集"
-"源文件，为 C 和 C++ 组件分别创建静态库，并配置 C++23 及以上版本的模块支持。"
+"构建开关从 metadata.json 读取而非硬编码：项目名、命名空间与版本，C 与 C++ "
+"标准，静态或共享，仅头文件模式，预编译标准模块列表，代码覆盖率以及 Python 绑定开关。"
 
-#: ../../source/components/cmake.rst:26 71eee7e9c74e40b8a509648b9dbdf075
+#: ../../source/components/cmake.rst:24 393122b2bb0d4a808c7ad9192a43882e
 msgid ""
-"Platform-specific module compilation is handled with appropriate settings"
-" for MSVC (.ixx files) and GCC/Clang (.cppm files). The configuration "
-"also includes installation rules for libraries and headers."
+"Sources are collected recursively from include (\\*.h, \\*.hpp) and src "
+"(\\*.c, \\*.cpp and the module suffixes \\*.ixx / \\*.cppm). Every glob "
+"is anchored to its own directory, so the scan does not pick up api, "
+"test_package, benchmark or build."
 msgstr ""
-"平台特定的模块编译通过针对 MSVC (.ixx 文件) 和 GCC/Clang (.cppm 文件) 的适"
-"当设置进行处理。该配置还包含库和头文件的安装规则。"
+"源文件从 include（\\*.h、\\*.hpp）与 src（\\*.c、\\*.cpp 以及模块后缀 \\*.ixx / "
+"\\*.cppm）递归收集。每个 glob 都锚定到自身目录，因此扫描不会误收 api、test_package、benchmark 或 "
+"build。"
+
+#: ../../source/components/cmake.rst:26 4f4a46cb785f4b338b0d0042dcf88db9
+msgid ""
+"For a general package the configuration creates food_volume_measure_c and"
+" food_volume_measure_cpp and an INTERFACE target that links both, so a "
+"consumer only has to link food_volume_measure. The standards are applied "
+"per target - C11 and C++17 for this library - with compiler extensions "
+"disabled. Because add_library() rejects an empty source list, a generated"
+" empty translation unit keeps the C target valid even though this library"
+" currently has no C sources. On Windows a requested shared build is "
+"downgraded to static with a warning."
+msgstr ""
+"对于普通包，该配置创建 food_volume_measure_c 与 food_volume_measure_cpp，以及一个同时链接二者的 "
+"INTERFACE 目标，因此使用者只需链接 food_volume_measure。标准按目标设置——本库为 C11 与 "
+"C++17——并关闭编译器扩展。由于 add_library() 不接受空的源文件列表，一个自动生成的空编译单元让 C "
+"目标保持有效，即使本库当前没有 C 源文件。在 Windows 上，请求共享构建会被降级为静态构建并给出警告。"
+
+#: ../../source/components/cmake.rst:28 c61b54dc3f89477694388e0da3720d97
+msgid ""
+"Dependencies arrive from the Conan recipe as Pkg@Targets pairs; the "
+"configuration splits each pair, calls find_package() and links the listed"
+" targets into the C or the C++ library."
+msgstr ""
+"依赖以 Pkg@Targets 形式来自 Conan 配方；该配置拆分每一对，调用 find_package() 并把列出的目标链接进 C 或 "
+"C++ 库。"
+
+#: ../../source/components/cmake.rst:30 94e991ee4ce54469b26cc5f58cac2653
+msgid ""
+"C++ modules are only activated for C++23 and above, and below that the "
+"build reports that module support is disabled. Platform-specific module "
+"handling covers MSVC (.ixx) and GCC/Clang (.cppm). When the Python "
+"bindings switch is on, an additional pybind11 module is built from "
+"api/python_bindings.cpp and installed next to the libraries."
+msgstr ""
+"C++ 模块仅在 C++23 及以上启用，低于该标准时构建会报告模块支持已关闭。平台相关的模块处理覆盖 MSVC（.ixx）与 "
+"GCC/Clang（.cppm）。当 Python 绑定开关打开时，会额外从 api/python_bindings.cpp 构建一个 "
+"pybind11 模块，并与库一起安装。"
+

@@ -1,14 +1,15 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2025, fcpp-innovation
-# This file is distributed under the same license as the fcpp package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+# Copyright (C) 2026, HeT-FTI
+# This file is distributed under the same license as the food_volume_measure
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: fcpp 1.0\n"
+"Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-05 18:05+0800\n"
+"POT-Creation-Date: 2026-09-22 17:52+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -17,71 +18,105 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.17.0\n"
+"Generated-By: Babel 2.18.0\n"
 
-#: ../../source/components/conan.rst:2 95bd56b170d949f8a9d2adfc821c987d
+#: ../../source/components/conan.rst:2 6b0f0e9b3e8649289c6bbb58c86be626
 msgid "_`Conanfile Configuration`"
 msgstr "Conanfile 配置"
 
-#: ../../source/components/conan.rst:5 26a1d0188c184399b7f03cf5d70bce42
+#: ../../source/components/conan.rst:5 523ca66d6d2d47a4984c668953a8e583
 msgid "_`Usage`"
 msgstr "用法"
 
-#: ../../source/components/conan.rst:7 b888d08efcc14ed2be84c1f75938b9de
+#: ../../source/components/conan.rst:7 277de585066c44f99920a26b70004372
 msgid ""
-"The conanfile.py is the Conan package configuration file for the fcpp "
-"project, responsible for dependency management, package metadata "
-"processing, and module generation."
+"The conanfile.py is the Conan recipe of food_volume_measure. It declares "
+"the requirements, prepares the build files, and defines the package that "
+"conan create exports."
 msgstr ""
-"conanfile.py 是 fcpp 项目的 Conan 包配置文件，负责依赖管理、包元数据处理"
-"以及模块生成。"
+"conanfile.py 是 food_volume_measure 的 Conan 配方。它声明依赖、准备构建文件，并定义 conan "
+"create 导出的包。"
 
-#: ../../source/components/conan.rst:11 2b6c6ecff6994e6992fd385ef858da61
+#: ../../source/components/conan.rst:10 727ada7d5db14c3297d9c7bca37e8fd8
 msgid "_`Main Features`"
 msgstr "主要特性"
 
-#: ../../source/components/conan.rst:13 d974ce143fb84b988307e39f1ae66d33
-msgid "Project metadata initialization"
-msgstr "项目元数据初始化"
+#: ../../source/components/conan.rst:12 721fc80f78bf4d8c90ccb75de1363af1
+msgid "Package metadata and requirement loading"
+msgstr "加载包元数据与依赖项"
 
-#: ../../source/components/conan.rst:14 a3c183f926fe421397a7bd3cd5a53b70
-msgid "Dependency management"
-msgstr "依赖管理"
+#: ../../source/components/conan.rst:13 35d9eb5a12e249de9ecdc9a8e5eccc54
+msgid "Dependency selection for regular, bare-metal and test builds"
+msgstr "针对常规、裸机与测试构建筛选依赖"
 
-#: ../../source/components/conan.rst:15 f2cb540c50a74e5dbd92517445439c33
-msgid "Module file generation and processing"
-msgstr "模块文件生成与处理"
+#: ../../source/components/conan.rst:14 875552b325a344d79478e4b491b19975
+msgid "CMake toolchain generation with dependency wiring"
+msgstr "生成 CMake toolchain 并接入依赖"
 
-#: ../../source/components/conan.rst:16 8636afa3abc241bdafaae3606048d723
-msgid "Build configuration generation"
-msgstr "构建配置生成"
+#: ../../source/components/conan.rst:15 491226de67cc42a29975b21e10c20145
+msgid "Optional C++ module generation"
+msgstr "可选的 C++ 模块生成"
 
-#: ../../source/components/conan.rst:17 13c68cce09594bae8152324b33ab48a6
-msgid "Package information definition"
-msgstr "包信息定义"
+#: ../../source/components/conan.rst:16 0bdbeb511ea14001a73adf3511574a8e
+msgid "C header compatibility for C consumers"
+msgstr "面向 C 使用者的 C 头文件兼容处理"
 
-#: ../../source/components/conan.rst:20 04f30ccd2ec549e1b5bed23badf88062
+#: ../../source/components/conan.rst:17 314dfe984c0d43b086ee686f06688717
+msgid "Binary ABI validation before packaging"
+msgstr "打包前的二进制 ABI 校验"
+
+#: ../../source/components/conan.rst:20 4fb3360493cf4bf39ebc9ef7c93d3848
 msgid "_`Core Functionality`"
 msgstr "核心功能"
 
-#: ../../source/components/conan.rst:22 01e9701ec15f4856b50e2b0a0bab75a2
+#: ../../source/components/conan.rst:22 7c0af3b3029d434f9140c38866a80c78
 msgid ""
-"The PackageRecipe class handles project initialization by loading "
-"information from metadata.json. It processes module files by generating "
-"them from .hpp and .cpp files, handling export and attach markers. "
-"Dependency management is implemented by loading requirements from "
-"conandata.yml."
+"The PackageRecipe class initializes the package from metadata.json and "
+"takes the requirement list from conandata.yml. gtest is dropped from the "
+"runtime requirements because only the tests need it, and pybind11 is "
+"required only while enable_python_bindings is on. During a bare-metal "
+"cross build only the packages named in baremetal_white_list are kept."
 msgstr ""
-"PackageRecipe 类通过从 metadata.json 加载信息来处理项目初始化。它通过从"
-".hpp 和 .cpp 文件生成模块文件来处理它们，并处理导出（export）和附加"
-"（attach）标记。依赖管理是通过从 conandata.yml 加载需求来实现的。"
+"PackageRecipe 类从 metadata.json 初始化包，并从 conandata.yml 取得依赖列表。gtest "
+"会从运行时依赖中移除，因为只有测试需要它；pybind11 仅在 enable_python_bindings 打开时才需要。裸机交叉构建时只保留"
+" baremetal_white_list 中列出的包。"
 
-#: ../../source/components/conan.rst:26 613889e8e4154f0ea2d4ff39d9eafa86
+#: ../../source/components/conan.rst:24 bf61dadb9f3a4244b82474ce80d9fc82
 msgid ""
-"The configuration generates CMake toolchain and dependencies files, and "
-"defines package components with their dependencies. Special features "
-"include C header compatibility processing and comment marker handling for"
-" export/attach operations."
+"generate() writes the CMake toolchain and the dependency files. The four "
+"dependency buckets of metadata.json - common, c, cpp and infra - are "
+"merged and serialized into the C_DEPS and CPP_DEPS variables as "
+"Pkg@Targets pairs, which is exactly the form CMakeLists.txt expects. A "
+"bare-metal build keeps only the whitelisted entries and switches "
+"CMAKE_TRY_COMPILE_TARGET_TYPE to STATIC_LIBRARY. The module preprocessing"
+" step turns the exported .hpp and .cpp files into C++ module units from "
+"their export and attach markers, and C headers are rewritten with extern "
+"\"C\" guards so that C consumers can include them."
 msgstr ""
-"该配置会生成 CMake 工具链和依赖文件，并定义带有依赖关系的包组件。特殊功能包括"
-"C 头文件兼容性处理以及用于导出/附加操作的注释标记处理。"
+"generate() 写出 CMake toolchain 与依赖文件。metadata.json 的四个依赖分桶——common、c、cpp 与"
+" infra——被合并并序列化为 C_DEPS 与 CPP_DEPS 变量中的 Pkg@Targets 对，这正是 CMakeLists.txt "
+"所期望的形式。裸机构建只保留白名单条目，并把 CMAKE_TRY_COMPILE_TARGET_TYPE 切换为 "
+"STATIC_LIBRARY。模块预处理步骤根据 export 与 attach 标记把导出的 .hpp 与 .cpp 文件转换为 C++ "
+"模块单元，同时把 C 头文件重写为带 extern \"C\" 保护的形式，以便 C 使用者可以包含它们。"
+
+#: ../../source/components/conan.rst:26 c26ad2eb6d874fe5923116761ab98e24
+msgid ""
+"build() runs the CMake flow, and _validate_built_archives inspects the "
+"produced archives with ar and readelf to detect an ABI mismatch. Because "
+"the float ABI and FPU settings arrive as compiler flags rather than as "
+"Conan settings, package_id also hashes tools.build:cflags and "
+"tools.build:cxxflags; without that, two MCUs sharing an architecture "
+"string but not an ABI would reuse the same cached binary and fail at link"
+" time."
+msgstr ""
+"build() 运行 CMake 流程，_validate_built_archives 则用 ar 与 readelf 检查产出的归档文件以发现"
+" ABI 不匹配。由于 float ABI 与 FPU 设置是以编译选项而非 Conan settings 的形式传入，package_id "
+"也会对 tools.build:cflags 与 tools.build:cxxflags 取哈希；否则两个架构字符串相同但 ABI 不同的 "
+"MCU 会复用同一份缓存二进制，并在链接期失败。"
+
+#: ../../source/components/conan.rst:28 fa04520d00da41aaa6fdc19530f31777
+msgid ""
+"package() and package_info() then define what is exported and how "
+"consumers link against it."
+msgstr "package() 与 package_info() 随后定义导出内容以及使用者如何链接。"
+
