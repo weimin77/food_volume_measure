@@ -47,17 +47,16 @@ This library currently uses these settings:
      "is_header": false,
      "enable_python_bindings": true,
      "dependencies": {
-       "common": {"ZLIB": ["ZLIB::ZLIB"]},
-       "c": {"PCRE2": ["pcre2::pcre2"]},
+       "common": {},
+       "c": {},
        "cpp": {
          "Eigen3": ["Eigen3::Eigen"],
-         "etl": ["etl::etl"],
          "PCL": ["PCL::PCL"],
          "nlohmann_json": ["nlohmann_json::nlohmann_json"]
        },
        "infra": {"GTest": ["gtest::gtest"], "pybind11": ["pybind11::module"]}
      },
-     "baremetal_white_list": ["etl", "ArduinoJson"],
+     "baremetal_white_list": ["ArduinoJson"],
      "doc_languages": ["en", "zh"],
      "doc_versions": ["1.0", "2.0"]
    }
