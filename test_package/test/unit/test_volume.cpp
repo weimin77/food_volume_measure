@@ -85,7 +85,6 @@ MeasurementConfig make_config() {
     cfg.min_height_m = 0.0015F;
     cfg.cluster_min_points = 8;
     cfg.foreground_cluster_eps_m = 0.010F;
-    cfg.cluster_eps_m = 0.02F;
     return cfg;
 }
 
@@ -484,7 +483,7 @@ TEST(Measurer, MultiComponentVolume) {
 
 
 
-TEST(Measurer, ManualSelectionMode) {
+TEST(Measurer, SelectedLabels) {
     PointCloud food = make_baseline(0.25);
     for (double x = 0.0025; x <= 0.0975 + 1.0e-9; x += kCell) {
         for (double y = 0.0025; y <= 0.0975 + 1.0e-9; y += kCell) {
@@ -497,22 +496,25 @@ TEST(Measurer, ManualSelectionMode) {
         }
     }
 
-    // Manual mode with a label that does not exist finds no food.
+    // A label that does not exist finds no food.
     auto measurer = make_measurer();
-    const auto missing = measurer.set_selection_mode(ComponentSelectionMode::kManual)
-                             .set_selected_labels({42})
+    const auto missing = measurer.set_selected_labels({42})
                              .set_baseline({make_baseline(0.25)})
                              .set_food(food)
                              .run();
     EXPECT_EQ(missing.status, MeasurementStatus::kFoodNotFound);
 
-    // Manual mode with the first real label measures only that component.
+    // Selecting the first real label measures only that component.
     auto manual = make_measurer();
-    manual.set_selection_mode(ComponentSelectionMode::kManual).set_selected_labels({0});
+    manual.set_selected_labels({0});
     const auto est = manual.set_baseline({make_baseline(0.25)}).set_food(food).run();
     ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_EQ(est.component_count, 1u);
     EXPECT_NEAR(est.volume_cm3, kExpectedVolumeCm3, 25.0);
+
+    const auto all = manual.set_selected_labels({}).run();
+    ASSERT_EQ(all.status, MeasurementStatus::kSuccess) << all.message;
+    EXPECT_EQ(all.component_count, 2u);
 }
 
 
@@ -611,11 +613,11 @@ TEST(Measurer, MissingConfigFieldsKeepDefaults) {
         file << "{\"voxel_size_m\":0.007}";
     }
     FoodVolumeMeasurer measurer;
-    const double default_eps = measurer.config().cluster_eps_m;
+    const double default_eps = measurer.config().foreground_cluster_eps_m;
     const double default_resolution = measurer.config().integration_resolution_m;
     ASSERT_TRUE(measurer.load_config_from_json(path));
     EXPECT_DOUBLE_EQ(measurer.config().voxel_size_m, 0.007);
-    EXPECT_DOUBLE_EQ(measurer.config().cluster_eps_m, default_eps);
+    EXPECT_DOUBLE_EQ(measurer.config().foreground_cluster_eps_m, default_eps);
     EXPECT_DOUBLE_EQ(measurer.config().integration_resolution_m, default_resolution);
     std::remove(path.c_str());
 }
@@ -630,6 +632,49 @@ TEST(Measurer, InvalidConfigEnumFails) {
     }
     FoodVolumeMeasurer measurer;
     EXPECT_FALSE(measurer.load_config_from_json(path));
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Measurer, RemovedConfigOptionFails) {
+    const std::string path = "unit_config_removed.json";
+    {
+        std::ofstream file(path);
+        file << "{\"save_middle_cloud\":true}";
+    }
+    FoodVolumeMeasurer measurer;
+    EXPECT_FALSE(measurer.load_config_from_json(path));
+    std::remove(path.c_str());
+}
+
+
+
+TEST(Measurer, RoiJsonRoundTripAndClear) {
+    const std::string path = "unit_config_roi.json";
+    AxisAlignedRoi roi{};
+    roi.min_x = 0.01F;
+    roi.max_x = 0.09F;
+    roi.min_y = 0.02F;
+    roi.max_y = 0.08F;
+    roi.min_z = -0.01F;
+    roi.max_z = 0.06F;
+
+    FoodVolumeMeasurer measurer;
+    measurer.set_roi(roi);
+    ASSERT_TRUE(measurer.save_config_to_json(path));
+
+    FoodVolumeMeasurer restored;
+    ASSERT_TRUE(restored.load_config_from_json(path));
+    ASSERT_TRUE(restored.config().roi.has_value());
+    EXPECT_FLOAT_EQ(restored.config().roi->max_x, roi.max_x);
+    restored.clear_roi();
+    EXPECT_FALSE(restored.config().roi.has_value());
+    ASSERT_TRUE(restored.save_config_to_json(path));
+
+    restored.set_roi(roi);
+    ASSERT_TRUE(restored.load_config_from_json(path));
+    EXPECT_FALSE(restored.config().roi.has_value());
     std::remove(path.c_str());
 }
 
@@ -662,8 +707,7 @@ TEST(Measurer, SaveMiddleCloudWritesStageFiles) {
     std::filesystem::remove_all(dir);
 
     auto measurer = make_measurer();
-    const auto est = measurer.set_save_middle_cloud(true)
-                         .set_middle_cloud_dir(dir)
+    const auto est = measurer.set_middle_cloud_dir(dir)
                          .set_baseline({make_baseline()})
                          .set_food(make_food())
                          .run();
@@ -687,8 +731,7 @@ TEST(Measurer, SaveMiddleCloudIncludesFilledHole) {
     std::filesystem::remove_all(dir);
 
     auto measurer = make_measurer();
-    const auto est = measurer.set_save_middle_cloud(true)
-                         .set_middle_cloud_dir(dir)
+    const auto est = measurer.set_middle_cloud_dir(dir)
                          .set_baseline({make_baseline()})
                          .set_food(make_food(0.0025, 0.0975, 0.0025, 0.0975, 0.0525, 0.0525))
                          .run();
@@ -724,7 +767,11 @@ TEST(Measurer, SaveMiddleCloudDisabledWritesNothing) {
     std::filesystem::remove_all(dir);
 
     auto measurer = make_measurer();
-    const auto est = measurer.set_middle_cloud_dir(dir).set_baseline({make_baseline()}).set_food(make_food()).run();
+    const auto est = measurer.set_middle_cloud_dir(dir)
+                         .set_middle_cloud_dir("")
+                         .set_baseline({make_baseline()})
+                         .set_food(make_food())
+                         .run();
     ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
     EXPECT_FALSE(std::filesystem::exists(dir));
 }
@@ -738,8 +785,7 @@ TEST(Measurer, SaveMiddleCloudWritesPerComponentFiles) {
     std::filesystem::remove_all(dir);
 
     auto measurer = make_measurer();
-    const auto est = measurer.set_save_middle_cloud(true)
-                         .set_middle_cloud_dir(dir)
+    const auto est = measurer.set_middle_cloud_dir(dir)
                          .set_baseline({make_baseline(0.25)})
                          .set_food(make_two_cuboid_food())
                          .run();
@@ -841,7 +887,6 @@ TEST(Measurer, PrepareBaselineKeptByFoodOnlySetters) {
     ASSERT_EQ(measurer.prepare_baseline(), MeasurementStatus::kSuccess);
 
     measurer.set_height_range(0.002, 0.05)
-        .set_selection_mode(ComponentSelectionMode::kManual)
         .set_selected_labels({0})
         .set_roi(AxisAlignedRoi{})
         .clear_roi();
