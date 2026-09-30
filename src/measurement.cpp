@@ -93,7 +93,8 @@ std::string zero_padded(int value, int width) {
 // Writes one PCD per pipeline stage when the caller asked for the intermediate dump.
 #ifndef __ARM_EABI__
 void dump_middle_clouds(const MeasurementConfig& cfg, const PointCloud& raw_food, const PointCloud& downsampled,
-                        const PointCloud& remaining, const BaselineModel& baseline, const FoodComponents& components) {
+                        const PointCloud& remaining, const BaselineModel& baseline, const FoodComponents& components,
+                        const SurfaceMap& completed_surface) {
     if (cfg.middle_cloud_dir.empty()) {
         log_warning("save_middle_cloud is on but middle_cloud_dir is empty; skipping the dump");
         return;
@@ -145,6 +146,11 @@ void dump_middle_clouds(const MeasurementConfig& cfg, const PointCloud& raw_food
         save_pcd_impl(
             path_of("5_top_surface.pcd"),
             cells_to_world_cloud(surface.cells, surface.heights_m, baseline.data->frame, baseline.data->cell_size_m));
+    }
+    if (baseline.data && !completed_surface.cells.empty()) {
+        save_pcd_impl(path_of("6_hole_filled_surface.pcd"),
+                      cells_to_world_cloud(completed_surface.cells, completed_surface.heights_m, baseline.data->frame,
+                                           baseline.data->cell_size_m));
     }
     log_info("middle clouds written to " + cfg.middle_cloud_dir);
 }
@@ -570,14 +576,16 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
     // same rasterisation pass, so this runs the integration exactly once.
     ComponentVolumeEstimate component_volume{};
     std::vector<ComponentVolumeEstimate> per_component;
-    st = measure_component_volume(components, baseline, cfg, component_volume, &per_component);
+    SurfaceMap completed_surface;
+    st = measure_component_volume(components, baseline, cfg, component_volume, &per_component,
+                                  cfg.save_middle_cloud ? &completed_surface : nullptr);
     if (st != MeasurementStatus::kSuccess) {
         return failure(st, status_to_string(st));
     }
 
     // 6b. Optional per-stage point-cloud dump, only after the run fully succeeded.
     if (cfg.save_middle_cloud) {
-        dump_middle_clouds(cfg, food_, pre.cloud, remaining, baseline, components);
+        dump_middle_clouds(cfg, food_, pre.cloud, remaining, baseline, components, completed_surface);
     }
 
     // 7. Translate the component result and pipeline diagnostics into the public estimate.

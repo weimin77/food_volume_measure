@@ -937,18 +937,23 @@ ComponentVolumeEstimate compute_grid_estimate(const HeightGrid& grid) {
  */
 MeasurementStatus measure_component_volume(const FoodComponents& components, const BaselineModel& baseline,
                                            const MeasurementConfig& cfg, ComponentVolumeEstimate& out,
-                                           std::vector<ComponentVolumeEstimate>* per_component) {
+                                           std::vector<ComponentVolumeEstimate>* per_component,
+                                           SurfaceMap* completed_surface) {
 #ifdef __ARM_EABI__
     (void)components;
     (void)baseline;
     (void)cfg;
     (void)out;
     (void)per_component;
+    (void)completed_surface;
     return MeasurementStatus::kUnsupportedPlatform;
 #else
     out = ComponentVolumeEstimate{};
     if (per_component != nullptr) {
         per_component->clear();
+    }
+    if (completed_surface != nullptr) {
+        *completed_surface = SurfaceMap{};
     }
 
     if (components.labels.empty() || components.labels.size() != components.clouds.size()) {
@@ -977,6 +982,15 @@ MeasurementStatus measure_component_volume(const FoodComponents& components, con
     st = complete_holes(grid, baseline, cfg, hole_stats);
     if (st != MeasurementStatus::kSuccess) {
         return st;
+    }
+
+    if (completed_surface != nullptr) {
+        completed_surface->cells = grid.cells;
+        completed_surface->labels = grid.component_labels;
+        completed_surface->heights_m.reserve(grid.cells.size());
+        for (std::size_t i = 0; i < grid.cells.size(); ++i) {
+            completed_surface->heights_m.push_back(grid.baseline_heights_m[i] + grid.heights_m[i]);
+        }
     }
 
     out = compute_grid_estimate(grid);

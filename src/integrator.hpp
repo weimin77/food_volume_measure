@@ -26,13 +26,18 @@
  *     it costs no extra integration work.
  * @param per_component [zh] 非空时按 `components.labels` 顺序逐连通块写入一条估计；
  *     与合并结果共用同一遍栅格化，因此不产生额外积分开销。
+ * @param completed_surface [en] When non-null, receives the completed top surface after hole filling.
+ *     Heights are absolute in the baseline plane frame, ready for a world-coordinate point-cloud dump.
+ * @param completed_surface [zh] 非空时接收补洞后的完整顶表面；高度为基准面坐标系中的绝对高度，
+ *     可用于输出世界坐标点云。
  * @return [en] kSuccess, kInvalidConfig, kInsufficientCoverage, or kFoodNotFound.
  * @return [zh] kSuccess、kInvalidConfig、kInsufficientCoverage 或 kFoodNotFound。
 
  */
 MeasurementStatus measure_component_volume(const FoodComponents& components, const BaselineModel& baseline,
                                            const MeasurementConfig& cfg, ComponentVolumeEstimate& out,
-                                           std::vector<ComponentVolumeEstimate>* per_component = nullptr);
+                                           std::vector<ComponentVolumeEstimate>* per_component = nullptr,
+                                           SurfaceMap* completed_surface = nullptr);
 
 
 

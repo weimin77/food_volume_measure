@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <filesystem>
@@ -669,11 +670,49 @@ TEST(Measurer, SaveMiddleCloudWritesStageFiles) {
     ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
 
     const char* const kExpected[] = {"0_input_food.pcd",       "1_downsampled.pcd",     "2_remaining.pcd",
-                                     "3_baseline_surface.pcd", "4_food_components.pcd", "5_top_surface.pcd"};
+                                     "3_baseline_surface.pcd", "4_food_components.pcd", "5_top_surface.pcd",
+                                     "6_hole_filled_surface.pcd"};
     for (const char* name : kExpected) {
         std::ifstream file(dir + "/" + name);
         EXPECT_TRUE(file.is_open()) << "missing stage cloud: " << name;
     }
+
+    std::filesystem::remove_all(dir);
+}
+
+
+
+TEST(Measurer, SaveMiddleCloudIncludesFilledHole) {
+    const std::string dir = "unit_middle_cloud_hole_test";
+    std::filesystem::remove_all(dir);
+
+    auto measurer = make_measurer();
+    const auto est = measurer.set_save_middle_cloud(true)
+                         .set_middle_cloud_dir(dir)
+                         .set_baseline({make_baseline()})
+                         .set_food(make_food(0.0025, 0.0975, 0.0025, 0.0975, 0.0525, 0.0525))
+                         .run();
+    ASSERT_EQ(est.status, MeasurementStatus::kSuccess) << est.message;
+    ASSERT_EQ(est.interpolated_cells, 1u);
+
+    const PointCloud before = load_pcd(dir + "/5_top_surface.pcd");
+    const PointCloud after = load_pcd(dir + "/6_hole_filled_surface.pcd");
+    EXPECT_EQ(before.points.size(), est.top_surface_points);
+    ASSERT_EQ(after.points.size(), est.occupied_cells);
+    EXPECT_EQ(after.points.size(), before.points.size() + est.interpolated_cells);
+
+    std::size_t added_points = 0;
+    for (const auto& filled : after.points) {
+        const bool was_measured = std::any_of(before.points.begin(), before.points.end(), [&](const Point3f& measured) {
+            return std::fabs(filled.x - measured.x) < 1.0e-6F &&
+                   std::fabs(filled.y - measured.y) < 1.0e-6F &&
+                   std::fabs(filled.z - measured.z) < 1.0e-6F;
+        });
+        if (!was_measured) {
+            ++added_points;
+        }
+    }
+    EXPECT_EQ(added_points, est.interpolated_cells);
 
     std::filesystem::remove_all(dir);
 }
