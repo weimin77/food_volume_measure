@@ -1,111 +1,39 @@
-_`food_volume_measure Documentation`
-=====================================
+food_volume_measure
+===================
 
-_`Introduction`
----------------
+``food_volume_measure`` estimates the volume of food above an oven tray from two kinds of
+point cloud: one or more empty-tray frames and a frame containing food. The camera and tray
+must stay in the same coordinate frame between captures. The result is a height integral in
+cubic centimetres, accompanied by coverage and hole-filling diagnostics.
 
-food_volume_measure is a C++17 library that measures food volume on oven trays from point
-clouds. It follows the IM method (baseline-plane height-difference integral): the empty oven
-becomes a height map on a fitted plane, the food cloud is voxel-downsampled and clustered in
-that plane, and the per-cell height differences are integrated into a volume in cubic
-centimeters.
+Start with :doc:`measurement <export>` for a complete C++ example. Read
+:doc:`building <components/conan>` if you need to build the package. Doxygen provides the
+API reference for ``FoodVolumeMeasurer``, ``MeasurementConfig``, and ``VolumeEstimate``.
+After a local documentation build, open ``docs/doxygen/build/docs.html`` to choose a language.
 
-_`Algorithm Steps`
-------------------
+What the estimate means
+-----------------------
 
-The measurement runs in six stages. Each figure below is the output of one stage for a real
-oven-tray scan.
+The library fits a plane to the empty tray, stores the observed tray height in each grid cell,
+and compares food points with that measured surface. It never substitutes an ideal flat tray
+for cells where the empty capture has no data. Small enclosed gaps in the food surface may be
+filled; their volume is reported separately from the volume supported by measured points.
 
-.. figure:: ../images/1_origin_cloud.png
-   :alt: Original input cloud
-   :width: 100%
+Check ``VolumeEstimate.status`` before using any numeric result. On success,
+``volume_cm3`` is the sum of ``raw_volume_cm3`` and ``interpolated_volume_cm3``. A large
+``interpolated_cells`` count or a low ``coverage_ratio`` is a reason to inspect the input
+clouds and the intermediate PCD files, not a reason to treat the estimate as ground truth.
 
-   **Step 1 - Raw input cloud.** The frame from the depth camera above the tray. Invalid points are dropped and coordinates are converted to metres.
-
-.. figure:: ../images/2_downsample_cloud.png
-   :alt: Voxel-downsampled cloud
-   :width: 100%
-
-   **Step 2 - Voxel downsampling.** Every occupied voxel is replaced by its centroid. This smooths out sensor noise and makes the later stages independent of the raw point density.
-
-.. figure:: ../images/3_baseline_plane.png
-   :alt: Empty-oven baseline surface
-   :width: 100%
-
-   **Step 3 - Empty-oven baseline.** A RANSAC plane fit and per-cell median heights turn the empty tray into the reference surface that food heights are measured against.
-
-.. figure:: ../images/4_remove_bottom_plane.png
-   :alt: Cloud after background-plane removal
-   :width: 100%
-
-   **Step 4 - Background-plane removal.** The dominant tray plane is removed, leaving mostly food points.
-
-.. figure:: ../images/5_segment_food_component.png
-   :alt: Segmented food components
-   :width: 100%
-
-   **Step 5 - Component segmentation.** The remaining points are projected onto the baseline plane and clustered with DBSCAN, which splits different food items into separate components.
-
-.. figure:: ../images/6_height_integral.png
-   :alt: Top surface used for the height integral
-   :width: 100%
-
-   **Step 6 - Height integral.** Each raster cell keeps one top-surface point. Its height above the baseline is integrated over the cell area, and enclosed holes are filled conservatively.
-
-_`Main Features`
+Where to go next
 ----------------
 
-- Empty-oven baseline model with RANSAC plane fitting
-- Voxel downsampling and DBSCAN clustering, matching Open3D
-- Conservative hole completion, kept inside a single component
-- Reference volumes (AABB / OBB / convex hull)
-- PCD loading via ``load_pcd``
-- Point-cloud processing runs on the host only; bare-metal stubs report "unsupported"
-
-_`Quick Start`
---------------
-
-.. code-block:: cpp
-
-   #include "measurement.hpp"
-
-   int main() {
-       PointCloud baseline = load_pcd("empty_oven.pcd");
-       PointCloud food = load_pcd("food.pcd");
-       VolumeEstimate est =
-           FoodVolumeMeasurer().set_baseline({baseline}).set_food(food).run();
-       return est.status == MeasurementStatus::kSuccess ? 0 : 1;
-   }
-
-_`Project Structure`
---------------------
-
-::
-
-   food_volume_measure/
-   ├── include/         # Public headers (*.hpp)
-   ├── src/             # Implementation (*.cpp)
-   ├── test_package/    # Consumer demo and unit/stress tests
-   ├── benchmark/       # Cross-platform benchmark scaffolding
-   ├── CMakeLists.txt   # CMake build configuration
-   ├── conanfile.py     # Conan package configuration
-   ├── metadata.json    # Project metadata
-   └── LICENSE          # License file
-
-_`Detailed Settings`
---------------------
-
-Details on the project metadata, the Conan recipe and the CMake file:
-
 .. toctree::
-   CMakeList <components/cmake>
-   Conanfile <components/conan>
-   Metadata <components/meta>
-   User concern contents <export>
-   :numbered:
    :maxdepth: 2
 
-_`License`
-----------
+   Measure a frame <export>
+   Build with Conan <components/conan>
+   CMake targets <components/cmake>
+   Project metadata <components/meta>
 
-This project is licensed under the Apache-2.0 License. See the LICENSE file for details.
+The package targets C++17. The PCL measurement pipeline runs on host platforms; a bare-metal
+build reports ``kUnsupportedPlatform`` for this operation.

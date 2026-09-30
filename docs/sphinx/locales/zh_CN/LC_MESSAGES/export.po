@@ -4,12 +4,11 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-23 09:43+0800\n"
+"POT-Creation-Date: 2026-09-30 14:37+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -20,77 +19,282 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../source/export.rst:2 1854e0cb4f6342068bd541873731f7bb
-msgid "_`food_volume_measure usage demonstration`"
-msgstr "food_volume_measure 用法演示"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:2
+#: 1a36684e5d2b4578a7e874ec48788104
+msgid "Measure a frame"
+msgstr "测量一帧点云"
 
-#: ../../source/export.rst:4 bdaec3e7c6b14080800c508430772937
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:5
+#: 835f84f2189f46dca738ff4d160c5058
+msgid "Inputs and coordinate frame"
+msgstr "输入与坐标系"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:7
+#: 4e62559e028446afa3d53f59aa3a3270
 msgid ""
-":code:`food_volume_measure` measures food volume on oven trays from a "
-"fixed depth camera, using the IM method (baseline-plane height-difference"
-" integral)."
-msgstr ":code:`food_volume_measure` 用固定位置的深度相机测量烤盘上的食材体积，方法是 IM（基准面高度差积分）。"
-
-#: ../../source/export.rst:8 f78e3c8b0ab24693834ba5a18c0f6a4b
-msgid "_`Theory`"
-msgstr "原理"
-
-#: ../../source/export.rst:10 95347169bc55437f871a9f4ef134c7f3
-msgid ""
-"The empty-oven baseline is first turned into a height map on a RANSAC-"
-"fitted plane. The food cloud is voxel-downsampled and clustered in that "
-"plane, and each grid cell keeps only its highest food point. The volume "
-"is the per-cell height difference between food surface and baseline, "
-"integrated over the cell area:"
+"Capture at least one empty-tray frame and one food frame with the same "
+"camera and tray pose. All points in both inputs must use the unit set by "
+"``input_unit`` (metres by default). ROI bounds and other distance parameters"
+" are always in metres, even when the input points are in millimetres. The "
+"empty frames should cover the part of the tray occupied by food; an absent "
+"baseline cell is not replaced by a flat plane."
 msgstr ""
-"先把空烤盘基线变成 RANSAC "
-"拟合平面上的高度图。食材点云做体素降采样后在同一个平面内聚类，每个栅格只保留最高的食材点。体积就是食材表面与基线之间逐格高度差按栅格面积的积分："
+"至少拍摄一帧空烤盘和一帧放有食材的烤盘。相机和烤盘在两次拍摄时应保持相同位置。所有输入点都使用 ``input_unit`` "
+"指定的单位，默认是米。ROI 边界和其他距离参数始终使用米，即使输入点的坐标是毫米。空盘帧应覆盖食材占据的区域；没有基线数据的栅格不会被平面替代。"
 
-#: ../../source/export.rst:15 26069ac2331c44199e3eba9b944e2b72
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:14
+#: 05a14de4db344ac6b03b203f80e68fc8
+msgid "A minimal C++ call"
+msgstr "最小 C++ 示例"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:39
+#: ae9fbe20c2764985bc4c1d27564942d6
 msgid ""
-"V = \\sum_{(u,v)} \\left( h_{\\text{food}}(u,v) - "
-"h_{\\text{baseline}}(u,v) \\right) \\cdot \\Delta s^2"
+"For millimetre input, call ``set_input_unit(LengthUnit::kMillimeter)`` "
+"before ``run()``. ``load_pcd()`` returns an empty cloud when it cannot read "
+"a file. Check the return status before reading numeric fields; they are NaN "
+"on failure."
 msgstr ""
+"毫米点云需在 ``run()`` 前调用 "
+"``set_input_unit(LengthUnit::kMillimeter)``。``load_pcd()`` "
+"读取失败时返回空点云。读取数值字段前先检查状态；失败时这些字段为 NaN。"
 
-#: ../../source/export.rst:20 a44f5cdd24a043c88240004dde1bc903
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:44
+#: f75b1d04d72a4a1c8741c8baac77f33b
+msgid "How the volume is computed"
+msgstr "体积计算方法"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:46
+#: e7e712b9551746288f408d59d5ec38b6
 msgid ""
-"where :math:`\\Delta s` is the integration resolution. Depth lost to "
-"reflections is filled in conservatively inside a single foreground "
-"component. Filled cells and measured cells are counted separately."
-msgstr "其中 :math:`\\Delta s` 是积分分辨率。反光造成的深度缺失只在单个前景连通域内部保守补全，补出来的栅格和实测栅格分开计数。"
+"The empty frames form a baseline height map on a fitted plane. Food points "
+"are filtered by their height above that map, grouped by their footprint on "
+"the plane, and rasterised into top-surface cells. For a cell with both a "
+"baseline height and a food height, the contribution is the positive height "
+"difference times the cell area:"
+msgstr "空盘帧在拟合平面上形成基线高度图。食材点按高出基线的高度筛选，再按其平面足迹分组，并栅格化为顶面。对于同时有基线和食材高度的栅格，贡献量是正的高度差乘以栅格面积："
 
-#: ../../source/export.rst:25 4f11d96600e4450b91b9f6c41be18dfd
-msgid "_`Usage demonstration`"
-msgstr "用法演示"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:55
+#: 1dc2cf2c75964225a32932ca16a9ba70
+msgid "Grid of observed empty-tray points"
+msgstr "空烤盘实测点组成的栅格"
 
-#: ../../source/export.rst:27 2afed16c0afb43e7b72e808c500d439b
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:55
+#: 874e864755dc479a95838f4114265057
+msgid "Empty-tray observations used to form the baseline grid."
+msgstr "空盘观测点用于建立基线栅格。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:57
+#: 180e90ab627a4403afb8cddcff68ff18
 msgid ""
-":code:`FoodVolumeMeasurer` wraps the whole pipeline. Set the empty-oven "
-"baseline and the food frame, tune parameters with the chainable setters "
-"or a JSON file, then call :code:`run`. It returns a "
-":code:`VolumeEstimate` with the integrated volume (cm³), point counts, "
-"footprint area and coverage, mean and max height, a per-component "
-"breakdown, and reference volumes (AABB, OBB, convex hull)."
+"V = \\sum_{c \\in C} "
+"\\bigl(h_{\\mathrm{food}}(c)-h_{\\mathrm{tray}}(c)\\bigr)\\,s^2"
 msgstr ""
-":code:`FoodVolumeMeasurer` 把整条流水线打包在一起。先设置空烤盘基线和食材帧，可以用链式接口或 JSON "
-"文件调参数，然后调用 :code:`run`。它返回的 :code:`VolumeEstimate` "
-"里有积分体积（cm³）、点数、足迹面积和覆盖率、平均和最大高度、逐连通域明细，以及参考体积（AABB、OBB、凸包）。"
+"V = \\sum_{c \\in C} "
+"\\bigl(h_{\\mathrm{food}}(c)-h_{\\mathrm{tray}}(c)\\bigr)\\,s^2"
 
-#: ../../source/export.rst:33 8290308a00a747a0b79c1e95ce9a5be2
-msgid "IM measurement demo"
-msgstr "IM 测量示例"
-
-#: ../../source/export.rst:53 bdd361e12fd64fdba5903b41506ab520
-msgid "_`Parameter configuration`"
-msgstr "参数配置"
-
-#: ../../source/export.rst:55 95dfae2440ca4ac8959f5e2ffbc17da5
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:61
+#: a0e54613e6514f4195e018d5763950b1
 msgid ""
-"The common parameters have chainable setters. Every field, including the "
-"hole-completion guards, can also be loaded from or written to JSON:"
-msgstr "常用参数都有链式接口。所有字段（包括补洞的几个保护阈值）也能从 JSON 读入或写成 JSON："
+"Here ``s`` is ``integration_resolution_m`` and ``C`` contains accepted "
+"measured and filled cells. The implementation converts cubic metres to cubic"
+" centimetres for ``volume_cm3``. It may fill an enclosed hole only when the "
+"rim belongs to one food component and the safety checks pass. "
+"``raw_volume_cm3`` and ``interpolated_volume_cm3`` separate observed from "
+"inferred volume; an unfilled hole contributes neither."
+msgstr ""
+"其中 ``s`` 为 ``integration_resolution_m``，``C`` 包含被接受的实测和补洞栅格。``volume_cm3`` "
+"会把计算得到的立方米换算为立方厘米。只有孔洞边界属于单个食材块且通过保护条件，才会进行补全。``raw_volume_cm3`` 和 "
+"``interpolated_volume_cm3`` 分别表示实测与推算体积；未填充的孔洞不计入任何一项。"
 
-#: ../../source/export.rst:58 e68d6851f4da4ecba4af4415c2a1a3de
-msgid "chainable parameter setters"
-msgstr "链式参数接口"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:71
+#: 086d0586bbc54d4e930db5b2da4a61b8
+msgid "Food points above the tray grid"
+msgstr "烤盘栅格上方的食材点"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:71
+#: 4a3ea36ec9e245a2abbf0f08ad3a139f
+msgid "Food surface points compared with the tray grid before integration."
+msgstr "积分前，将食材顶面点与烤盘栅格比较。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:74
+#: 9a3cf8f90fd74fcf9514a511b6ea6243
+msgid "Reading the result"
+msgstr "如何看结果"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:76
+#: 8840a69a01d74f14a581e152b7d0450d
+msgid ""
+"``component_count`` and ``component_estimates`` describe the selected food "
+"components. ``selected_cluster_labels`` is aligned with "
+"``component_estimates``. ``measured_cells`` and ``interpolated_cells`` count"
+" observed and filled top-surface cells; ``unfilled_hole_cells`` counts gaps "
+"left unresolved. ``missing_baseline_cells`` counts food cells without a "
+"usable empty-tray reference. ``coverage_ratio`` is the occupied fraction of "
+"the component bounding grid, not a confidence score. AABB, OBB, and convex-"
+"hull volumes are geometric references in cubic metres; they do not use the "
+"tray height integral."
+msgstr ""
+"``component_count`` 和 ``component_estimates`` "
+"描述被选中的食材块；``selected_cluster_labels`` 与 ``component_estimates`` "
+"一一对应。``measured_cells`` 和 ``interpolated_cells`` "
+"分别统计实测与补全的顶面栅格，``unfilled_hole_cells`` 是仍未填补的孔洞栅格。``missing_baseline_cells``"
+" 表示缺少空盘参考的食材栅格。``coverage_ratio`` 是连通块包围栅格中被占用的比例，不是置信度。AABB、OBB "
+"和凸包体积是立方米单位的几何参考值，不采用烤盘高度积分。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:85
+#: 2d7140d1439a4a9e9b264fbd6a9e8a37
+msgid "Configuration without duplicate switches"
+msgstr "减少重复开关的配置"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:87
+#: 13aafeaab2d3478190e0d0c65c7d2f61
+msgid ""
+"Defaults are intended as a starting point. Change only the values your "
+"capture requires:"
+msgstr "默认参数可作为起点，只改当前采集确实需要调整的值："
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:96
+#: 778bb20226f54360aa701b7b4680f564
+#, python-brace-format
+msgid ""
+"An ROI object enables cropping; ``clear_roi()`` disables it. An empty "
+"``selected_labels`` selects all eligible components; "
+"``set_selected_labels({0})`` selects label 0. A nonempty "
+"``middle_cloud_dir`` enables intermediate PCD output and an empty path "
+"disables it. The secondary background plane, when enabled in "
+"``MeasurementConfig``, uses the same ``plane_distance_threshold_m`` as the "
+"primary plane."
+msgstr ""
+"提供 ROI 对象即启用裁剪，``clear_roi()`` 关闭裁剪。``selected_labels`` "
+"为空时选择所有合格连通块；``set_selected_labels({0})`` 只选标签 0。``middle_cloud_dir`` "
+"非空时保存中间 PCD，空路径则关闭。若在 ``MeasurementConfig`` 中启用次级背景平面移除，它与主平面共用 "
+"``plane_distance_threshold_m``。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:102
+#: e533f04e9bdc4d128a60ebd3b6e29ab8
+msgid "A JSON file may contain just the fields to override, for example:"
+msgstr "JSON 文件可以只写需要覆盖的字段，例如："
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:112
+#: e255fa4cb9524e799c6dc78fbe5eef3b
+msgid ""
+"Call ``load_config_from_json(path)`` before ``run()`` and check its Boolean "
+"return value. Removed or unknown keys are rejected. Save a full snapshot "
+"with ``save_config_to_json(path)``."
+msgstr ""
+"在 ``run()`` 前调用 ``load_config_from_json(path)``，并检查布尔返回值。已删除或未知的键会被拒绝。调用 "
+"``save_config_to_json(path)`` 可保存完整配置快照。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:116
+#: 419359c79152481f8b934fa4b76a3eba
+msgid "Inspecting a measurement"
+msgstr "检查一次测量"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:118
+#: 11f69da1c4304e9eaea31a53cbf47acf
+msgid ""
+"With ``middle_cloud_dir`` set, a successful run writes stage PCD files. "
+"Compare ``5_top_surface.pcd`` (measured top cells) with "
+"``6_hole_filled_surface.pcd`` (measured plus accepted filled cells). "
+"``4_food_component_label<NN>.pcd`` isolates each selected component. These "
+"files use world coordinates. If ``missing_baseline_cells`` is high, capture "
+"more of the empty tray. If ``interpolated_cells`` is high, inspect the "
+"missing region before trusting the filled volume."
+msgstr ""
+"设置 ``middle_cloud_dir`` 后，成功测量会写出各阶段 PCD。比较 ``5_top_surface.pcd``（实测顶面栅格）和 "
+"``6_hole_filled_surface.pcd``（实测加已接受的补洞栅格）；``4_food_component_label<NN>.pcd``"
+" 可单独查看选中的食材块。文件使用世界坐标。若 ``missing_baseline_cells`` 很多，应补拍空盘覆盖区域；若 "
+"``interpolated_cells`` 很多，应先检查缺失区域，再决定是否采用补洞体积。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:125
+#: 4dbd4a1702744da4859e79f680ea0aa7
+msgid ""
+"For several food frames against the same empty tray, set the first food "
+"frame and call ``prepare_baseline()`` once. After a successful preparation, "
+"``set_food()`` followed by ``run()`` reuses the baseline. Keep the camera, "
+"tray, input unit, and baseline-related parameters fixed; changing baseline "
+"inputs or their parameters invalidates the cache. The first food frame is "
+"also used to orient the plane normal, so later frames must be on the same "
+"side of the tray."
+msgstr ""
+"若多帧食材使用同一空烤盘基线，可先设置第一帧食材并调用一次 ``prepare_baseline()``。准备成功后，重复调用 "
+"``set_food()`` 和 ``run()`` "
+"会复用基线。保持相机、烤盘、输入单位和基线相关参数不变；修改基线输入或相关参数会使缓存失效。第一帧食材还用于确定平面法向，因此后续食材必须位于烤盘同侧。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:133
+#: cfdc49bb62bc42e9ade0999809b08629
+msgid "When a run fails"
+msgstr "测量失败时"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:135
+#: 54b5e89ed46f4dfd9b215b19f043c531
+msgid ""
+"Read ``status_to_string(result.status)`` first, then check the corresponding"
+" input:"
+msgstr "先读取 ``status_to_string(result.status)``，再检查对应的输入："
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:141
+#: f252f95daede4c2b9c75026fc4fdfa15
+msgid "Status"
+msgstr "状态"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:142
+#: e2ed0af7914c44d79c75854ae2d0626c
+msgid "What to check"
+msgstr "检查方向"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:143
+#: d1998e493d544d1280678add49ad2259
+msgid "``kEmptyBaseline`` or ``kEmptyInput``"
+msgstr "``kEmptyBaseline`` 或 ``kEmptyInput``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:144
+#: f685520342d446aabfea22e6ccd2fb98
+msgid ""
+"Confirm that the PCD files loaded and that ``set_baseline`` and ``set_food``"
+" received nonempty clouds."
+msgstr "确认 PCD 已成功读取，且 ``set_baseline`` 和 ``set_food`` 收到了非空点云。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:146
+#: 9b1186d0c26849ba89db33e2222d2424
+msgid "``kInvalidConfig``"
+msgstr "``kInvalidConfig``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:147
+#: 84fe66450f594a42bfc77637189ad05b
+msgid "Check positive distance and grid sizes, and strictly increasing ROI bounds."
+msgstr "检查距离和栅格边长是否为正，以及 ROI 各轴的最小边界是否严格小于最大边界。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:148
+#: 63f52f1fc8204adfa3b819a71176a94a
+msgid "``kPlaneNotFound`` or ``kBaselineNoCells``"
+msgstr "``kPlaneNotFound`` 或 ``kBaselineNoCells``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:149
+#: ebd9122e274f4ab9b785b0b0a723a7df
+msgid ""
+"Check whether the empty-tray capture has enough finite points over the "
+"measurement area."
+msgstr "检查空盘采集是否在测量区域内包含足够多的有效点。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:150
+#: 0fe342b16c55415d92cb6bf85767fc31
+msgid "``kFoodNotFound``"
+msgstr "``kFoodNotFound``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:151
+#: 51984365aa104a33b58637f3886749db
+msgid "Check the crop, height range, clustering settings, and any selected labels."
+msgstr "检查裁剪范围、高度范围、聚类参数以及选中的标签。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:152
+#: f9a1fbbbf10e431397e9e4bf70f08b7b
+msgid "``kUnsupportedPlatform``"
+msgstr "``kUnsupportedPlatform``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/export.rst:153
+#: 3cd6c62a63cc46f8b5ace25aafcb7d0b
+msgid "Run the PCL measurement on a supported host platform."
+msgstr "在支持 PCL 的主机平台运行测量。"
 

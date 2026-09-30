@@ -135,6 +135,13 @@ enum class MeasurementStatus : std::uint8_t {
 /**
  * @brief [en] Configuration for the IM volume pipeline.
  * @brief [zh] IM 体积流水线的配置。
+ * @details [en] Input points use `input_unit`; ROI bounds and every distance field use
+ *     metres. An absent `roi` disables cropping, an empty `selected_labels` selects all
+ *     eligible components, and an empty `middle_cloud_dir` disables PCD dumps. Start with
+ *     defaults and change only values supported by the capture geometry.
+ * @details [zh] 输入点坐标使用 `input_unit`；ROI 边界与距离字段始终以米计。
+ *     `roi` 为空时不裁剪，`selected_labels` 为空时选择全部合格连通块，
+ *     `middle_cloud_dir` 为空时不保存中间 PCD。建议从默认值开始，只调整与采集条件有关的值。
  * @exporter
  */
 struct MeasurementConfig {
@@ -204,8 +211,18 @@ struct ComponentVolumeEstimate {
 
 
 /**
- * @brief [en] Result of a IM volume measurement. Numeric fields are NaN unless status is kSuccess.
- * @brief [zh] IM 体积测量结果。除非状态为 kSuccess，否则数值字段为 NaN。
+ * @brief [en] Volume estimate and diagnostics from one food frame.
+ * @brief [zh] 单帧食材的体积估计与诊断信息。
+ * @details [en] Check `status` before reading numeric results; volume and geometry values
+ *     are NaN on failure. On success, `volume_cm3` equals `raw_volume_cm3` plus
+ *     `interpolated_volume_cm3`. `component_estimates` follows the order of
+ *     `selected_cluster_labels`. AABB, OBB, and convex-hull volumes use cubic metres and
+ *     are geometric references, not tray-relative integrals. Cell counts remain useful
+ *     diagnostics even when an estimate is incomplete.
+ * @details [zh] 先检查 `status`；失败时体积及几何数值为 NaN。成功时
+ *     `volume_cm3` 等于 `raw_volume_cm3` 与 `interpolated_volume_cm3` 之和。
+ *     `component_estimates` 与 `selected_cluster_labels` 顺序一致。AABB、OBB 和凸包体积
+ *     使用立方米，是几何参考值，并非相对烤盘的高度积分。栅格计数可用于排查测量质量。
  * @exporter
  */
 struct VolumeEstimate {

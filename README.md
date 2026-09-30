@@ -174,13 +174,15 @@ as a **soft rule** the emoji also triggers from anywhere in the message:
 
 ## Build Cheat Sheet
 
-### 1. Build then test your library
+### 1. Build the package and run the consumer check
 
-inplace build and test
+From the repository root:
 
 ```bash
 conan create . -s build_type=Debug --build=missing -c tools.build:jobs=4
 ```
+
+The full CTest suite runs only when `trigger_tests` is enabled in `metadata.json`.
 
 cross-build to host device (assume toolchain and profile are ready):
 

@@ -9,16 +9,16 @@
 
 
 /**
- * @brief [en] Chain-configurable food volume measurer: set inputs and parameters, then call `run`.
- * @brief [zh] 链式配置的食材体积量测器：设置输入与参数后调用 `run` 即可测量。
+ * @brief [en] Measures food above an observed empty-tray baseline.
+ * @brief [zh] 根据实测空烤盘基线计算食材体积。
  *
- * @details [en] All setters return a reference to this instance so calls can be chained.
- *     Inputs and parameters are stored on the instance; `run` executes the full IM pipeline
- *     (preprocess → background-plane removal → baseline → component extraction → integration
- *     with hole completion) and returns a `VolumeEstimate`.
- * @details [zh] 所有 setter 返回本实例引用，可链式调用。输入与参数保存在实例中；
- *     `run` 执行完整 IM 流水线（预处理 → 背景平面移除 → 基线 → 连通块提取 → 含补洞的积分），
- *     返回 `VolumeEstimate`。
+ * @details [en] Set one or more empty-tray frames and a food frame captured in the same
+ *     coordinate system. `run` removes background points, compares food heights with the
+ *     observed tray surface, and returns a `VolumeEstimate`. Setters return `*this` for
+ *     chaining. Keep the camera and tray fixed between the empty and food captures.
+ * @details [zh] 提供同一坐标系下的一帧或多帧空烤盘点云以及食材点云。`run` 去除背景点，
+ *     将食材高度与实测烤盘表面比较，并返回 `VolumeEstimate`。setter 返回自身，可链式调用。
+ *     空盘与食材采集之间需保持相机和烤盘位置不变。
  * @exporter
  */
 class FoodVolumeMeasurer {
@@ -85,6 +85,8 @@ class FoodVolumeMeasurer {
     /**
      * @brief [en] Enables an axis-aligned crop region applied before downsampling.
      * @brief [zh] 启用降采样前应用的轴对齐裁剪区域。
+     * @param roi [en] Bounds in metres, even when input points use millimetres.
+     * @param roi [zh] 边界以米表示，即使输入点云使用毫米。
      * @exporter
      */
     FoodVolumeMeasurer& set_roi(const AxisAlignedRoi& roi);
@@ -124,6 +126,11 @@ class FoodVolumeMeasurer {
     /**
      * @brief [en] Sets the intermediate point-cloud directory; an empty path disables the dump.
      * @brief [zh] 设置中间点云目录；空路径禁用保存。
+     * @details [en] A successful `run` writes stage PCD files. `5_top_surface.pcd` contains
+     *     measured cells; `6_hole_filled_surface.pcd` also contains accepted filled cells.
+     *     Files use world coordinates.
+     * @details [zh] 成功运行后写出各阶段 PCD。`5_top_surface.pcd` 为实测栅格，
+     *     `6_hole_filled_surface.pcd` 还包含通过检查的补洞栅格。文件使用世界坐标。
      * @param dir [en] Directory path, created when missing, or empty to disable.
      * @param dir [zh] 目录路径，不存在时自动创建；空路径表示禁用。
      * @exporter
@@ -149,6 +156,10 @@ class FoodVolumeMeasurer {
     /**
      * @brief [en] Loads the configuration from a JSON file, overriding stored values.
      * @brief [zh] 从 JSON 文件载入配置并覆盖已存值。
+     * @details [en] Missing keys retain their current values; unknown and removed keys fail
+     *     the load. Check the Boolean return value before running a measurement.
+     * @details [zh] 文件中未出现的字段保留原值；未知或已删除的键使加载失败。
+     *     测量前应检查返回的布尔值。
      * @exporter
      */
     bool load_config_from_json(const std::string& path);
@@ -166,20 +177,14 @@ class FoodVolumeMeasurer {
      * @brief [en] Builds and caches the empty-oven baseline model so repeated `run` calls skip it.
      * @brief [zh] 构建并缓存空炉基线模型，使后续 `run` 调用无需重复构建。
      *
-     * @details [en] The baseline depends only on the baseline frames (and the parameters that
-     *     shape them), not on the food frame, so it is worth building once when several food
-     *     frames are measured against the same empty oven. The food frame set by `set_food` is
-     *     used only to orient the baseline plane normal, so `set_food` must be called first.
-     *     Any later call that changes the baseline frames or the baseline-shaping parameters
-     *     (input unit, voxel size, integration resolution, plane threshold, cluster parameters,
-     *     or a whole-config replacement) discards the cache; `set_food` does not, which is what
-     *     lets one prepared baseline serve several food frames.
-     *     `run` works with or without a prepared baseline; when one is cached it reuses it.
-     * @details [zh] 基线只取决于基线帧（以及塑造基线的参数），与食材帧无关，因此在「同一个空炉、
-     *     多次测量不同食材」的场景下值得只构建一次。`set_food` 设置的食材帧仅用于确定基准面法向的
-     *     朝向，所以必须先调用 `set_food`。之后任何改变基线帧或基线相关参数的调用（输入单位、体素
-     *     边长、积分分辨率、平面阈值、聚类参数，或整体替换配置）都会丢弃缓存；`set_food` 不会丢弃，
-     *     这正是「一份基线服务多个食材帧」的关键。有缓存时 `run` 复用，没有时 `run` 自行构建。
+     * @details [en] Call `set_food` first: its points orient the fitted plane normal during
+     *     preparation. After preparation, `set_food` can replace the food frame without
+     *     discarding the baseline. Keep later frames on the same side of the tray. Changing
+     *     baseline frames or baseline-related parameters discards the cache. `run` also works
+     *     without preparation and builds the baseline as needed.
+     * @details [zh] 准备前先调用 `set_food`：该帧用于确定拟合平面的法向朝向。准备完成后，
+     *     `set_food` 可替换食材帧而不丢弃基线；后续食材应位于烤盘同侧。修改空盘帧或基线相关参数
+     *     会使缓存失效。未显式准备时，`run` 也会按需构建基线。
      * @return [en] kSuccess, or the first failing stage status.
      * @return [zh] kSuccess，或首个失败阶段的状态。
      * @exporter
@@ -196,6 +201,10 @@ class FoodVolumeMeasurer {
     /**
      * @brief [en] Runs the IM pipeline and returns the volume estimate.
      * @brief [zh] 运行 IM 流水线并返回体积估计。
+     * @details [en] Inspect `status` before using volume fields. An unsuccessful run returns
+     *     the first failing stage's status and leaves numeric estimates as NaN.
+     * @details [zh] 使用体积字段前先检查 `status`。失败时返回首个失败阶段的状态，
+     *     数值估计保持 NaN。
      * @return [en] A VolumeEstimate whose status indicates success or the first failing stage.
      * @return [zh] 一个 VolumeEstimate，其状态指示成功或第一个失败阶段。
      * @exporter

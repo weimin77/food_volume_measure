@@ -1,62 +1,44 @@
-_`Metadata Configuration`
-=========================
+Project metadata
+================
 
-_`Project-level Settings`
--------------------------
+``metadata.json`` is read by the Conan recipe, the root CMake project, and the documentation
+builder. Change a setting there when you intend to change all of those consumers; edit
+``MeasurementConfig`` or a measurement JSON file to change an algorithm parameter.
 
-metadata.json is the one place that defines food_volume_measure. It holds the package identity
-plus every build, dependency and documentation setting, so the CMake configuration, the Conan
-recipe and the documentation pipeline all read the same values instead of repeating them.
+Settings that affect this library
+---------------------------------
 
-_`File Structure`
------------------
+.. list-table::
+   :header-rows: 1
+   :widths: 27 73
 
-The JSON file is organized in sections: the package identity (name, target, version, team,
-license, description, authors, maintainers, topics, url and homepage), the build configuration
-(cmake_version, build_cppstd, build_cstd, build_type, activate_code_coverage, is_shared,
-is_header, generate_modules_inplace, std_modules and user_modules), the dependencies object,
-baremetal_white_list, graphviz_bin, the documentation settings (doc_languages, doc_versions,
-doc_doxygen_folders and doc_doxygen_suffix), and the automation switches (trigger_tests,
-saving_tests_log, enable_python_bindings and workflow_triggers).
+   * - Key
+     - Effect
+   * - ``build_cppstd``
+     - Sets the C++ standard; the current value is 17. Module support starts at 23.
+   * - ``is_shared``
+     - Chooses static or shared library output, subject to the Windows fallback.
+   * - ``enable_python_bindings``
+     - Builds the host pybind11 module when true.
+   * - ``dependencies.cpp``
+     - Names CMake targets linked to the C++ library. Package versions are in
+       ``conandata.yml``.
+   * - ``doc_languages`` / ``doc_versions``
+     - Select the Doxygen/Sphinx build variants. These are documentation labels,
+       not the package's semantic version.
+   * - ``workflow_triggers.docs``
+     - Enables the documentation CI trigger. A local ``docs/build.py`` run does not
+       depend on this switch.
 
-_`Key Settings`
----------------
+The dependency map is a build target map, not a list of versions. For example, the ``PCL``
+entry names ``PCL::PCL`` while ``conandata.yml`` selects ``pcl/1.14.1``. Keep the two in
+sync when changing dependencies.
 
-The build configuration sets the expected toolchain and the language standards used for the
-library targets. The dependencies object is split into four buckets (common, c, cpp and infra),
-and each entry maps a Conan package name to the CMake targets that should be linked into the
-matching library. baremetal_white_list names the packages that survive a bare-metal cross build.
-The documentation settings decide which languages and versions are generated and which folders
-and file suffixes Doxygen scans.
+Documentation sources
+---------------------
 
-_`Example Configuration`
-------------------------
-
-This library currently uses these settings:
-
-.. code-block:: json
-
-   {
-     "name": "food_volume_measure",
-     "version": "0.1.0",
-     "team": "HeT-FTI",
-     "license": "Apache-2.0",
-     "build_cppstd": "17",
-     "build_cstd": "11",
-     "is_shared": false,
-     "is_header": false,
-     "enable_python_bindings": true,
-     "dependencies": {
-       "common": {},
-       "c": {},
-       "cpp": {
-         "Eigen3": ["Eigen3::Eigen"],
-         "PCL": ["PCL::PCL"],
-         "nlohmann_json": ["nlohmann_json::nlohmann_json"]
-       },
-       "infra": {"GTest": ["gtest::gtest"], "pybind11": ["pybind11::module"]}
-     },
-     "baremetal_white_list": ["ArduinoJson"],
-     "doc_languages": ["en", "zh"],
-     "doc_versions": ["1.0", "2.0"]
-   }
+Doxygen reads the paths and suffixes selected by ``doc_doxygen_folders`` and
+``doc_doxygen_suffix``. Sphinx reads pages from ``docs/sphinx/source`` and Chinese
+translations from ``docs/sphinx/locales/zh_CN``. Run ``python docs/build.py`` from the
+repository root to generate both; the script writes its output under ``docs/doxygen/build``
+and ``docs/sphinx/build``.

@@ -4,12 +4,11 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-23 09:47+0800\n"
+"POT-Creation-Date: 2026-09-30 14:36+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -20,206 +19,92 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../source/index.rst:100
-msgid "CMakeList"
-msgstr "CMakeLists 配置"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:30
+msgid "Measure a frame"
+msgstr "测量一帧点云"
 
-#: ../../source/index.rst:100
-msgid "Conanfile"
-msgstr "conanfile 配置"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:30
+msgid "Build with Conan"
+msgstr "使用 Conan 构建"
 
-#: ../../source/index.rst:100
-msgid "Metadata"
-msgstr "元数据"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:30
+msgid "CMake targets"
+msgstr "CMake 目标"
 
-#: ../../source/index.rst:100
-msgid "User concern contents"
-msgstr "用户关心的内容"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:30
+msgid "Project metadata"
+msgstr "项目元数据"
 
-#: ../../source/index.rst:2 30f1c4f540864cad989e02aff4ae9714
-msgid "_`food_volume_measure Documentation`"
-msgstr "food_volume_measure 文档"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:2
+#: c6f085487c364344b5b8f818e80b15f5
+msgid "food_volume_measure"
+msgstr "food_volume_measure 使用文档"
 
-#: ../../source/index.rst:5 a7c382ae20684d0c9b14e427a96ec41b
-msgid "_`Introduction`"
-msgstr "简介"
-
-#: ../../source/index.rst:7 f3b2dec6fcd94032b27caa1fac057a0d
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:4
+#: 1c1a844630e74e8eb94cc3dd4f17f2d6
 msgid ""
-"food_volume_measure is a C++17 library that measures food volume on oven "
-"trays from point clouds. It follows the IM method (baseline-plane height-"
-"difference integral): the empty oven becomes a height map on a fitted "
-"plane, the food cloud is voxel-downsampled and clustered in that plane, "
-"and the per-cell height differences are integrated into a volume in cubic"
-" centimeters."
+"``food_volume_measure`` estimates the volume of food above an oven tray from"
+" two kinds of point cloud: one or more empty-tray frames and a frame "
+"containing food. The camera and tray must stay in the same coordinate frame "
+"between captures. The result is a height integral in cubic centimetres, "
+"accompanied by coverage and hole-filling diagnostics."
 msgstr ""
-"food_volume_measure 是一个 C++17 库，用来从点云测量烤盘上的食材体积。它采用 IM "
-"方法（基准面高度差积分）：先把空烤盘变成拟合平面上的高度图，再把食材点云做体素降采样并在该平面内聚类，最后把逐格高度差积分成体积，单位为立方厘米。"
+"``food_volume_measure`` "
+"根据空烤盘点云和食材点云估算食材高出烤盘的体积。空盘可拍摄一帧或多帧；两次采集之间，相机与烤盘必须保持在同一坐标系。结果以立方厘米表示，并附带覆盖情况和补洞数量，方便判断哪些部分来自观测。"
 
-#: ../../source/index.rst:14 b4ceb661d58147fcb0637e10a6c8d30d
-msgid "_`Algorithm Steps`"
-msgstr "算法步骤"
-
-#: ../../source/index.rst:16 896fed3161d1422cbcd606fd92112b5d
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:9
+#: b7ba9020f0594a8bb9153c6f5f6027df
 msgid ""
-"The measurement runs in six stages. Each figure below is the output of "
-"one stage for a real oven-tray scan."
-msgstr "测量分六个阶段，下面每张图就是一次真实烤盘扫描在对应阶段的输出。"
-
-#: ../../source/index.rst:23 846a3a400f984950ada70fb21e888634
-msgid "Original input cloud"
+"Start with :doc:`measurement <export>` for a complete C++ example. Read "
+":doc:`building <components/conan>` if you need to build the package. Doxygen"
+" provides the API reference for ``FoodVolumeMeasurer``, "
+"``MeasurementConfig``, and ``VolumeEstimate``. After a local documentation "
+"build, open ``docs/doxygen/build/docs.html`` to choose a language."
 msgstr ""
+"先读 :doc:`测量一帧点云 <export>`，其中有完整的 C++ 示例。需要编译包时看 :doc:`使用 Conan 构建 "
+"<components/conan>`。``FoodVolumeMeasurer``、``MeasurementConfig`` 和 "
+"``VolumeEstimate`` 的接口说明由 Doxygen 生成。本地构建文档后，打开 "
+"``docs/doxygen/build/docs.html`` 可选择语言。"
 
-#: ../../source/index.rst:23 2cd4cb13c378447b8a0299bd6dde33d2
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:15
+#: f91cc30356754b0d81c6a267159368a6
+msgid "What the estimate means"
+msgstr "体积结果的含义"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:17
+#: 46a937fadede4d3ea5941cd652b0d1fa
 msgid ""
-"**Step 1 - Raw input cloud.** The frame from the depth camera above the "
-"tray. Invalid points are dropped and coordinates are converted to metres."
-msgstr "**步骤 1 - 原始输入点云。** 烤盘上方深度相机拍到的帧。无效点会被丢掉，坐标统一换算成米。"
+"The library fits a plane to the empty tray, stores the observed tray height "
+"in each grid cell, and compares food points with that measured surface. It "
+"never substitutes an ideal flat tray for cells where the empty capture has "
+"no data. Small enclosed gaps in the food surface may be filled; their volume"
+" is reported separately from the volume supported by measured points."
+msgstr "库从空烤盘点云拟合平面，并在每个栅格保存实测烤盘高度，再与食材点比较。空盘没有数据的栅格不会用理想平面补齐。食材表面内部的小孔洞可能被补全；这部分体积与实测点支撑的体积分开报告。"
 
-#: ../../source/index.rst:29 aaed53dc557e4310b5ab913059aff83d
-msgid "Voxel-downsampled cloud"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:22
+#: e37a49bdbea74ffeaa7be9907e345e14
+msgid ""
+"Check ``VolumeEstimate.status`` before using any numeric result. On success,"
+" ``volume_cm3`` is the sum of ``raw_volume_cm3`` and "
+"``interpolated_volume_cm3``. A large ``interpolated_cells`` count or a low "
+"``coverage_ratio`` is a reason to inspect the input clouds and the "
+"intermediate PCD files, not a reason to treat the estimate as ground truth."
 msgstr ""
+"使用数值结果前，先检查 ``VolumeEstimate.status``。测量成功时，``volume_cm3`` 等于 "
+"``raw_volume_cm3`` 与 ``interpolated_volume_cm3`` 之和。如果 "
+"``interpolated_cells`` 很多，或 ``coverage_ratio`` 很低，应检查输入点云和中间 "
+"PCD；不要直接把估算值当作实测真值。"
 
-#: ../../source/index.rst:29 9c05fba7d38a491b934dabc9101bdfa8
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:28
+#: 405e6c11461a4486b41d26aa9fa96693
+msgid "Where to go next"
+msgstr "继续阅读"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/index.rst:38
+#: 83bcc4a2f8fc4b049b13fc5dfd5e9648
 msgid ""
-"**Step 2 - Voxel downsampling.** Every occupied voxel is replaced by its "
-"centroid. This smooths out sensor noise and makes the later stages "
-"independent of the raw point density."
-msgstr "**步骤 2 - 体素降采样。** 每个非空体素用内部点的质心代替。这样能压掉传感器噪声，也让后续步骤不再受原始点密度影响。"
-
-#: ../../source/index.rst:35 c77a8436b7d54e179f2370170c696d1a
-#, fuzzy
-msgid "Empty-oven baseline surface"
-msgstr "用 RANSAC 拟合平面的空炉基线模型"
-
-#: ../../source/index.rst:35 1e7902508a7e4348b74c60a0a9c6b15d
-msgid ""
-"**Step 3 - Empty-oven baseline.** A RANSAC plane fit and per-cell median "
-"heights turn the empty tray into the reference surface that food heights "
-"are measured against."
-msgstr "**步骤 3 - 空炉基线。** 用 RANSAC 拟合平面，再取每格的中值高度，把空烤盘变成测量食材高度所依据的参考面。"
-
-#: ../../source/index.rst:41 7f9448ac560f49818a3ebe6bb1c94580
-msgid "Cloud after background-plane removal"
-msgstr ""
-
-#: ../../source/index.rst:41 b7a489ced49e43839ded85abf32c6d4f
-msgid ""
-"**Step 4 - Background-plane removal.** The dominant tray plane is "
-"removed, leaving mostly food points."
-msgstr "**步骤 4 - 背景平面去除。** 去掉食材帧里占主导的烤盘平面，剩下的基本就是食材点。"
-
-#: ../../source/index.rst:47 f2a2d2da83b14836b4572d89ebfcfc03
-msgid "Segmented food components"
-msgstr ""
-
-#: ../../source/index.rst:47 1f349611021c42d0baec62239279af0c
-msgid ""
-"**Step 5 - Component segmentation.** The remaining points are projected "
-"onto the baseline plane and clustered with DBSCAN, which splits different"
-" food items into separate components."
-msgstr "**步骤 5 - 组件分割。** 把剩余点投影到基准面上做 DBSCAN 聚类，不同食材就被分到各自的连通域。"
-
-#: ../../source/index.rst:53 e64e307c56624b8ca48a745a5db3955f
-msgid "Top surface used for the height integral"
-msgstr ""
-
-#: ../../source/index.rst:53 c1289d8890f34e25ae0a665a5adcf4d4
-msgid ""
-"**Step 6 - Height integral.** Each raster cell keeps one top-surface "
-"point. Its height above the baseline is integrated over the cell area, "
-"and enclosed holes are filled conservatively."
-msgstr "**步骤 6 - 高度积分。** 每个栅格留一个顶面点，把它高出基准面的部分按栅格面积积分；封闭的空洞做保守补全。"
-
-#: ../../source/index.rst:56 90fe93f614374110a6c9798697641732
-msgid "_`Main Features`"
-msgstr "主要特性"
-
-#: ../../source/index.rst:58 529f22a99c27444b8bfcee283c8afec4
-msgid "Empty-oven baseline model with RANSAC plane fitting"
-msgstr "用 RANSAC 拟合平面的空炉基线模型"
-
-#: ../../source/index.rst:59 96ddd98be72545ed9249648227063e4a
-msgid "Voxel downsampling and DBSCAN clustering, matching Open3D"
-msgstr "与 Open3D 结果一致的体素降采样和 DBSCAN 聚类"
-
-#: ../../source/index.rst:60 e9f2a733a87d40e4bafcae3e38fbdcb5
-msgid "Conservative hole completion, kept inside a single component"
-msgstr "保守补洞，只在单个连通域内部进行"
-
-#: ../../source/index.rst:61 6a206a495be740da9a9e69aecdfc7bea
-msgid "Reference volumes (AABB / OBB / convex hull)"
-msgstr "参考体积（AABB / OBB / 凸包）"
-
-#: ../../source/index.rst:62 cee425888f704313bda9ebbd1cb851c9
-msgid "PCD loading via ``load_pcd``"
-msgstr "用 ``load_pcd`` 读取 PCD"
-
-#: ../../source/index.rst:63 75826a4b9e5a41699297a77d9dbbee43
-msgid ""
-"Point-cloud processing runs on the host only; bare-metal stubs report "
-"\"unsupported\""
-msgstr "点云处理只在宿主机上运行，裸机上的桩函数返回“不支持”"
-
-#: ../../source/index.rst:66 6b66612b968b43d6a625ca4f050ca707
-msgid "_`Quick Start`"
-msgstr "快速开始"
-
-#: ../../source/index.rst:81 eba9bd1f239b4b3e9ae448e89eb2ad80
-msgid "_`Project Structure`"
-msgstr "项目结构"
-
-#: ../../source/index.rst:96 33c5ae68b07c4565ac6d35a611645736
-msgid "_`Detailed Settings`"
-msgstr "详细设置"
-
-#: ../../source/index.rst:98 7ff9be4cdf66470c84605b2955f39a00
-msgid "Details on the project metadata, the Conan recipe and the CMake file:"
-msgstr "项目元数据、Conan 配方和 CMake 文件的详细说明："
-
-#: ../../source/index.rst:109 2cdfb6677c6742928e7f0c5e76a64a57
-msgid "_`License`"
-msgstr "许可证"
-
-#: ../../source/index.rst:111 48b879f336824e4681c7cdfd823ac521
-msgid ""
-"This project is licensed under the Apache-2.0 License. See the LICENSE "
-"file for details."
-msgstr "本项目基于 Apache-2.0 许可证发布，详见 LICENSE 文件。"
-
-#~ msgid "Original input cloud"
-#~ msgstr "原始输入点云"
-
-#~ msgid "Voxel-downsampled cloud"
-#~ msgstr "体素降采样后的点云"
-
-#~ msgid "Empty-oven baseline surface"
-#~ msgstr "空烤盘基准面"
-
-#~ msgid "Cloud after background-plane removal"
-#~ msgstr "去掉背景平面后的点云"
-
-#~ msgid "Segmented food components"
-#~ msgstr "分割出的食材连通域"
-
-#~ msgid "Top surface used for the height integral"
-#~ msgstr "用于高度积分的顶面"
-
-#~ msgid "原始输入点云"
-#~ msgstr ""
-
-#~ msgid "体素降采样后的点云"
-#~ msgstr ""
-
-#~ msgid "空烤盘基准面"
-#~ msgstr ""
-
-#~ msgid "去掉背景平面后的点云"
-#~ msgstr ""
-
-#~ msgid "分割出的食材连通域"
-#~ msgstr ""
-
-#~ msgid "用于高度积分的顶面"
-#~ msgstr ""
+"The package targets C++17. The PCL measurement pipeline runs on host "
+"platforms; a bare-metal build reports ``kUnsupportedPlatform`` for this "
+"operation."
+msgstr "包默认使用 C++17。基于 PCL 的测量流程在主机平台运行；裸机构建对该操作返回 ``kUnsupportedPlatform``。"
 

@@ -4,12 +4,11 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-23 09:43+0800\n"
+"POT-Creation-Date: 2026-09-30 14:33+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -20,103 +19,88 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../source/components/conan.rst:2 28a3dd41bfd842e590c82d243ad7dd05
-msgid "_`Conanfile Configuration`"
-msgstr "conanfile 配置"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:2
+#: 5c524c4b87ee431fbec8ddd40a025b87
+msgid "Build with Conan"
+msgstr "使用 Conan 构建"
 
-#: ../../source/components/conan.rst:5 b41c47dd837447c78e55b900f88eefa5
-msgid "_`Usage`"
-msgstr "用途"
-
-#: ../../source/components/conan.rst:7 ee6ee3e0db6b4ce0aed9a7e806929bcf
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:4
+#: 35ad52996ce94e9b9b6cf7594a2b459b
 msgid ""
-"conanfile.py is the Conan recipe of food_volume_measure. It declares the "
-"requirements, prepares the build files, and defines the package that "
-"conan create exports."
+"The package recipe in ``conanfile.py`` reads its requirements from "
+"``conandata.yml``. PCL, Eigen, and nlohmann_json are runtime requirements; "
+"pybind11 is included when Python bindings are enabled. GTest is used by the "
+"test package, not by the runtime library."
 msgstr ""
-"conanfile.py 是 food_volume_measure 的 Conan 配方。它声明依赖、准备构建文件，并定义 conan "
-"create 导出的包。"
+"``conanfile.py`` 配方从 ``conandata.yml`` 读取依赖。PCL、Eigen 和 nlohmann_json "
+"是运行时依赖；启用 Python 绑定时还会引入 pybind11。GTest 只供测试包使用，不属于运行时库。"
 
-#: ../../source/components/conan.rst:11 8e71a8317bf944b7b59d582f39c8e3c4
-msgid "_`Main Features`"
-msgstr "主要特性"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:9
+#: 4e10cefc0d684bc3af57819251d226aa
+msgid "Build and run the consumer check"
+msgstr "构建并运行使用方检查"
 
-#: ../../source/components/conan.rst:13 719228a8c5b4415da87c7159b92d2a93
-msgid "Loads the package metadata and the requirement list"
-msgstr "读入包元数据和依赖列表"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:11
+#: 8c148d9d6ac442b489ab7241e11168ab
+msgid "From the repository root:"
+msgstr "在仓库根目录执行："
 
-#: ../../source/components/conan.rst:14 06a2f22d4f14482090345c10aa12e935
-msgid "Dependency selection for regular, bare-metal and test builds"
-msgstr "按常规、裸机和测试构建分别筛选依赖"
-
-#: ../../source/components/conan.rst:15 5e35b5e932cd425cb302d92d4cb101b0
-msgid "Generates the CMake toolchain and wires in the dependencies"
-msgstr "生成 CMake toolchain 并接入依赖"
-
-#: ../../source/components/conan.rst:16 6ec759014ed74f4e940239cbed1ffadb
-msgid "Optional C++ module generation"
-msgstr "可选的 C++ 模块生成"
-
-#: ../../source/components/conan.rst:17 3f2f5b0ce2884e3c89618b9385301487
-msgid "C header compatibility for C consumers"
-msgstr "让 C 代码也能使用 C 头文件"
-
-#: ../../source/components/conan.rst:18 0bd3e12ee05d45f092f3558ad079044a
-msgid "Checks the built archives for ABI mismatches before packaging"
-msgstr "打包前检查产物有没有 ABI 不匹配"
-
-#: ../../source/components/conan.rst:21 bbe358260245409abae5929f6d1a896f
-msgid "_`Core Functionality`"
-msgstr "实现要点"
-
-#: ../../source/components/conan.rst:23 a1db235ebe074c9498a2a80c68f2ad6a
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:17
+#: 2c84a6f1f943407c89efa5a335a3454b
 msgid ""
-"PackageRecipe reads the package metadata from metadata.json and the "
-"requirement list from conandata.yml. gtest is left out of the runtime "
-"requirements because only the tests need it, and pybind11 is pulled in "
-"only while enable_python_bindings is on. In a bare-metal cross build, "
-"only the packages listed in baremetal_white_list are kept."
+"``conan create`` builds the package and runs the test package's consumer "
+"executable. The full CTest suite runs only when ``trigger_tests`` is enabled"
+" in ``metadata.json``. ``--build=missing`` permits Conan to build a "
+"dependency from source when it cannot find a compatible binary. PCL can take"
+" a long time on the first run for that reason. A package in the cache is "
+"reusable only when its version, options, compiler settings, and dependency "
+"graph match the requested profile."
 msgstr ""
-"PackageRecipe 从 metadata.json 读入包元数据，依赖列表取自 conandata.yml。gtest "
-"只在跑测试时用得到，所以不进运行时依赖；pybind11 只在 enable_python_bindings 打开时才引入。裸机交叉构建只保留 "
-"baremetal_white_list 里列出的包。"
+"``conan create`` 构建库，并运行测试包里的使用方可执行程序。只有 ``metadata.json`` 中的 "
+"``trigger_tests`` 为 true 时，才会运行完整的 CTest 测试集。``--build=missing`` 允许 Conan "
+"在找不到兼容二进制时从源码编译依赖，因此首次执行可能花较长时间编译 PCL。缓存中的包只有在版本、选项、编译器设置和依赖图与当前 profile "
+"匹配时才能复用。"
 
-#: ../../source/components/conan.rst:28 3e8eae6562d64c689da18003ba21d6ac
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:24
+#: bb4f277616804a3181a80ff33c9f9766
 msgid ""
-"generate() writes the CMake toolchain and the dependency files. The four "
-"dependency buckets of metadata.json (common, c, cpp and infra) are merged"
-" and written into the C_DEPS and CPP_DEPS variables as Pkg@Targets "
-"entries, which is the form CMakeLists.txt expects. A bare-metal build "
-"keeps only the whitelisted entries and switches "
-"CMAKE_TRY_COMPILE_TARGET_TYPE to STATIC_LIBRARY. The module preprocessing"
-" step reads the export and attach markers and turns the exported .hpp and"
-" .cpp files into C++ module units; C headers get extern \"C\" guards so C"
-" code can include them."
+"To avoid a local PCL source build, use a remote with a matching prebuilt PCL"
+" package or add one to the local cache before creating this package. "
+"Removing ``--build=missing`` instead makes Conan fail when the binary is "
+"absent; it does not provide that binary. Check the resolved Conan profile "
+"and the PCL package ID when a build is unexpectedly repeated."
 msgstr ""
-"generate() 写出 CMake toolchain 和依赖文件。metadata.json "
-"的四个依赖分桶（common、c、cpp、infra）合并后，以 Pkg@Targets 的形式写进 C_DEPS 和 CPP_DEPS "
-"变量，正是 CMakeLists.txt 需要的格式。裸机构建只保留白名单里的项，并把 CMAKE_TRY_COMPILE_TARGET_TYPE"
-" 改成 STATIC_LIBRARY。模块预处理会读取 export 和 attach 标记，把需要导出的 .hpp 和 .cpp 转成 C++ "
-"模块单元；C 头文件则加上 extern \"C\" 保护，让 C 代码也能包含。"
+"若想避免本机编译 PCL，需要从远端获取匹配的预编译包，或先把匹配包加入本地缓存。删除 ``--build=missing`` 只会在缺少二进制包时使 "
+"Conan 报错，并不会产生二进制包。若每次都重新编译，应核对实际解析出的 Conan profile 和 PCL package ID。"
 
-#: ../../source/components/conan.rst:36 59de3616d2394986925722c5a89a21bd
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:30
+#: f2588406cc884b76a6d9ccf1c8e237be
+msgid "How the recipe reaches CMake"
+msgstr "配方如何调用 CMake"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:32
+#: fc12ba03d17045d4b947d9c14389aa59
 msgid ""
-"build() runs the CMake flow, and _validate_built_archives inspects the "
-"resulting archives with ar and readelf to catch an ABI mismatch. The "
-"float ABI and FPU settings come in as compiler flags rather than Conan "
-"settings, so package_id also hashes tools.build:cflags and "
-"tools.build:cxxflags. Without that, two MCUs with the same architecture "
-"string but different ABIs would share one cached binary and only fail at "
-"link time."
+"The recipe creates a CMake toolchain and dependency files, then passes the C"
+" and C++ target lists to ``CMakeLists.txt``. The C++ library links PCL, "
+"Eigen, and nlohmann_json. The public headers and exported CMake targets are "
+"installed with the package. Python bindings are built on the host when "
+"``enable_python_bindings`` is true in ``metadata.json``; cross builds skip "
+"the host Python module."
 msgstr ""
-"build() 跑 CMake 流程，_validate_built_archives 用 ar 和 readelf 检查生成的静态库，发现 "
-"ABI 不匹配。float ABI 和 FPU 设置是以编译选项而不是 Conan settings 传入的，所以 package_id 也会把 "
-"tools.build:cflags 和 tools.build:cxxflags 纳入哈希。否则 arch 字符串相同但 ABI 不同的两颗 "
-"MCU 会共用同一份缓存二进制，直到链接时才报错。"
+"配方生成 CMake toolchain 和依赖文件，并将 C/C++ 目标列表传给 ``CMakeLists.txt``。C++ 库链接 "
+"PCL、Eigen 和 nlohmann_json。公开头文件及导出的 CMake 目标随包安装。``metadata.json`` 中的 "
+"``enable_python_bindings`` 为 true 时，主机构建会生成 Python 绑定；交叉构建跳过主机 Python 模块。"
 
-#: ../../source/components/conan.rst:42 f752ccfaf981432a9f45f0c7f6c54f53
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/conan.rst:38
+#: 88314de83ea440fd8b731686ef16251d
 msgid ""
-"package() and package_info() then say what is exported and how consumers "
-"link against it."
-msgstr "最后 package() 和 package_info() 说明导出什么，以及使用者该怎么链接。"
+"For a bare-metal profile, the recipe filters dependencies through "
+"``baremetal_white_list``. The PCL measurement path is unavailable there and "
+"returns ``kUnsupportedPlatform``. The cross-build archive check verifies "
+"target ISA attributes; it does not make the host measurement algorithm "
+"available on the board."
+msgstr ""
+"裸机 profile 下，配方只保留 ``baremetal_white_list`` 中的依赖。基于 PCL 的测量流程在裸机端不可用，返回 "
+"``kUnsupportedPlatform``。交叉构建的归档检查验证目标 ISA 属性，但不会让主机测量算法在板上运行。"
 

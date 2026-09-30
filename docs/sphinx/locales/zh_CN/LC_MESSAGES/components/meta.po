@@ -4,12 +4,11 @@
 # package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: food_volume_measure 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-23 09:43+0800\n"
+"POT-Creation-Date: 2026-09-30 14:19+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_CN\n"
@@ -20,75 +19,130 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: ../../source/components/meta.rst:2 f7bdfb14b2494264b56ca80c66acf51e
-msgid "_`Metadata Configuration`"
-msgstr "元数据配置"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:2
+#: 8b2ad64b0bea447b9103cb4357c85f6b
+msgid "Project metadata"
+msgstr "项目元数据"
 
-#: ../../source/components/meta.rst:5 86a77d9091e443cd853e4675c0041ae6
-msgid "_`Project-level Settings`"
-msgstr "项目级设置"
-
-#: ../../source/components/meta.rst:7 27c1d41e75334ca4abdc709bba17ea32
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:4
+#: 0fe69fa2474f49be82028e686d34520b
 msgid ""
-"metadata.json is the one place that defines food_volume_measure. It holds"
-" the package identity plus every build, dependency and documentation "
-"setting, so the CMake configuration, the Conan recipe and the "
-"documentation pipeline all read the same values instead of repeating "
-"them."
+"``metadata.json`` is read by the Conan recipe, the root CMake project, and "
+"the documentation builder. Change a setting there when you intend to change "
+"all of those consumers; edit ``MeasurementConfig`` or a measurement JSON "
+"file to change an algorithm parameter."
 msgstr ""
-"metadata.json 是 food_volume_measure 唯一的配置来源。包标识和构建、依赖、文档的全部设置都放在这里，CMake "
-"配置、Conan 配方和文档流水线读的都是同一份值，不用各处重复。"
+"Conan 配方、根目录 CMake 工程和文档构建器都会读取 "
+"``metadata.json``。只有在希望这些使用方一起改变时才修改该文件；算法参数应在 ``MeasurementConfig`` 或测量用 "
+"JSON 文件中调整。"
 
-#: ../../source/components/meta.rst:12 e61a4589cbc144c4b6dbd50b1e97ddfb
-msgid "_`File Structure`"
-msgstr "文件结构"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:9
+#: f577cbe83bf2464eafb31b8f7cfcfc79
+msgid "Settings that affect this library"
+msgstr "影响本库的设置"
 
-#: ../../source/components/meta.rst:14 7cf5c7d5528f460a8e7f5f166edc5e6b
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:15
+#: 6684b7ac31004b2a9ed59177899ba789
+msgid "Key"
+msgstr "键"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:16
+#: 2c94fbe3bb754b449694f72a1309d7f4
+msgid "Effect"
+msgstr "作用"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:17
+#: 7732850dde7c4e5fac0b156ef89603ce
+msgid "``build_cppstd``"
+msgstr "``build_cppstd``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:18
+#: aa140f7f4efe413681718df0d92e8034
+msgid "Sets the C++ standard; the current value is 17. Module support starts at 23."
+msgstr "设置 C++ 标准；当前值为 17。模块支持从 23 开始。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:19
+#: 7934c5384cb74b6f8e141a93a0e806a9
+msgid "``is_shared``"
+msgstr "``is_shared``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:20
+#: f1e73a67963d47958c6b745518bc245f
+msgid "Chooses static or shared library output, subject to the Windows fallback."
+msgstr "选择静态库或共享库，但 Windows 有退回静态库的限制。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:21
+#: 0f838022c28147edb866f50cb7536541
+msgid "``enable_python_bindings``"
+msgstr "``enable_python_bindings``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:22
+#: 0cc84759ac4849bbbb75ec7c7758987b
+msgid "Builds the host pybind11 module when true."
+msgstr "为 true 时构建主机端 pybind11 模块。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:23
+#: 99d1c6af72ec4473bc22283b9349c987
+msgid "``dependencies.cpp``"
+msgstr "``dependencies.cpp``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:24
+#: b538402991314600b552ccf4f70c1578
 msgid ""
-"The JSON file is organized in sections: the package identity (name, "
-"target, version, team, license, description, authors, maintainers, "
-"topics, url and homepage), the build configuration (cmake_version, "
-"build_cppstd, build_cstd, build_type, activate_code_coverage, is_shared, "
-"is_header, generate_modules_inplace, std_modules and user_modules), the "
-"dependencies object, baremetal_white_list, graphviz_bin, the "
-"documentation settings (doc_languages, doc_versions, doc_doxygen_folders "
-"and doc_doxygen_suffix), and the automation switches (trigger_tests, "
-"saving_tests_log, enable_python_bindings and workflow_triggers)."
-msgstr ""
-"这个 JSON "
-"文件按块组织：包标识（name、target、version、team、license、description、authors、maintainers、topics、url"
-" 和 "
-"homepage）、构建配置（cmake_version、build_cppstd、build_cstd、build_type、activate_code_coverage、is_shared、is_header、generate_modules_inplace、std_modules"
-" 和 user_modules）、dependencies "
-"对象、baremetal_white_list、graphviz_bin、文档设置（doc_languages、doc_versions、doc_doxygen_folders"
-" 和 "
-"doc_doxygen_suffix），以及自动化开关（trigger_tests、saving_tests_log、enable_python_bindings"
-" 和 workflow_triggers）。"
+"Names CMake targets linked to the C++ library. Package versions are in "
+"``conandata.yml``."
+msgstr "列出链接到 C++ 库的 CMake 目标。包版本写在 ``conandata.yml``。"
 
-#: ../../source/components/meta.rst:23 fa97541fdf134269aa67d241c7d932d9
-msgid "_`Key Settings`"
-msgstr "关键设置"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:26
+#: d2d2dd4cd45845e68fbb22e764d1eb53
+msgid "``doc_languages`` / ``doc_versions``"
+msgstr "``doc_languages`` / ``doc_versions``"
 
-#: ../../source/components/meta.rst:25 2d3a0d4a041f4cd49ca66b8251b1a9da
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:27
+#: ed4bc0f41c70493a9e860b9dca6d43f1
 msgid ""
-"The build configuration sets the expected toolchain and the language "
-"standards used for the library targets. The dependencies object is split "
-"into four buckets (common, c, cpp and infra), and each entry maps a Conan"
-" package name to the CMake targets that should be linked into the "
-"matching library. baremetal_white_list names the packages that survive a "
-"bare-metal cross build. The documentation settings decide which languages"
-" and versions are generated and which folders and file suffixes Doxygen "
-"scans."
+"Select the Doxygen/Sphinx build variants. These are documentation labels, "
+"not the package's semantic version."
+msgstr "选择 Doxygen/Sphinx 的语言和文档版本；这些标签不是包的语义版本号。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:29
+#: 919366266767465ea08469e96a0c3f83
+msgid "``workflow_triggers.docs``"
+msgstr "``workflow_triggers.docs``"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:30
+#: d7ec36681230465f81d2ac74c949e2ad
+msgid ""
+"Enables the documentation CI trigger. A local ``docs/build.py`` run does not"
+" depend on this switch."
+msgstr "启用文档 CI 触发器。本地运行 ``docs/build.py`` 不依赖此开关。"
+
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:33
+#: ba8eb6486f1b4a8f97f0602499fbe906
+msgid ""
+"The dependency map is a build target map, not a list of versions. For "
+"example, the ``PCL`` entry names ``PCL::PCL`` while ``conandata.yml`` "
+"selects ``pcl/1.14.1``. Keep the two in sync when changing dependencies."
 msgstr ""
-"构建配置确定期望的工具链和库目标使用的语言标准。dependencies 分成四个分桶（common、c、cpp、infra），每一项把一个 "
-"Conan 包名映射到应该链接进对应库的 CMake 目标。baremetal_white_list "
-"列出裸机交叉构建时保留的包。文档设置决定生成哪些语言和版本，以及 Doxygen 扫描哪些目录和文件后缀。"
+"依赖映射列出的是构建目标，而不是版本。例如 ``PCL`` 项指定 ``PCL::PCL``，``conandata.yml`` 则选择 "
+"``pcl/1.14.1``。更换依赖时需同时检查两处。"
 
-#: ../../source/components/meta.rst:33 816385389ea643c7821d7bda1ea4dfdb
-msgid "_`Example Configuration`"
-msgstr "配置示例"
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:38
+#: 55d620f646b14c109262e60ce2cbb19e
+msgid "Documentation sources"
+msgstr "文档源文件"
 
-#: ../../source/components/meta.rst:35 9d873b266a444e9aad7033f454898fc4
-msgid "This library currently uses these settings:"
-msgstr "本库当前使用的配置："
+#: ../../home/min/project/food_volume_measure/docs/sphinx/source/components/meta.rst:40
+#: 2bfd237419254dd0a6ee09318bc5cd99
+msgid ""
+"Doxygen reads the paths and suffixes selected by ``doc_doxygen_folders`` and"
+" ``doc_doxygen_suffix``. Sphinx reads pages from ``docs/sphinx/source`` and "
+"Chinese translations from ``docs/sphinx/locales/zh_CN``. Run ``python "
+"docs/build.py`` from the repository root to generate both; the script writes"
+" its output under ``docs/doxygen/build`` and ``docs/sphinx/build``."
+msgstr ""
+"Doxygen 扫描 ``doc_doxygen_folders`` 和 ``doc_doxygen_suffix`` 指定的路径与后缀。Sphinx "
+"从 ``docs/sphinx/source`` 读取页面，从 ``docs/sphinx/locales/zh_CN`` "
+"读取中文翻译。在仓库根目录运行 ``python docs/build.py`` 可生成两套文档；输出分别位于 "
+"``docs/doxygen/build`` 和 ``docs/sphinx/build``。"
 

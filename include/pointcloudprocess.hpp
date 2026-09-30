@@ -22,12 +22,12 @@ struct PreprocessResult {
 
 
 /**
- * @brief [en] Validates, unit-normalizes, crops, voxel-downsamples, and de-noises the input cloud.
- * @brief [zh] 校验、单位归一、裁剪、体素降采样并去噪输入点云。
+ * @brief [en] Validates, unit-normalizes, optionally crops, and voxel-downsamples a cloud.
+ * @brief [zh] 校验、单位换算、可选裁剪并体素降采样点云。
  * @param input [en] Raw input cloud in `cfg.input_unit`.
  * @param input [zh] 以 `cfg.input_unit` 为单位的原始输入点云。
- * @param cfg [en] Measurement configuration.
- * @param cfg [zh] 测量配置。
+ * @param cfg [en] Configuration; ROI bounds and voxel size are in metres.
+ * @param cfg [zh] 配置；ROI 边界和体素边长均以米为单位。
  * @param out [en] Processed cloud in meters plus point counters.
  * @param out [zh] 以米为单位的处理后点云以及点数统计。
  * @return [en] kSuccess, or an input/config error status.
