@@ -571,8 +571,7 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
 
     // Only the knobs that are still configurable need checking; the retired ones are
     // compile-time constants in volume_defaults and are already known to be usable.
-    if (cfg.hole_fill_max_cells < 0 || !(cfg.curve_fill_max_hole_area_cm2 >= 0.0F) ||
-        !(cfg.curve_fill_max_imputed_ratio > 0.0F) || cfg.curve_fill_max_imputed_ratio > 1.0F) {
+    if (cfg.hole_fill_max_cells < 0 || !(cfg.curve_fill_max_hole_area_cm2 >= 0.0F)) {
         return MeasurementStatus::kInvalidConfig;
     }
 
@@ -683,7 +682,7 @@ MeasurementStatus complete_component_aware_holes(HeightGrid& grid, const Baselin
             const std::size_t projected_inferred = component_added + local.size();
             const std::size_t projected_total = component_measured + projected_inferred;
             if (projected_total == 0 || static_cast<double>(projected_inferred) / static_cast<double>(projected_total) >
-                                            cfg.curve_fill_max_imputed_ratio) {
+                                            volume_defaults::kCurveFillMaxImputedRatio) {
                 mark_unfilled(hole);
                 continue;
             }

@@ -302,8 +302,8 @@ MeasurementStatus preprocess_cloud(const PointCloud& input, const MeasurementCon
     if (!(scale > 0.0) || !(cfg.voxel_size_m > 0.0F)) {
         return MeasurementStatus::kInvalidConfig;
     }
-    if (cfg.use_roi &&
-        !(cfg.roi.min_x < cfg.roi.max_x && cfg.roi.min_y < cfg.roi.max_y && cfg.roi.min_z < cfg.roi.max_z)) {
+    if (cfg.roi &&
+        !(cfg.roi->min_x < cfg.roi->max_x && cfg.roi->min_y < cfg.roi->max_y && cfg.roi->min_z < cfg.roi->max_z)) {
         return MeasurementStatus::kInvalidConfig;
     }
 
@@ -311,7 +311,7 @@ MeasurementStatus preprocess_cloud(const PointCloud& input, const MeasurementCon
     const PointCloud scaled = scale_to_meters(input, cfg.input_unit);
 
     // Optional axis-aligned ROI crop.
-    const PointCloud cropped = cfg.use_roi ? crop_axis_aligned(scaled, cfg.roi) : scaled;
+    const PointCloud cropped = cfg.roi ? crop_axis_aligned(scaled, *cfg.roi) : scaled;
 
     // Voxel downsample (PCL VoxelGrid centroid rule).
     const PointCloud voxeled = voxel_downsample(cropped, cfg.voxel_size_m);
@@ -484,8 +484,7 @@ MeasurementStatus remove_dominant_plane(const PointCloud& cloud_m, const Measure
     return MeasurementStatus::kUnsupportedPlatform;
 #else
     remaining = PointCloud{};
-    if (!(cfg.plane_distance_threshold_m > 0.0F) ||
-        (cfg.remove_secondary_plane && !(cfg.secondary_plane_distance_threshold_m > 0.0F))) {
+    if (!(cfg.plane_distance_threshold_m > 0.0F)) {
         return MeasurementStatus::kInvalidConfig;
     }
 
@@ -508,10 +507,10 @@ MeasurementStatus remove_dominant_plane(const PointCloud& cloud_m, const Measure
     if (cfg.remove_secondary_plane) {
         Plane secondary{};
         std::vector<std::size_t> secondary_inliers;
-        if (fit_plane_ransac(remaining, cfg.secondary_plane_distance_threshold_m,
+        if (fit_plane_ransac(remaining, cfg.plane_distance_threshold_m,
                              volume_defaults::kPlaneRansacIterations, secondary,
                              secondary_inliers) == MeasurementStatus::kSuccess) {
-            remove_plane(secondary, cfg.secondary_plane_distance_threshold_m);
+            remove_plane(secondary, cfg.plane_distance_threshold_m);
         }
     }
     log_info("remove_dominant_plane: remaining=" + std::to_string(remaining.points.size()));

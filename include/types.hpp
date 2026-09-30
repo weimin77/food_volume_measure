@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <optional>
 #include <string>
 #include <vector>
 // Conan::ImportEnd
@@ -132,18 +133,6 @@ enum class MeasurementStatus : std::uint8_t {
 
 
 /**
- * @brief [en] How foreground food components are selected.
- * @brief [zh] 前景食材块的选择方式。
- * @exporter
- */
-enum class ComponentSelectionMode : std::uint8_t {
-    kAllEligible = 0,
-    kManual = 1,
-};
-
-
-
-/**
  * @brief [en] Configuration for the IM volume pipeline.
  * @brief [zh] IM 体积流水线的配置。
  * @exporter
@@ -151,8 +140,7 @@ enum class ComponentSelectionMode : std::uint8_t {
 struct MeasurementConfig {
     LengthUnit input_unit = LengthUnit::kMeter;
 
-    bool use_roi = false;
-    AxisAlignedRoi roi;
+    std::optional<AxisAlignedRoi> roi;
 
     double voxel_size_m = volume_defaults::kVoxelSizeM;
 
@@ -161,15 +149,13 @@ struct MeasurementConfig {
 
     // Optional second dominant background plane removal.
     bool remove_secondary_plane = false;
-    double secondary_plane_distance_threshold_m = volume_defaults::kPlaneDistanceM;
 
-    // Food-frame background clustering (3D) and footprint clustering (2D).
-    double cluster_eps_m = volume_defaults::kClusterEpsM;
+    // Foreground footprint clustering (2D).
     double foreground_cluster_eps_m = volume_defaults::kForegroundClusterEpsM;
     int cluster_min_points = volume_defaults::kClusterMinPoints;
 
     // Foreground component selection.
-    ComponentSelectionMode selection_mode = ComponentSelectionMode::kAllEligible;
+    // Empty selects all eligible components.
     std::vector<int> selected_labels;
 
     // Integration.
@@ -183,11 +169,10 @@ struct MeasurementConfig {
 
     // Quadratic-surface hole completion.
     double curve_fill_max_hole_area_cm2 = volume_defaults::kCurveFillMaxHoleAreaCm2;
-    double curve_fill_max_imputed_ratio = volume_defaults::kCurveFillMaxImputedRatio;
 
     // Optional per-stage point-cloud dump for debugging and visualisation.
-    bool save_middle_cloud = false;
-    std::string middle_cloud_dir = "middle_data";
+    // Empty disables the dump.
+    std::string middle_cloud_dir;
 };
 
 

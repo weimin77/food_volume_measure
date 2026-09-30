@@ -95,11 +95,6 @@ std::string zero_padded(int value, int width) {
 void dump_middle_clouds(const MeasurementConfig& cfg, const PointCloud& raw_food, const PointCloud& downsampled,
                         const PointCloud& remaining, const BaselineModel& baseline, const FoodComponents& components,
                         const SurfaceMap& completed_surface) {
-    if (cfg.middle_cloud_dir.empty()) {
-        log_warning("save_middle_cloud is on but middle_cloud_dir is empty; skipping the dump");
-        return;
-    }
-
     std::error_code ec;
     std::filesystem::create_directories(cfg.middle_cloud_dir, ec);
     if (ec) {
@@ -165,11 +160,11 @@ PointCloud select_largest_cluster(const PointCloud& cloud_m, const MeasurementCo
     return PointCloud{};
 #else
     PointCloud out{};
-    if (cloud_m.points.empty() || cfg.cluster_eps_m <= 0.0F || cfg.cluster_min_points <= 0) {
+    if (cloud_m.points.empty() || cfg.cluster_min_points <= 0) {
         return out;
     }
 
-    const std::vector<int> labels = dbscan_labels(cloud_m.points, cfg.cluster_eps_m, cfg.cluster_min_points);
+    const std::vector<int> labels = dbscan_labels(cloud_m.points, volume_defaults::kClusterEpsM, cfg.cluster_min_points);
 
     std::map<int, std::size_t> counts;
     for (const int label : labels) {
@@ -310,7 +305,6 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_height_range(double min_m, double ma
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_roi(const AxisAlignedRoi& roi) {
     cfg_.roi = roi;
-    cfg_.use_roi = true;
     return *this;
 }
 
@@ -322,27 +316,15 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_roi(const AxisAlignedRoi& roi) {
  * @attacher
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::clear_roi() {
-    cfg_.use_roi = false;
+    cfg_.roi.reset();
     return *this;
 }
 
 
 
 /**
- * @brief [en] Sets how foreground food components are selected.
- * @brief [zh] 设置前景食材块的选择方式。
- * @attacher
- */
-FoodVolumeMeasurer& FoodVolumeMeasurer::set_selection_mode(ComponentSelectionMode mode) {
-    cfg_.selection_mode = mode;
-    return *this;
-}
-
-
-
-/**
- * @brief [en] Sets the manually selected component labels (used in manual selection mode).
- * @brief [zh] 设置手动选择的连通块标签（手动模式下使用）。
+ * @brief [en] Selects component labels; an empty list selects all eligible components.
+ * @brief [zh] 选择连通块标签；空列表选择所有符合条件的连通块。
  * @attacher
  */
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_selected_labels(const std::vector<int>& labels) {
@@ -374,18 +356,6 @@ FoodVolumeMeasurer& FoodVolumeMeasurer::set_cluster_params(double footprint_eps_
 FoodVolumeMeasurer& FoodVolumeMeasurer::set_plane_distance_threshold(double threshold_m) {
     cfg_.plane_distance_threshold_m = threshold_m;
     invalidate_prepared_baseline();
-    return *this;
-}
-
-
-
-/**
- * @brief [en] Enables or disables the dump of intermediate stage point clouds.
- * @brief [zh] 启用或禁用中间阶段点云的落盘。
- * @attacher
- */
-FoodVolumeMeasurer& FoodVolumeMeasurer::set_save_middle_cloud(bool enabled) {
-    cfg_.save_middle_cloud = enabled;
     return *this;
 }
 
@@ -578,13 +548,13 @@ VolumeEstimate FoodVolumeMeasurer::run() const {
     std::vector<ComponentVolumeEstimate> per_component;
     SurfaceMap completed_surface;
     st = measure_component_volume(components, baseline, cfg, component_volume, &per_component,
-                                  cfg.save_middle_cloud ? &completed_surface : nullptr);
+                                  !cfg.middle_cloud_dir.empty() ? &completed_surface : nullptr);
     if (st != MeasurementStatus::kSuccess) {
         return failure(st, status_to_string(st));
     }
 
     // 6b. Optional per-stage point-cloud dump, only after the run fully succeeded.
-    if (cfg.save_middle_cloud) {
+    if (!cfg.middle_cloud_dir.empty()) {
         dump_middle_clouds(cfg, food_, pre.cloud, remaining, baseline, components, completed_surface);
     }
 

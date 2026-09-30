@@ -55,11 +55,6 @@ void bind_enums(py::module& m) {
         .value("kUnsupportedPlatform", MeasurementStatus::kUnsupportedPlatform)
         .export_values();
 
-    py::enum_<ComponentSelectionMode>(m, "ComponentSelectionMode")
-        .value("kAllEligible", ComponentSelectionMode::kAllEligible)
-        .value("kManual", ComponentSelectionMode::kManual)
-        .export_values();
-
     py::enum_<LogLevel>(m, "LogLevel")
         .value("kTrace", LogLevel::kTrace)
         .value("kDebug", LogLevel::kDebug)
@@ -113,16 +108,12 @@ void bind_structures(py::module& m) {
     py::class_<MeasurementConfig>(m, "MeasurementConfig")
         .def(py::init<>())
         .def_readwrite("input_unit", &MeasurementConfig::input_unit)
-        .def_readwrite("use_roi", &MeasurementConfig::use_roi)
         .def_readwrite("roi", &MeasurementConfig::roi)
         .def_readwrite("voxel_size_m", &MeasurementConfig::voxel_size_m)
         .def_readwrite("plane_distance_threshold_m", &MeasurementConfig::plane_distance_threshold_m)
         .def_readwrite("remove_secondary_plane", &MeasurementConfig::remove_secondary_plane)
-        .def_readwrite("secondary_plane_distance_threshold_m", &MeasurementConfig::secondary_plane_distance_threshold_m)
-        .def_readwrite("cluster_eps_m", &MeasurementConfig::cluster_eps_m)
         .def_readwrite("foreground_cluster_eps_m", &MeasurementConfig::foreground_cluster_eps_m)
         .def_readwrite("cluster_min_points", &MeasurementConfig::cluster_min_points)
-        .def_readwrite("selection_mode", &MeasurementConfig::selection_mode)
         .def_readwrite("selected_labels", &MeasurementConfig::selected_labels)
         .def_readwrite("integration_resolution_m", &MeasurementConfig::integration_resolution_m)
         .def_readwrite("roi_border_margin_m", &MeasurementConfig::roi_border_margin_m)
@@ -130,8 +121,6 @@ void bind_structures(py::module& m) {
         .def_readwrite("max_height_m", &MeasurementConfig::max_height_m)
         .def_readwrite("hole_fill_max_cells", &MeasurementConfig::hole_fill_max_cells)
         .def_readwrite("curve_fill_max_hole_area_cm2", &MeasurementConfig::curve_fill_max_hole_area_cm2)
-        .def_readwrite("curve_fill_max_imputed_ratio", &MeasurementConfig::curve_fill_max_imputed_ratio)
-        .def_readwrite("save_middle_cloud", &MeasurementConfig::save_middle_cloud)
         .def_readwrite("middle_cloud_dir", &MeasurementConfig::middle_cloud_dir);
 
     py::class_<VolumeEstimate>(m, "VolumeEstimate")
@@ -207,12 +196,10 @@ void bind_functions(py::module& m) {
         .def("set_height_range", &FoodVolumeMeasurer::set_height_range, py::arg("min_m"), py::arg("max_m"))
         .def("set_roi", &FoodVolumeMeasurer::set_roi, py::arg("roi"))
         .def("clear_roi", &FoodVolumeMeasurer::clear_roi)
-        .def("set_selection_mode", &FoodVolumeMeasurer::set_selection_mode, py::arg("mode"))
         .def("set_selected_labels", &FoodVolumeMeasurer::set_selected_labels, py::arg("labels"))
         .def("set_cluster_params", &FoodVolumeMeasurer::set_cluster_params, py::arg("footprint_eps_m"),
              py::arg("min_points"))
         .def("set_plane_distance_threshold", &FoodVolumeMeasurer::set_plane_distance_threshold, py::arg("threshold_m"))
-        .def("set_save_middle_cloud", &FoodVolumeMeasurer::set_save_middle_cloud, py::arg("enabled"))
         .def("set_middle_cloud_dir", &FoodVolumeMeasurer::set_middle_cloud_dir, py::arg("dir"))
         .def("set_config", &FoodVolumeMeasurer::set_config, py::arg("cfg"))
         .def("config", &FoodVolumeMeasurer::config, py::return_value_policy::reference_internal)

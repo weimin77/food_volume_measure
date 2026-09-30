@@ -97,15 +97,8 @@ class FoodVolumeMeasurer {
     FoodVolumeMeasurer& clear_roi();
 
     /**
-     * @brief [en] Sets how foreground food components are selected.
-     * @brief [zh] 设置前景食材块的选择方式。
-     * @exporter
-     */
-    FoodVolumeMeasurer& set_selection_mode(ComponentSelectionMode mode);
-
-    /**
-     * @brief [en] Sets the manually selected component labels (used in manual selection mode).
-     * @brief [zh] 设置手动选择的连通块标签（手动模式下使用）。
+     * @brief [en] Selects component labels; an empty list selects all eligible components.
+     * @brief [zh] 选择连通块标签；空列表选择所有符合条件的连通块。
      * @exporter
      */
     FoodVolumeMeasurer& set_selected_labels(const std::vector<int>& labels);
@@ -129,28 +122,10 @@ class FoodVolumeMeasurer {
     FoodVolumeMeasurer& set_plane_distance_threshold(double threshold_m);
 
     /**
-     * @brief [en] Enables or disables the dump of intermediate stage point clouds.
-     * @brief [zh] 启用或禁用中间阶段点云的落盘。
-     * @details [en] When enabled, `run` writes one PCD per pipeline stage
-     *     (input, downsampled, plane removed, baseline surface, food components, top surface)
-     *     into the directory set by `set_middle_cloud_dir`. Every selected food component is
-     *     also written separately, as `4_food_component_label<NN>.pcd`, so a multi-food frame
-     *     can be inspected one connected region at a time.
-     * @details [zh] 启用后 `run` 会把流水线各阶段（输入、降采样后、去平面后、基线表面、
-     *     食材块、顶表面）各写入一个 PCD 到 `set_middle_cloud_dir` 指定的目录。
-     *     每个选中的食材连通域还会单独写出为 `4_food_component_label<NN>.pcd`，
-     *     便于对多食材帧逐个连通域排查。
-     * @param enabled [en] True to write the stage clouds.
-     * @param enabled [zh] 为真时写出各阶段点云。
-     * @exporter
-     */
-    FoodVolumeMeasurer& set_save_middle_cloud(bool enabled);
-
-    /**
-     * @brief [en] Sets the output directory of the intermediate stage point clouds.
-     * @brief [zh] 设置中间阶段点云的输出目录。
-     * @param dir [en] Directory path; created when missing.
-     * @param dir [zh] 目录路径；不存在时自动创建。
+     * @brief [en] Sets the intermediate point-cloud directory; an empty path disables the dump.
+     * @brief [zh] 设置中间点云目录；空路径禁用保存。
+     * @param dir [en] Directory path, created when missing, or empty to disable.
+     * @param dir [zh] 目录路径，不存在时自动创建；空路径表示禁用。
      * @exporter
      */
     FoodVolumeMeasurer& set_middle_cloud_dir(const std::string& dir);

@@ -195,7 +195,7 @@ MeasurementStatus select_components(const std::vector<int>& labels, const PointC
     out.cluster_count = counts.size();
 
     std::vector<int> selected;
-    if (cfg.selection_mode == ComponentSelectionMode::kAllEligible) {
+    if (cfg.selected_labels.empty()) {
         for (const auto& entry : counts) {
             if (entry.second >= static_cast<std::size_t>(min_candidate_size)) {
                 selected.push_back(entry.first);
