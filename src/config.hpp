@@ -22,16 +22,17 @@
  *
  * @details [en] The JSON schema mirrors `MeasurementConfig` field names:
  *     - `"input_unit"`: `"meter"` or `"millimeter"`
- *     - `"selection_mode"`: `"all_eligible"` or `"manual"`
- *     - `"roi"`: object with `min_x` / `max_x` / `min_y` / `max_y` / `min_z` / `max_z`
- *     - `"selected_labels"`: array of integers
+ *     - `"roi"`: bounds object to enable cropping, or null to disable it
+ *     - `"selected_labels"`: array of integers; empty selects all eligible components
+ *     - `"middle_cloud_dir"`: nonempty directory enables intermediate point-cloud dumps
  *     - all other fields are scalars matching the struct member names.
+ *     Unknown or removed keys are rejected.
  * @details [zh] JSON 结构与 `MeasurementConfig` 字段同名：
  *     - `"input_unit"`：`"meter"` 或 `"millimeter"`
- *     - `"selection_mode"`：`"all_eligible"` 或 `"manual"`
- *     - `"roi"`：含 `min_x` / `max_x` / `min_y` / `max_y` / `min_z` / `max_z` 的对象
- *     - `"selected_labels"`：整数数组
- *     - 其余字段为与结构体成员同名的标量。
+ *     - `"roi"`：边界对象启用裁剪，null 禁用裁剪
+ *     - `"selected_labels"`：整数数组；空数组选择所有符合条件的连通块
+ *     - `"middle_cloud_dir"`：非空目录启用中间点云保存
+ *     - 其余字段为与结构体成员同名的标量；未知或已删除的键会报错。
 
  */
 bool load_config_from_json(const std::string& path, MeasurementConfig& out);

@@ -62,7 +62,8 @@ VolumeEstimate est = measurer.run();
 ### Configuring the measurement
 
 `FoodVolumeMeasurer` has chainable setters for the common parameters, `set_config` for a full
-`MeasurementConfig`, and JSON load/save for every field (including the hole-completion guards):
+`MeasurementConfig`, and JSON load/save for its configurable fields. JSON files may contain only
+the values to override; the hole-completion safety guards remain internal constants:
 
 ```cpp
 FoodVolumeMeasurer measurer;
@@ -84,9 +85,11 @@ operators the pipeline is built from — unit scaling, axis-aligned cropping, RA
 fitting and orientation, voxel downsampling, DBSCAN labelling, background-plane removal, and
 the AABB / OBB / convex-hull reference volumes — so they can be reused and tested on their own.
 
-When `save_middle_cloud` is enabled, `5_top_surface.pcd` contains the measured top-surface
-cells before hole completion, and `6_hole_filled_surface.pcd` contains the full top surface
-after completion (measured cells plus any accepted interpolated cells). Both use world coordinates.
+An ROI object enables cropping; an empty `selected_labels` selects all eligible food components.
+The secondary-plane removal uses `plane_distance_threshold_m`. Setting `middle_cloud_dir`
+enables stage PCD output; an empty path disables it. `5_top_surface.pcd` contains the measured
+top-surface cells before hole completion, and `6_hole_filled_surface.pcd` contains the full top
+surface after completion. Both use world coordinates.
 
 ## Features
 
@@ -367,4 +370,3 @@ Possible frame design/validation on Apple Clang compiler (raised from dlib requi
 ## License
 
 [Apache-2.0] - See included LICENSE file for details.
-
