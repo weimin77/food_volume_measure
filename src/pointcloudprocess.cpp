@@ -507,9 +507,8 @@ MeasurementStatus remove_dominant_plane(const PointCloud& cloud_m, const Measure
     if (cfg.remove_secondary_plane) {
         Plane secondary{};
         std::vector<std::size_t> secondary_inliers;
-        if (fit_plane_ransac(remaining, cfg.plane_distance_threshold_m,
-                             volume_defaults::kPlaneRansacIterations, secondary,
-                             secondary_inliers) == MeasurementStatus::kSuccess) {
+        if (fit_plane_ransac(remaining, cfg.plane_distance_threshold_m, volume_defaults::kPlaneRansacIterations,
+                             secondary, secondary_inliers) == MeasurementStatus::kSuccess) {
             remove_plane(secondary, cfg.plane_distance_threshold_m);
         }
     }

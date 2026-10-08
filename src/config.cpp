@@ -73,11 +73,11 @@ bool load_config_from_json(const std::string& path, MeasurementConfig& out) {
     // Reject unsupported keys so old or misspelled options cannot be silently ignored.
     for (auto it = root.begin(); it != root.end(); ++it) {
         bool supported = false;
-        for (const char* key : {"input_unit", "roi", "voxel_size_m", "plane_distance_threshold_m",
-                                "remove_secondary_plane", "foreground_cluster_eps_m", "cluster_min_points",
-                                "selected_labels", "integration_resolution_m", "roi_border_margin_m",
-                                "min_height_m", "max_height_m", "hole_fill_max_cells",
-                                "curve_fill_max_hole_area_cm2", "middle_cloud_dir"}) {
+        for (const char* key :
+             {"input_unit", "roi", "voxel_size_m", "plane_distance_threshold_m", "remove_secondary_plane",
+              "foreground_cluster_eps_m", "cluster_min_points", "selected_labels", "integration_resolution_m",
+              "roi_border_margin_m", "min_height_m", "max_height_m", "hole_fill_max_cells",
+              "curve_fill_max_hole_area_cm2", "middle_cloud_dir"}) {
             if (it.key() == key) {
                 supported = true;
                 break;
@@ -154,9 +154,9 @@ bool save_config_to_json(const MeasurementConfig& cfg, const std::string& path) 
     Json root = Json::object();
 
     root["input_unit"] = length_unit_to_string(cfg.input_unit);
-    root["roi"] = cfg.roi ? Json{{"min_x", cfg.roi->min_x}, {"max_x", cfg.roi->max_x},
-                                  {"min_y", cfg.roi->min_y}, {"max_y", cfg.roi->max_y},
-                                  {"min_z", cfg.roi->min_z}, {"max_z", cfg.roi->max_z}} : Json(nullptr);
+    root["roi"] = cfg.roi ? Json{{"min_x", cfg.roi->min_x}, {"max_x", cfg.roi->max_x}, {"min_y", cfg.roi->min_y},
+                                 {"max_y", cfg.roi->max_y}, {"min_z", cfg.roi->min_z}, {"max_z", cfg.roi->max_z}}
+                          : Json(nullptr);
     root["voxel_size_m"] = cfg.voxel_size_m;
     root["plane_distance_threshold_m"] = cfg.plane_distance_threshold_m;
     root["remove_secondary_plane"] = cfg.remove_secondary_plane;

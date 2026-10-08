@@ -164,7 +164,8 @@ PointCloud select_largest_cluster(const PointCloud& cloud_m, const MeasurementCo
         return out;
     }
 
-    const std::vector<int> labels = dbscan_labels(cloud_m.points, volume_defaults::kClusterEpsM, cfg.cluster_min_points);
+    const std::vector<int> labels =
+        dbscan_labels(cloud_m.points, volume_defaults::kClusterEpsM, cfg.cluster_min_points);
 
     std::map<int, std::size_t> counts;
     for (const int label : labels) {
